@@ -235,12 +235,18 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-config.js"></script>
   <script>
   (function () {
     'use strict';
 
-    // Config — same API_ENDPOINT as app.js (set if using server storage)
-    var API_ENDPOINT = '';
+    // Supabase client
+    var sb = null;
+    if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined' &&
+        SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
 
     var CATEGORY_NAMES = {
       A: '睡眠と回復', B: '運動と身体活動', C: 'ストレスとメンタルヘルス',
@@ -250,33 +256,43 @@
 
     var allResults = [];
 
-    // ---- Data Loading ----
+    // ---- Data Loading (Supabase) ----
     function loadResults() {
-      // Load from localStorage
-      try {
-        var stored = JSON.parse(localStorage.getItem('bc_results') || '[]');
-        allResults = stored;
-      } catch (e) {
+      if (!sb) {
         allResults = [];
+        renderAll();
+        return;
       }
 
-      // Also try API if configured
-      if (API_ENDPOINT) {
-        fetch(API_ENDPOINT).then(function (res) { return res.json(); })
-          .then(function (data) {
-            if (Array.isArray(data)) {
-              // Merge with local results (deduplicate by date+uid)
-              var existing = new Set(allResults.map(function (r) { return r.lineUid + '_' + r.date; }));
-              data.forEach(function (r) {
-                var key = r.lineUid + '_' + r.date;
-                if (!existing.has(key)) { allResults.push(r); existing.add(key); }
-              });
-              renderAll();
-            }
-          }).catch(function (err) { console.warn('API fetch failed:', err); });
-      }
-
-      renderAll();
+      sb.from('assessment_results')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .then(function (res) {
+          if (res.error) {
+            console.error('Supabase fetch failed:', res.error.message);
+            allResults = [];
+          } else {
+            // Map snake_case DB columns to camelCase used by rendering
+            allResults = (res.data || []).map(function (r) {
+              return {
+                id: r.id,
+                lineUid: r.line_uid,
+                displayName: r.display_name,
+                pictureUrl: r.picture_url,
+                date: r.created_at,
+                total: r.total,
+                healthTotal: r.health_total,
+                skillsTotal: r.skills_total,
+                level: r.level,
+                levelLabel: r.level_label,
+                type: r.type,
+                categories: r.categories,
+                answers: r.answers,
+              };
+            });
+          }
+          renderAll();
+        });
     }
 
     // ---- Stats ----
@@ -447,9 +463,20 @@
 
     document.getElementById('btn-clear').addEventListener('click', function () {
       if (!confirm('全ての結果データを削除しますか？この操作は元に戻せません。')) return;
-      localStorage.removeItem('bc_results');
-      allResults = [];
-      renderAll();
+      if (!sb) return;
+
+      sb.from('assessment_results')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000')  // delete all rows
+        .then(function (res) {
+          if (res.error) {
+            console.error('Delete failed:', res.error.message);
+            alert('削除に失敗しました: ' + res.error.message);
+          } else {
+            allResults = [];
+            renderAll();
+          }
+        });
     });
 
     // Table row click -> detail

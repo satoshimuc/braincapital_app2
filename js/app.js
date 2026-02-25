@@ -183,12 +183,14 @@
   };
 
   // ============================================
-  // CONFIG
+  // SUPABASE CLIENT
   // ============================================
 
-  // Set your API endpoint here for server-side result storage.
-  // If empty, results are saved to localStorage only.
-  var API_ENDPOINT = '';
+  var supabase = null;
+  if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined' &&
+      SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
 
   // ============================================
   // STATE
@@ -451,8 +453,6 @@
     // AI prompt
     renderAIPrompt(r);
 
-    // Next steps
-    renderNextSteps(r);
   }
 
   function animateScoreRing(total, level) {
@@ -584,66 +584,6 @@
     $('#ai-prompt').textContent = prompt;
   }
 
-  function renderNextSteps(results) {
-    const container = document.getElementById('next-steps-content');
-    container.innerHTML = '';
-
-    const healthLow = results.healthTotal < 45;
-    const skillsLow = results.skillsTotal < 45;
-
-    const steps = [];
-
-    if (healthLow && skillsLow) {
-      steps.push({
-        tag: 'おすすめ',
-        title: 'Brain Capital式 AI脳トレーニング完全マニュアル',
-        price: '980円',
-        desc: 'Brain Health＋Brain Skillsの8週間プログラム',
-        recommended: true,
-      });
-    }
-
-    if (healthLow) {
-      steps.push({
-        tag: 'Brain Health改善',
-        title: '脳の生産性を2倍にする科学的ルーティン',
-        price: '980円',
-        desc: '睡眠・運動・栄養・ストレス管理・集中力・休息・環境の7領域の科学的プロトコル',
-        recommended: !skillsLow,
-      });
-    }
-
-    if (skillsLow) {
-      steps.push({
-        tag: 'Brain Skills強化',
-        title: 'AI時代のBrain Skills完全ガイド',
-        price: '1,480円',
-        desc: '5つのBrain Skillsの脳科学的メカニズムと具体的トレーニング法',
-        recommended: !healthLow,
-      });
-    }
-
-    steps.push({
-      tag: '全コンテンツ',
-      title: 'Brain Capitalマガジン',
-      price: '9,800円',
-      desc: '全有料記事＋限定記事',
-      recommended: false,
-    });
-
-    steps.forEach((s) => {
-      const card = document.createElement('div');
-      card.className = 'next-step-card' + (s.recommended ? ' recommended' : '');
-      card.innerHTML = `
-        <div class="next-step-tag">${s.tag}</div>
-        <div class="next-step-title">${s.title}</div>
-        <div class="next-step-price">${s.price}</div>
-        <div class="next-step-desc">${s.desc}</div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
   // ============================================
   // RADAR CHART (SVG)
   // ============================================
@@ -755,57 +695,45 @@
   }
 
   // ============================================
-  // RESULT SAVING
+  // RESULT SAVING (Supabase)
   // ============================================
 
   function buildResultRecord(results) {
     var level = getLevel(results.total);
     var type = getType(results.healthTotal, results.skillsTotal);
     return {
-      lineUid: lineUser.uid || 'anonymous_' + Date.now(),
-      displayName: lineUser.displayName || '未ログイン',
-      pictureUrl: lineUser.pictureUrl || null,
-      date: new Date().toISOString(),
+      line_uid: lineUser.uid || 'anonymous_' + Date.now(),
+      display_name: lineUser.displayName || '未ログイン',
+      picture_url: lineUser.pictureUrl || null,
       total: results.total,
-      healthTotal: results.healthTotal,
-      skillsTotal: results.skillsTotal,
+      health_total: results.healthTotal,
+      skills_total: results.skillsTotal,
       level: level.grade,
-      levelLabel: level.label,
+      level_label: level.label,
       type: type,
       categories: results.categories,
       answers: Object.assign({}, answers),
     };
   }
 
-  function saveResultsToLocalStorage(record) {
-    try {
-      var key = 'bc_results';
-      var existing = JSON.parse(localStorage.getItem(key) || '[]');
-      existing.push(record);
-      localStorage.setItem(key, JSON.stringify(existing));
-    } catch (e) {
-      console.warn('localStorage save failed:', e);
-    }
-  }
-
-  function saveResultsToAPI(record) {
-    if (!API_ENDPOINT) return;
-    fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(record),
-    }).then(function (res) {
-      if (!res.ok) throw new Error('API response ' + res.status);
-      console.log('Results saved to API');
-    }).catch(function (err) {
-      console.warn('API save failed:', err);
-    });
-  }
-
   function saveResults(results) {
     var record = buildResultRecord(results);
-    saveResultsToLocalStorage(record);
-    saveResultsToAPI(record);
+
+    if (!supabase) {
+      console.warn('Supabase not configured — results not saved');
+      return;
+    }
+
+    supabase
+      .from('assessment_results')
+      .insert([record])
+      .then(function (res) {
+        if (res.error) {
+          console.error('Supabase save failed:', res.error.message);
+        } else {
+          console.log('Results saved to Supabase');
+        }
+      });
   }
 
   // ============================================
