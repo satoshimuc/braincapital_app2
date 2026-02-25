@@ -144,6 +144,33 @@
     .empty-state { text-align: center; padding: 64px 32px; color: var(--gray-400); }
     .empty-state-title { font-size: 16px; font-weight: 600; color: var(--gray-600); margin-bottom: 8px; }
 
+    /* Auth Gate */
+    .auth-gate {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--gray-50); z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .auth-gate.hidden { display: none; }
+    .auth-box {
+      background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px;
+      padding: 40px 36px; max-width: 360px; width: 90%; text-align: center;
+    }
+    .auth-box .auth-logo { font-size: 14px; font-weight: 700; letter-spacing: 3px; color: var(--black); margin-bottom: 4px; }
+    .auth-box .auth-subtitle { font-size: 12px; color: var(--gray-500); margin-bottom: 28px; }
+    .auth-box input {
+      width: 100%; padding: 12px 16px; border: 1px solid var(--gray-200); border-radius: 6px;
+      font-family: var(--font-sans); font-size: 14px; color: var(--gray-800);
+      background: var(--white); outline: none; margin-bottom: 12px;
+    }
+    .auth-box input:focus { border-color: var(--gray-600); }
+    .auth-box .auth-btn {
+      width: 100%; padding: 12px; background: var(--gray-900); color: var(--white); border: none;
+      border-radius: 6px; font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+    .auth-box .auth-btn:hover { background: var(--gray-700); }
+    .auth-error { color: #c00; font-size: 12px; margin-top: 8px; display: none; }
+
     @media (max-width: 768px) {
       .admin-container { padding: 16px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -155,6 +182,19 @@
   </style>
 </head>
 <body>
+
+  <!-- Auth Gate -->
+  <div class="auth-gate" id="auth-gate">
+    <div class="auth-box">
+      <div class="auth-logo">UNLOCK</div>
+      <div class="auth-subtitle">管理画面ログイン</div>
+      <form id="auth-form">
+        <input type="password" id="auth-password" placeholder="パスワードを入力" autocomplete="current-password">
+        <button type="submit" class="auth-btn">ログイン</button>
+      </form>
+      <div class="auth-error" id="auth-error">パスワードが正しくありません</div>
+    </div>
+  </div>
 
   <header class="admin-header">
     <span class="admin-logo">UNLOCK</span>
@@ -241,7 +281,57 @@
   (function () {
     'use strict';
 
-    // Supabase client
+    // ---- Auth Gate ----
+    var AUTH_KEY = 'unlock_admin_auth';
+    var authGate = document.getElementById('auth-gate');
+    var authForm = document.getElementById('auth-form');
+    var authPassword = document.getElementById('auth-password');
+    var authError = document.getElementById('auth-error');
+
+    function sha256(message) {
+      var encoder = new TextEncoder();
+      var data = encoder.encode(message);
+      return crypto.subtle.digest('SHA-256', data).then(function (hash) {
+        return Array.from(new Uint8Array(hash))
+          .map(function (b) { return b.toString(16).padStart(2, '0'); })
+          .join('');
+      });
+    }
+
+    function isAuthenticated() {
+      var stored = sessionStorage.getItem(AUTH_KEY);
+      return stored === 'true';
+    }
+
+    function onAuthSuccess() {
+      sessionStorage.setItem(AUTH_KEY, 'true');
+      authGate.classList.add('hidden');
+      initAdmin();
+    }
+
+    if (isAuthenticated()) {
+      authGate.classList.add('hidden');
+    }
+
+    authForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var pw = authPassword.value;
+      if (!pw) return;
+
+      var expectedHash = (typeof ADMIN_PASSWORD_HASH !== 'undefined') ? ADMIN_PASSWORD_HASH : '';
+
+      sha256(pw).then(function (hash) {
+        if (hash === expectedHash) {
+          onAuthSuccess();
+        } else {
+          authError.style.display = 'block';
+          authPassword.value = '';
+          authPassword.focus();
+        }
+      });
+    });
+
+    // ---- Supabase client ----
     var sb = null;
     if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined' &&
         SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
@@ -547,8 +637,15 @@
       if (e.target === this) this.classList.remove('active');
     });
 
-    // Init
-    loadResults();
+    // ---- Init (called after auth) ----
+    function initAdmin() {
+      loadResults();
+    }
+
+    // Auto-init if already authenticated (session still valid)
+    if (isAuthenticated()) {
+      initAdmin();
+    }
   })();
   </script>
 </body>
