@@ -242,50 +242,47 @@
     cat.questions.forEach((q) => {
       const card = document.createElement('div');
       card.className = 'question-card' + (answers[q.id] ? ' answered' : '');
-      card.innerHTML = `
-        <div class="question-id">${q.id}</div>
-        <div class="question-text">${q.text}</div>
-        <div class="rating-group">
-          ${[1, 2, 3, 4, 5]
-            .map(
-              (n) =>
-                `<button class="rating-btn${answers[q.id] === n ? ' selected' : ''}" data-qid="${q.id}" data-value="${n}">${n}</button>`
-            )
-            .join('')}
-        </div>
-        <div class="rating-labels">
-          <span class="rating-label-text">当てはまらない</span>
-          <span class="rating-label-text">非常に当てはまる</span>
-        </div>
-      `;
+      card.innerHTML =
+        '<div class="question-id">' + q.id + '</div>' +
+        '<div class="question-text">' + q.text + '</div>' +
+        '<div class="rating-group">' +
+          [1, 2, 3, 4, 5].map(function (n) {
+            return '<button type="button" class="rating-btn' + (answers[q.id] === n ? ' selected' : '') + '" data-qid="' + q.id + '" data-value="' + n + '">' + n + '</button>';
+          }).join('') +
+        '</div>' +
+        '<div class="rating-labels">' +
+          '<span class="rating-label-text">当てはまらない</span>' +
+          '<span class="rating-label-text">非常に当てはまる</span>' +
+        '</div>';
       questionsContainer.appendChild(card);
-    });
-
-    // Attach event listeners
-    questionsContainer.querySelectorAll('.rating-btn').forEach((btn) => {
-      btn.addEventListener('click', handleRating);
     });
 
     updateProgress();
     updateNavButtons();
   }
 
-  function handleRating(e) {
-    const btn = e.currentTarget;
-    const qid = btn.dataset.qid;
-    const value = parseInt(btn.dataset.value, 10);
+  // Event delegation — handles all rating button clicks via a single listener
+  questionsContainer.addEventListener('click', function (e) {
+    var btn = e.target.closest('.rating-btn');
+    if (!btn) return;
+
+    var qid = btn.getAttribute('data-qid');
+    var value = parseInt(btn.getAttribute('data-value'), 10);
 
     answers[qid] = value;
 
     // Update UI
-    const card = btn.closest('.question-card');
+    var card = btn.closest('.question-card');
     card.classList.add('answered');
-    card.querySelectorAll('.rating-btn').forEach((b) => b.classList.remove('selected'));
+    var siblings = card.querySelectorAll('.rating-btn');
+    for (var i = 0; i < siblings.length; i++) {
+      siblings[i].classList.remove('selected');
+    }
     btn.classList.add('selected');
 
     updateProgress();
     updateNavButtons();
-  }
+  });
 
   function updateProgress() {
     const totalAnswered = Object.keys(answers).length;
@@ -310,11 +307,23 @@
     }
   }
 
+  function transitionToCategory(newIndex) {
+    // Fade out current content
+    questionsContainer.classList.add('transitioning');
+    setTimeout(function () {
+      currentCategoryIndex = newIndex;
+      renderCategory(currentCategoryIndex);
+      window.scrollTo(0, 0);
+      // Fade in new content (after a brief delay for DOM update)
+      requestAnimationFrame(function () {
+        questionsContainer.classList.remove('transitioning');
+      });
+    }, 200);
+  }
+
   function goNext() {
     if (currentCategoryIndex < CATEGORIES.length - 1) {
-      currentCategoryIndex++;
-      renderCategory(currentCategoryIndex);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      transitionToCategory(currentCategoryIndex + 1);
     } else {
       showResults();
     }
@@ -322,9 +331,7 @@
 
   function goPrev() {
     if (currentCategoryIndex > 0) {
-      currentCategoryIndex--;
-      renderCategory(currentCategoryIndex);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      transitionToCategory(currentCategoryIndex - 1);
     }
   }
 
