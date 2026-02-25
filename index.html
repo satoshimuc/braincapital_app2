@@ -1,1 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNLOCK — Brain Capital セルフ診断キット</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
 
+  <!-- ========== SCREEN 1: LANDING ========== -->
+  <div id="screen-landing" class="screen active">
+    <div class="landing-container">
+      <header class="landing-header">
+        <div class="logo-mark">
+          <img src="assets/logo.png" alt="UNLOCK" class="logo-image" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
+          <div id="logo-fallback" class="logo-fallback" style="display:none;">
+            <span class="logo-text">UNLOCK</span>
+          </div>
+        </div>
+        <div class="badge">LINE登録者限定 無料特典</div>
+      </header>
+
+      <div class="landing-hero">
+        <h1 class="hero-title">Brain Capital<br>セルフ診断キット</h1>
+        <p class="hero-subtitle">Brain Health（15項目）+ Brain Skills（15項目）自己評価</p>
+      </div>
+
+      <div class="landing-body">
+        <p class="lead-text">
+          あなたの「脳の資産」は今、どんな状態だろうか？
+        </p>
+        <p class="body-text">
+          金融資産なら残高を見れば分かる。しかし<strong>脳の資産（Brain Capital）</strong>は、意識的に「測定」しなければ現状が見えない。
+        </p>
+        <p class="body-text">
+          このセルフ診断キットは、世界経済フォーラム（WEF）× McKinseyレポート「The Human Advantage」のフレームワークに基づき、<strong>計30項目</strong>であなたのBrain Capitalを可視化する。
+        </p>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <span class="info-number">30</span>
+            <span class="info-label">診断項目</span>
+          </div>
+          <div class="info-card">
+            <span class="info-number">10</span>
+            <span class="info-label">分</span>
+            <span class="info-sublabel">所要時間</span>
+          </div>
+          <div class="info-card">
+            <span class="info-number">5</span>
+            <span class="info-label">段階</span>
+            <span class="info-sublabel">評価スケール</span>
+          </div>
+        </div>
+
+        <div class="scoring-guide">
+          <h3 class="guide-title">評価基準</h3>
+          <div class="guide-items">
+            <div class="guide-item"><span class="guide-score">1</span><span class="guide-desc">まったく当てはまらない</span></div>
+            <div class="guide-item"><span class="guide-score">2</span><span class="guide-desc">あまり当てはまらない</span></div>
+            <div class="guide-item"><span class="guide-score">3</span><span class="guide-desc">どちらとも言えない</span></div>
+            <div class="guide-item"><span class="guide-score">4</span><span class="guide-desc">やや当てはまる</span></div>
+            <div class="guide-item"><span class="guide-score">5</span><span class="guide-desc">非常に当てはまる</span></div>
+          </div>
+        </div>
+
+        <p class="note-text">
+          正直に、直感で答えること。「こうありたい」ではなく「今の自分」を評価する。
+        </p>
+      </div>
+
+      <div class="landing-footer">
+        <button id="btn-start" class="btn-primary">診断を開始する</button>
+        <p class="credit-text">WEF × McKinsey「The Human Advantage」準拠</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 2: ASSESSMENT ========== -->
+  <div id="screen-assessment" class="screen">
+    <div class="assessment-container">
+      <header class="assessment-header">
+        <div class="header-left">
+          <span class="header-logo">UNLOCK</span>
+        </div>
+        <div class="header-center">
+          <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+          </div>
+          <span id="progress-text" class="progress-text">0 / 30</span>
+        </div>
+        <div class="header-right">
+          <span id="part-indicator" class="part-indicator">Part 1</span>
+        </div>
+      </header>
+
+      <div class="assessment-body">
+        <div id="category-header" class="category-header">
+          <div class="category-meta">
+            <span id="category-part-label" class="category-part-label">Part 1: Brain Health</span>
+            <span id="category-id" class="category-id">カテゴリA</span>
+          </div>
+          <h2 id="category-title" class="category-title">睡眠と回復</h2>
+          <p id="category-description" class="category-description"></p>
+        </div>
+
+        <div id="questions-container" class="questions-container">
+          <!-- Questions will be rendered here -->
+        </div>
+      </div>
+
+      <footer class="assessment-footer">
+        <button id="btn-prev" class="btn-secondary" disabled>戻る</button>
+        <button id="btn-next" class="btn-primary" disabled>次へ</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 3: RESULTS ========== -->
+  <div id="screen-results" class="screen">
+    <div class="results-container">
+      <header class="results-header">
+        <div class="header-left">
+          <span class="header-logo">UNLOCK</span>
+        </div>
+        <div class="header-right">
+          <button id="btn-retry" class="btn-text">もう一度診断する</button>
+        </div>
+      </header>
+
+      <div class="results-body">
+        <!-- Total Score Section -->
+        <section class="results-hero">
+          <p class="results-date" id="results-date"></p>
+          <h1 class="results-main-title">Brain Capital 総合診断結果</h1>
+
+          <div class="score-ring-container">
+            <svg id="score-ring" class="score-ring" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="88" fill="none" stroke="#E5E5E5" stroke-width="6"/>
+              <circle id="score-ring-progress" cx="100" cy="100" r="88" fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-dasharray="553" stroke-dashoffset="553" transform="rotate(-90 100 100)"/>
+              <text x="100" y="85" text-anchor="middle" class="score-ring-number" id="score-ring-number">0</text>
+              <text x="100" y="108" text-anchor="middle" class="score-ring-label">/ 150</text>
+              <text x="100" y="135" text-anchor="middle" class="score-ring-level" id="score-ring-level">—</text>
+            </svg>
+          </div>
+
+          <div class="score-dual">
+            <div class="score-dual-item">
+              <div class="score-dual-bar-container">
+                <div id="health-bar" class="score-dual-bar health-bar" style="width: 0%"></div>
+              </div>
+              <div class="score-dual-info">
+                <span class="score-dual-label">Brain Health</span>
+                <span class="score-dual-value" id="health-score">0 / 75</span>
+              </div>
+            </div>
+            <div class="score-dual-item">
+              <div class="score-dual-bar-container">
+                <div id="skills-bar" class="score-dual-bar skills-bar" style="width: 0%"></div>
+              </div>
+              <div class="score-dual-info">
+                <span class="score-dual-label">Brain Skills</span>
+                <span class="score-dual-value" id="skills-score">0 / 75</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Type Classification -->
+        <section class="results-section">
+          <h2 class="section-title">バランスタイプ</h2>
+          <div class="type-card" id="type-card">
+            <div class="type-badge" id="type-badge">Type S</div>
+            <h3 class="type-name" id="type-name">理想型</h3>
+            <p class="type-description" id="type-description"></p>
+          </div>
+
+          <div class="type-matrix">
+            <div class="matrix-axis-y">Brain Skills 高い</div>
+            <div class="matrix-grid">
+              <div class="matrix-cell" id="matrix-B">
+                <span class="matrix-type">Type B</span>
+                <span class="matrix-label">スキル偏重</span>
+              </div>
+              <div class="matrix-cell" id="matrix-S">
+                <span class="matrix-type">Type S</span>
+                <span class="matrix-label">理想型</span>
+              </div>
+              <div class="matrix-cell" id="matrix-D">
+                <span class="matrix-type">Type D</span>
+                <span class="matrix-label">要改善</span>
+              </div>
+              <div class="matrix-cell" id="matrix-A">
+                <span class="matrix-type">Type A</span>
+                <span class="matrix-label">土台充実</span>
+              </div>
+            </div>
+            <div class="matrix-axis-y-bottom">Brain Skills 低い</div>
+            <div class="matrix-axis-x">
+              <span>Brain Health 低い</span>
+              <span>Brain Health 高い</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Radar Chart -->
+        <section class="results-section">
+          <h2 class="section-title">カテゴリ別スコア</h2>
+          <div class="radar-container">
+            <svg id="radar-chart" class="radar-chart" viewBox="0 0 400 400"></svg>
+          </div>
+        </section>
+
+        <!-- Category Breakdown -->
+        <section class="results-section">
+          <h2 class="section-title">Brain Health — カテゴリ別</h2>
+          <div id="health-breakdown" class="category-breakdown">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
+        <section class="results-section">
+          <h2 class="section-title">Brain Skills — カテゴリ別</h2>
+          <div id="skills-breakdown" class="category-breakdown">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
+        <!-- Score Interpretation -->
+        <section class="results-section">
+          <h2 class="section-title">スコア解釈ガイド</h2>
+          <div class="interpretation-table">
+            <div class="interp-row" id="interp-S">
+              <div class="interp-badge">S</div>
+              <div class="interp-info">
+                <span class="interp-range">121〜150</span>
+                <span class="interp-level">Elite</span>
+                <p class="interp-desc">脳の資産が十分に蓄積されている。維持とさらなる成長を</p>
+              </div>
+            </div>
+            <div class="interp-row" id="interp-A">
+              <div class="interp-badge">A</div>
+              <div class="interp-info">
+                <span class="interp-range">91〜120</span>
+                <span class="interp-level">Strong</span>
+                <p class="interp-desc">良好な状態。弱い領域を特定し、戦略的に強化すれば大幅に伸びる</p>
+              </div>
+            </div>
+            <div class="interp-row" id="interp-B">
+              <div class="interp-badge">B</div>
+              <div class="interp-info">
+                <span class="interp-range">61〜90</span>
+                <span class="interp-level">Developing</span>
+                <p class="interp-desc">伸びしろが大きい。優先順位をつけて改善に取り組むフェーズ</p>
+              </div>
+            </div>
+            <div class="interp-row" id="interp-C">
+              <div class="interp-badge">C</div>
+              <div class="interp-info">
+                <span class="interp-range">31〜60</span>
+                <span class="interp-level">At Risk</span>
+                <p class="interp-desc">脳の資本が消耗している可能性。まずBrain Healthの立て直しが最優先</p>
+              </div>
+            </div>
+            <div class="interp-row" id="interp-D">
+              <div class="interp-badge">D</div>
+              <div class="interp-info">
+                <span class="interp-range">〜30</span>
+                <span class="interp-level">Critical</span>
+                <p class="interp-desc">早急な対策が必要。睡眠・ストレス管理から着手を</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Improvement Actions -->
+        <section class="results-section">
+          <h2 class="section-title">改善アクション</h2>
+          <div id="improvement-actions" class="improvement-actions">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
+        <!-- AI Prompt Section -->
+        <section class="results-section">
+          <h2 class="section-title">AIパーソナル分析</h2>
+          <p class="section-desc">以下のプロンプトをChatGPTまたはClaudeに入力すると、パーソナライズされた改善プランが手に入る。</p>
+          <div class="prompt-box">
+            <pre id="ai-prompt" class="prompt-text"></pre>
+            <button id="btn-copy-prompt" class="btn-copy">コピー</button>
+          </div>
+        </section>
+
+        <!-- Next Steps -->
+        <section class="results-section next-steps">
+          <h2 class="section-title">ネクストステップ</h2>
+          <div id="next-steps-content" class="next-steps-content">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="results-footer">
+          <p class="footer-brand">Brain Capital — 脳が、最大の資産になる時代。</p>
+          <p class="footer-credit">WEF × McKinsey 2026レポート準拠</p>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
