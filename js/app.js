@@ -199,12 +199,31 @@
   let currentCategoryIndex = 0;
   const answers = {}; // key: question id, value: 1–5
 
+  // Unique session ID for this assessment attempt
+  var sessionId = null;
+
   // LINE user profile (populated after LIFF login)
   var lineUser = {
     uid: null,
     displayName: null,
     pictureUrl: null,
   };
+
+  // Generate a unique session ID
+  function generateSessionId() {
+    return 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+  }
+
+  // ============================================
+  // QUESTION-ID TO CATEGORY-ID MAPPING
+  // ============================================
+
+  var questionCategoryMap = {};
+  CATEGORIES.forEach(function (cat) {
+    cat.questions.forEach(function (q) {
+      questionCategoryMap[q.id] = cat.id;
+    });
+  });
 
   // ============================================
   // DOM REFERENCES
@@ -278,6 +297,36 @@
     updateNavButtons();
   }
 
+  // ============================================
+  // SAVE INDIVIDUAL ANSWER TO DB
+  // ============================================
+
+  function saveAnswerToDB(questionId, value) {
+    if (!supabase || !sessionId) return;
+
+    var categoryId = questionCategoryMap[questionId] || '';
+
+    supabase
+      .from('assessment_answers')
+      .upsert({
+        session_id: sessionId,
+        line_uid: lineUser.uid || null,
+        question_id: questionId,
+        category_id: categoryId,
+        value: value,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'session_id,question_id'
+      })
+      .then(function (res) {
+        if (res.error) {
+          console.error('Answer save failed (' + questionId + '):', res.error.message);
+        } else {
+          console.log('Answer saved:', questionId, '=', value);
+        }
+      });
+  }
+
   // Event delegation — handles all rating button clicks via a single listener
   questionsContainer.addEventListener('click', function (e) {
     var btn = e.target.closest('.rating-btn');
@@ -287,6 +336,9 @@
     var value = parseInt(btn.getAttribute('data-value'), 10);
 
     answers[qid] = value;
+
+    // Save this individual answer to DB
+    saveAnswerToDB(qid, value);
 
     // Update UI
     var card = btn.closest('.question-card');
@@ -663,12 +715,48 @@
   }
 
   // ============================================
-  // LIFF PROFILE
+  // LIFF PROFILE & LINE UID
   // ============================================
+
+  // Check URL parameters for LINE uid (fallback for external integration)
+  function getUrlParam(name) {
+    var params = new URLSearchParams(window.location.search);
+    return params.get(name);
+  }
+
+  function applyUrlParams() {
+    // Support ?uid=xxx or ?line_uid=xxx from external integrations
+    var uid = getUrlParam('uid') || getUrlParam('line_uid');
+    var name = getUrlParam('display_name') || getUrlParam('name');
+    var pic = getUrlParam('picture_url');
+
+    if (uid) {
+      lineUser.uid = uid;
+      console.log('LINE UID from URL param:', uid);
+    }
+    if (name) {
+      lineUser.displayName = name;
+    }
+    if (pic) {
+      lineUser.pictureUrl = pic;
+    }
+  }
 
   function fetchLineProfile() {
     if (typeof liff === 'undefined') return;
+
+    var liffId = (typeof LIFF_ID !== 'undefined') ? LIFF_ID : '';
+    if (!liffId || liffId === 'LIFF_ID_PLACEHOLDER') {
+      console.info('LIFF ID not configured — skipping LIFF profile fetch');
+      return;
+    }
+
     try {
+      if (!liff.isInClient() && !liff.isLoggedIn()) {
+        // Outside LINE app and not logged in — don't force login
+        console.info('Not in LINE client and not logged in — using URL params or anonymous');
+        return;
+      }
       if (!liff.isLoggedIn()) {
         liff.login();
         return;
@@ -677,7 +765,7 @@
         lineUser.uid = profile.userId;
         lineUser.displayName = profile.displayName;
         lineUser.pictureUrl = profile.pictureUrl || null;
-        console.log('LINE profile loaded:', lineUser.displayName);
+        console.log('LINE profile loaded:', lineUser.displayName, '(uid:', lineUser.uid + ')');
       }).catch(function (err) {
         console.warn('getProfile failed:', err);
       });
@@ -686,11 +774,13 @@
     }
   }
 
-  // Try to fetch profile once LIFF is ready
+  // 1. First try URL params (works anywhere)
+  applyUrlParams();
+
+  // 2. Then try LIFF (overwrites URL params if available)
   if (typeof liff !== 'undefined' && liff.ready) {
     liff.ready.then(fetchLineProfile);
   } else {
-    // Fallback: try after a short delay
     setTimeout(fetchLineProfile, 1500);
   }
 
@@ -702,6 +792,7 @@
     var level = getLevel(results.total);
     var type = getType(results.healthTotal, results.skillsTotal);
     return {
+      session_id: sessionId || 'unknown',
       line_uid: lineUser.uid || 'anonymous_' + Date.now(),
       display_name: lineUser.displayName || '未ログイン',
       picture_url: lineUser.pictureUrl || null,
@@ -742,6 +833,8 @@
 
   btnStart.addEventListener('click', () => {
     currentCategoryIndex = 0;
+    sessionId = generateSessionId();
+    console.log('Assessment started, session:', sessionId);
     showScreen(screenAssessment);
     renderCategory(0);
   });
@@ -753,6 +846,7 @@
     // Reset
     Object.keys(answers).forEach((k) => delete answers[k]);
     currentCategoryIndex = 0;
+    sessionId = null;
     showScreen(screenLanding);
   });
 

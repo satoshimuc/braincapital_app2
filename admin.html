@@ -276,6 +276,7 @@
             allResults = (res.data || []).map(function (r) {
               return {
                 id: r.id,
+                sessionId: r.session_id,
                 lineUid: r.line_uid,
                 displayName: r.display_name,
                 pictureUrl: r.picture_url,
@@ -394,6 +395,7 @@
         '<div class="detail-item"><div class="detail-label">ランク / タイプ</div><div class="detail-value"><span class="level-badge level-' + record.level + '">' + record.level + '</span> <span class="type-badge">Type ' + record.type + '</span></div></div>' +
         '<div class="detail-item"><div class="detail-label">Brain Health</div><div class="detail-value">' + record.healthTotal + ' / 75</div></div>' +
         '<div class="detail-item"><div class="detail-label">Brain Skills</div><div class="detail-value">' + record.skillsTotal + ' / 75</div></div>' +
+        (record.sessionId ? '<div class="detail-item" style="grid-column:1/-1;"><div class="detail-label">セッションID</div><div class="detail-value" style="font-size:11px;font-family:monospace;word-break:break-all;">' + record.sessionId + '</div></div>' : '') +
       '</div>';
 
       // Category bars
@@ -416,6 +418,55 @@
             '<div class="detail-bar-container"><div class="detail-bar" style="width:' + pct + '%"></div></div>' +
             '<span class="detail-bar-score">' + score + '/15</span></div>';
         });
+      }
+
+      // Individual answers
+      if (record.answers && Object.keys(record.answers).length > 0) {
+        var QUESTION_TEXTS = {
+          'BH-01': '毎日7〜9時間の睡眠を確保できている',
+          'BH-02': '朝の起床時にすっきりした状態で目覚められる',
+          'BH-03': '日中に強い眠気を感じることなく過ごせている',
+          'BH-04': '週に150分以上の運動を行っている',
+          'BH-05': '1時間以上座り続けることなく体を動かしている',
+          'BH-06': '運動後に頭がクリアになる感覚を体験している',
+          'BH-07': 'ストレスを適切にコントロールできている',
+          'BH-08': '不安や落ち込みが2週間以上続くことがない',
+          'BH-09': '仕事への意欲を維持できている',
+          'BH-10': '脳に良い食材を意識的に摂っている',
+          'BH-11': '血糖値の乱高下を避ける食事ができている',
+          'BH-12': '十分な水分補給を行えている',
+          'BH-13': '仕事の合間に意識的な休憩を取れている',
+          'BH-14': 'スマホに頼らない脳のオフタイムを確保できている',
+          'BH-15': '週に1日以上リフレッシュできる日がある',
+          'BS-01': '情報を批判的に考える習慣がある',
+          'BS-02': '複雑な問題を構造化して考えることができる',
+          'BS-03': 'AIの出力を検証できる',
+          'BS-04': '異分野の知識を結びつけてアイデアを出せる',
+          'BS-05': '「何が問いか」を考えることが多い',
+          'BS-06': '前例がない状況でも試行できる',
+          'BS-07': '相手の立場や感情に配慮した対応ができる',
+          'BS-08': '建設的な議論ができる',
+          'BS-09': '異なる意見の人とも協力できる',
+          'BS-10': '予期しない変化に柔軟に対応できる',
+          'BS-11': '自分で目標を設定し行動を起こせる',
+          'BS-12': '失敗を学びに変えて次に活かせる',
+          'BS-13': 'AIツールを日常的に活用している',
+          'BS-14': 'AIに適切なプロンプトを書ける',
+          'BS-15': '新しいテクノロジーに積極的に興味を持っている',
+        };
+        html += '<div class="detail-section-title">個別回答</div>';
+        html += '<div style="display:grid;grid-template-columns:1fr;gap:4px;">';
+        var answerKeys = Object.keys(record.answers).sort();
+        answerKeys.forEach(function (qid) {
+          var val = record.answers[qid];
+          var shortText = QUESTION_TEXTS[qid] || qid;
+          html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f0f0f0;">' +
+            '<span style="font-size:11px;font-family:monospace;color:#999;width:44px;flex-shrink:0;">' + qid + '</span>' +
+            '<span style="font-size:11px;color:#666;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + shortText + '">' + shortText + '</span>' +
+            '<span style="font-size:13px;font-weight:700;color:#333;width:20px;text-align:center;flex-shrink:0;">' + val + '</span>' +
+          '</div>';
+        });
+        html += '</div>';
       }
 
       body.innerHTML = html;

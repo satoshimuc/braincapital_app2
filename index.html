@@ -308,11 +308,20 @@
   </div>
 
   <script>
-    liff.init({ liffId: "LIFF_ID_PLACEHOLDER" }).then(function () {
-      console.log('LIFF initialized');
-    }).catch(function (err) {
-      console.warn('LIFF init failed (running outside LINE?):', err);
-    });
+    // LIFF initialization using config value
+    (function () {
+      var liffId = (typeof LIFF_ID !== 'undefined') ? LIFF_ID : 'LIFF_ID_PLACEHOLDER';
+
+      if (liffId && liffId !== 'LIFF_ID_PLACEHOLDER') {
+        liff.init({ liffId: liffId }).then(function () {
+          console.log('LIFF initialized successfully');
+        }).catch(function (err) {
+          console.warn('LIFF init failed:', err);
+        });
+      } else {
+        console.info('LIFF ID not configured — running in standalone mode');
+      }
+    })();
   </script>
   <script src="js/app.js"></script>
 </body>
