@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
 
@@ -75,7 +76,7 @@
 
       <div class="landing-footer">
         <button type="button" id="btn-start" class="btn-primary">診断を開始する</button>
-        <p class="credit-text">WEF × McKinsey「The Human Advantage」準拠</p>
+        <p class="credit-text">&copy; 2025 UNLOCK. All Rights Reserved.</p>
       </div>
     </div>
   </div>
@@ -306,12 +307,19 @@
         <!-- Footer -->
         <footer class="results-footer">
           <p class="footer-brand">Brain Capital — 脳が、最大の資産になる時代。</p>
-          <p class="footer-credit">WEF × McKinsey 2026レポート準拠</p>
+          <p class="footer-credit">&copy; 2025 UNLOCK. All Rights Reserved.</p>
         </footer>
       </div>
     </div>
   </div>
 
+  <script>
+    liff.init({ liffId: "LIFF_ID_PLACEHOLDER" }).then(function () {
+      console.log('LIFF initialized');
+    }).catch(function (err) {
+      console.warn('LIFF init failed (running outside LINE?):', err);
+    });
+  </script>
   <script src="js/app.js"></script>
 </body>
 </html>

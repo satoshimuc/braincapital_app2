@@ -183,11 +183,26 @@
   };
 
   // ============================================
+  // CONFIG
+  // ============================================
+
+  // Set your API endpoint here for server-side result storage.
+  // If empty, results are saved to localStorage only.
+  var API_ENDPOINT = '';
+
+  // ============================================
   // STATE
   // ============================================
 
   let currentCategoryIndex = 0;
   const answers = {}; // key: question id, value: 1–5
+
+  // LINE user profile (populated after LIFF login)
+  var lineUser = {
+    uid: null,
+    displayName: null,
+    pictureUrl: null,
+  };
 
   // ============================================
   // DOM REFERENCES
@@ -385,6 +400,9 @@
   function showResults() {
     showScreen(screenResults);
     const r = calculateResults();
+
+    // Save results (localStorage + API)
+    saveResults(r);
 
     // Date
     const now = new Date();
@@ -702,6 +720,92 @@
     }
 
     svg.innerHTML = html;
+  }
+
+  // ============================================
+  // LIFF PROFILE
+  // ============================================
+
+  function fetchLineProfile() {
+    if (typeof liff === 'undefined') return;
+    try {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+      liff.getProfile().then(function (profile) {
+        lineUser.uid = profile.userId;
+        lineUser.displayName = profile.displayName;
+        lineUser.pictureUrl = profile.pictureUrl || null;
+        console.log('LINE profile loaded:', lineUser.displayName);
+      }).catch(function (err) {
+        console.warn('getProfile failed:', err);
+      });
+    } catch (e) {
+      console.warn('LIFF not ready:', e);
+    }
+  }
+
+  // Try to fetch profile once LIFF is ready
+  if (typeof liff !== 'undefined' && liff.ready) {
+    liff.ready.then(fetchLineProfile);
+  } else {
+    // Fallback: try after a short delay
+    setTimeout(fetchLineProfile, 1500);
+  }
+
+  // ============================================
+  // RESULT SAVING
+  // ============================================
+
+  function buildResultRecord(results) {
+    var level = getLevel(results.total);
+    var type = getType(results.healthTotal, results.skillsTotal);
+    return {
+      lineUid: lineUser.uid || 'anonymous_' + Date.now(),
+      displayName: lineUser.displayName || '未ログイン',
+      pictureUrl: lineUser.pictureUrl || null,
+      date: new Date().toISOString(),
+      total: results.total,
+      healthTotal: results.healthTotal,
+      skillsTotal: results.skillsTotal,
+      level: level.grade,
+      levelLabel: level.label,
+      type: type,
+      categories: results.categories,
+      answers: Object.assign({}, answers),
+    };
+  }
+
+  function saveResultsToLocalStorage(record) {
+    try {
+      var key = 'bc_results';
+      var existing = JSON.parse(localStorage.getItem(key) || '[]');
+      existing.push(record);
+      localStorage.setItem(key, JSON.stringify(existing));
+    } catch (e) {
+      console.warn('localStorage save failed:', e);
+    }
+  }
+
+  function saveResultsToAPI(record) {
+    if (!API_ENDPOINT) return;
+    fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record),
+    }).then(function (res) {
+      if (!res.ok) throw new Error('API response ' + res.status);
+      console.log('Results saved to API');
+    }).catch(function (err) {
+      console.warn('API save failed:', err);
+    });
+  }
+
+  function saveResults(results) {
+    var record = buildResultRecord(results);
+    saveResultsToLocalStorage(record);
+    saveResultsToAPI(record);
   }
 
   // ============================================
