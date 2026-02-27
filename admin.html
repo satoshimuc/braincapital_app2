@@ -252,6 +252,7 @@
             <th>Skills</th>
             <th>ランク</th>
             <th>タイプ</th>
+            <th>Brain Type</th>
           </tr>
         </thead>
         <tbody id="results-tbody">
@@ -377,6 +378,9 @@
                 level: r.level,
                 levelLabel: r.level_label,
                 type: r.type,
+                brainType: r.brain_type,
+                brainTypeName: r.brain_type_name,
+                brainTypeAxes: r.brain_type_axes,
                 categories: r.categories,
                 answers: r.answers,
               };
@@ -459,6 +463,7 @@
           '<td class="score-cell">' + r.skillsTotal + '</td>' +
           '<td><span class="level-badge level-' + r.level + '">' + r.level + '</span></td>' +
           '<td><span class="type-badge">Type ' + r.type + '</span></td>' +
+          '<td><span class="type-badge" style="font-family:monospace;">' + (r.brainType || '—') + '</span></td>' +
         '</tr>';
       }).join('');
     }
@@ -485,6 +490,8 @@
         '<div class="detail-item"><div class="detail-label">ランク / タイプ</div><div class="detail-value"><span class="level-badge level-' + record.level + '">' + record.level + '</span> <span class="type-badge">Type ' + record.type + '</span></div></div>' +
         '<div class="detail-item"><div class="detail-label">Brain Health</div><div class="detail-value">' + record.healthTotal + ' / 75</div></div>' +
         '<div class="detail-item"><div class="detail-label">Brain Skills</div><div class="detail-value">' + record.skillsTotal + ' / 75</div></div>' +
+        (record.brainType ? '<div class="detail-item"><div class="detail-label">Brain Type</div><div class="detail-value" style="font-family:monospace;letter-spacing:3px;">' + record.brainType + '</div></div>' : '') +
+        (record.brainTypeName ? '<div class="detail-item"><div class="detail-label">タイプ名</div><div class="detail-value">' + record.brainTypeName + '</div></div>' : '') +
         (record.sessionId ? '<div class="detail-item" style="grid-column:1/-1;"><div class="detail-label">セッションID</div><div class="detail-value" style="font-size:11px;font-family:monospace;word-break:break-all;">' + record.sessionId + '</div></div>' : '') +
       '</div>';
 
@@ -543,6 +550,22 @@
           'BS-13': 'AIツールを日常的に活用している',
           'BS-14': 'AIに適切なプロンプトを書ける',
           'BS-15': '新しいテクノロジーに積極的に興味を持っている',
+          'BT-01': '具体的データ ←→ ビジョン・コンセプト',
+          'BT-02': '過去の経験ベース ←→ 未知の可能性',
+          'BT-03': '数字・事例が必要 ←→ 抽象概念でOK',
+          'BT-04': '現実把握が大事 ←→ 将来像を描く',
+          'BT-05': '分解・論理整理 ←→ パターン・直感把握',
+          'BT-06': '順序立てて説明 ←→ 全体像から説明',
+          'BT-07': '筋道立ててひらめく ←→ 自由連想でひらめく',
+          'BT-08': 'プロセス説明可能 ←→ 直感で後付け',
+          'BT-09': '論理正しさ優先 ←→ 関係性も考慮',
+          'BT-10': '率直フィードバック ←→ 配慮した伝え方',
+          'BT-11': '数値目標で測定 ←→ プロセスも重要',
+          'BT-12': '感情排除で判断 ←→ 感情も判断材料',
+          'BT-13': '計画してから動く ←→ 動きながら修正',
+          'BT-14': '予定通りで安心 ←→ 余白がある方が良い',
+          'BT-15': '事前に備えたい ←→ その場で対応',
+          'BT-16': '完成度高めて出す ←→ 早く出して改善',
         };
         html += '<div class="detail-section-title">個別回答</div>';
         html += '<div style="display:grid;grid-template-columns:1fr;gap:4px;">';
@@ -569,7 +592,7 @@
       if (rows.length === 0) return;
 
       var catIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-      var header = ['LINE UID', '表示名', '日時', '合計', 'Health', 'Skills', 'ランク', 'タイプ']
+      var header = ['LINE UID', '表示名', '日時', '合計', 'Health', 'Skills', 'ランク', 'タイプ', 'Brain Type']
         .concat(catIds.map(function (id) { return id + '_' + CATEGORY_NAMES[id]; }));
 
       var csvRows = [header.join(',')];
@@ -582,7 +605,7 @@
           '"' + (r.displayName || '') + '"',
           '"' + dateStr + '"',
           r.total, r.healthTotal, r.skillsTotal,
-          r.level, r.type
+          r.level, r.type, '"' + (r.brainType || '') + '"'
         ].concat(catIds.map(function (id) { return (r.categories && r.categories[id]) || 0; }));
         csvRows.push(row.join(','));
       });
