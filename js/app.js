@@ -253,6 +253,100 @@
   };
 
   // ============================================
+  // NARRATIVE FEEDBACK: Score-dependent personal insights
+  // ============================================
+
+  var NARRATIVE = {
+    A: {
+      low: 'あなたの睡眠は脳が求めるレベルに達していない。グリンパティックシステムが十分に機能せず、日中の認知パフォーマンスに直接影響している可能性が高い。ここを放置すると、他のどの努力も効果が半減する。',
+      mid: '睡眠の土台はある程度できている。ただし「寝ている」と「質の高い睡眠」は別物だ。起床時の爽快感に注目してほしい。もう一段上げることで、日中の集中力が目に見えて変わるはず。',
+      high: '睡眠の質は非常に高い水準にある。脳のクリーニングシステムが十分に機能している証拠。この習慣は最大の資産だ。何があっても崩さないでほしい。',
+    },
+    B: {
+      low: '身体がほとんど動いていない状態。BDNFの分泌が不足し、海馬の新しい神経回路の生成が滞っている可能性がある。激しい運動は不要——まず「1日20分のウォーキング」から始めるだけで、脳への血流と神経栄養因子が大きく変わる。',
+      mid: 'ある程度の運動習慣がある。ただし「座りっぱなし時間」が長いと、運動の効果が相殺される。ポイントは「まとめて動く」より「こまめに動く」。90分ごとの短い歩行が効果的。',
+      high: '運動習慣が定着している。BDNF分泌が活発で、海馬の体積維持に大きく貢献しているはず。運動後の「頭がクリアになる感覚」を感じているなら、それは脳が確実に応えている証拠。',
+    },
+    C: {
+      low: 'ストレスが慢性化している可能性がある。コルチゾールの持続的な上昇は、海馬の萎縮と前頭前皮質の機能低下を招く。これは「気合いで乗り越える」問題ではない。構造的な対策——呼吸法、環境調整、必要なら専門家への相談が必要。',
+      mid: 'ストレスとの付き合い方はある程度身についている。ただし「耐えている」と「管理できている」は違う。自覚症状がなくても慢性的な微小ストレスが蓄積していないか、定期的に自分を観察する習慣をつけてほしい。',
+      high: 'ストレスマネジメントが非常にうまくいっている。前頭前皮質が正常に機能し、意欲も維持できている状態。このコンディションは、Brain Skillsを伸ばすための最高の土台となる。',
+    },
+    D: {
+      low: '脳の燃料供給が不足している。脳は体重の2%で全エネルギーの20%を消費する。食事の質は、あなたが思っている以上に認知機能を左右している。まずオメガ3脂肪酸（青魚、ナッツ）と抗酸化物質（ベリー類、緑黄色野菜）を1食1品追加することから。',
+      mid: '基本的な栄養は摂れているが、「脳に最適な食事」にはまだ改善の余地がある。血糖値の乱高下を避け、水分補給を意識するだけで、午後の集中力が大きく変わる。',
+      high: '栄養面は申し分ない。脳に必要な燃料が安定供給されている状態。これは長期的な脳の健康維持にとって非常に大きなアドバンテージとなる。',
+    },
+    E: {
+      low: '脳のデフォルトモードネットワーク（DMN）が休まる時間がほとんどない。「常にオン」の状態が続くと、創造性の源泉が枯渇し、記憶の統合も阻害される。「何もしない時間」は怠惰ではない——脳が最も重要な仕事をする時間だ。',
+      mid: '休息の意識はあるが、「質の高い休息」になっているかがポイント。スマホを見ながらの休憩はDMNを活性化しない。5分でいい、窓の外を見るだけの「本当の空白時間」を意識してみてほしい。',
+      high: '休息とリカバリーが十分に確保されている。DMNが活性化する時間があることで、無意識下のアイデア生成と記憶統合が進んでいるはず。「いいアイデアが突然降ってくる」体験が多いのでは。',
+    },
+    F: {
+      low: '情報を受動的に消費する傾向が強い。これはAI時代に最もリスクの高いパターン。AIの出力を鵜呑みにすると、誤った前提に基づく判断を重ねてしまう。「本当にそうか？」と3秒立ち止まる習慣だけで、認知力は劇的に変わる。',
+      mid: '論理的思考の素地はある。ここからは「構造化」のスキルを意識してほしい。複雑な問題を「要素に分解→優先順位→仮説→検証」のフレームで考える練習が効果的。',
+      high: '批判的思考力が高い水準にある。情報の真偽を見抜き、AIの出力を適切に評価できている。この力は今後ますます希少になる。周囲の判断を助ける「知的コーチ」としての役割も意識してみては。',
+    },
+    G: {
+      low: '既存の枠組みの中で考える傾向が強い。創造性は才能ではなく、異なるインプットの掛け合わせで生まれる。普段読まない分野の本やポッドキャストを1日10分。異分野の知識が結びつく瞬間が、あなたの創造性を解放する。',
+      mid: 'アイデアの種は持っている。ここからは「問いを立てる力」を磨いてほしい。「答えを探す」から「そもそもの問い自体を変える」にシフトすると、創造性が一段上がる。',
+      high: '創造性が高い水準にある。異なる知識を結びつけ、既存の枠を超えた発想ができている。AIが代替できない「問いを立てる力」——これがあなたの最大の武器。どんどん活かしてほしい。',
+    },
+    H: {
+      low: '対人関係のスキルに伸びしろがある。共感力とコミュニケーション力は、AIが最もコピーできない領域だ。まず「相手の話を最後まで聞く」ことから始めてみてほしい。理解してから話す——この順序が信頼関係の基盤になる。',
+      mid: '基本的な対人スキルはある。次のレベルは「異なる意見を持つ人との建設的な対話」。意見が違う相手とこそ、新しい価値が生まれる。不快感を感じたときこそ、成長のチャンス。',
+      high: '対人関係力が非常に高い。共感力とコミュニケーション力は、AI時代において最大の差別化要因となる。チームのパフォーマンスを何倍にも引き上げる力を持っている。',
+    },
+    I: {
+      low: '変化や困難に対して受動的になりがちかもしれない。レジリエンスは筋力と同じで、鍛えられる。毎朝「今日の最重要タスク1つ」を自分で決めて実行する。この小さな自律の積み重ねが、やがて大きなセルフリーダーシップに育つ。',
+      mid: '一定の自律性はある。ここからは「不確実な状況での意思決定力」がテーマ。正解がない中で「不完全でも決める→動く→修正する」サイクルを回す練習が、次のステージへの鍵になる。',
+      high: 'セルフリーダーシップが高い水準にある。失敗を学びに変え、自律的に行動できている。この力は、不確実性が高い時代に最も求められる能力の一つ。',
+    },
+    J: {
+      low: 'テクノロジーとの距離がある。AI時代において、AIを「使いこなす側」に回るか「置いていかれる側」になるかの分岐点にいる。難しく考える必要はない。今日からChatGPTかClaudeに1日1回話しかけてみる。それだけで世界が変わる。',
+      mid: 'AIツールはある程度使えている。次のステップは「AIに何をさせるかを設計する力」。プロンプトの質が結果の質を決める。自分の思考を構造化してAIに渡す練習が、テクノロジーリテラシーを飛躍的に高める。',
+      high: 'テクノロジーリテラシーが高い。AIを道具として使いこなし、新しいテクノロジーにも積極的に向き合えている。あなたの脳とAIの協働は、すでに「拡張知能」として機能しているはず。',
+    },
+  };
+
+  function getNarrativeLevel(score) {
+    if (score <= 6) return 'low';
+    if (score <= 10) return 'mid';
+    return 'high';
+  }
+
+  // ============================================
+  // BRAIN TYPE COMPATIBILITY
+  // ============================================
+
+  var BRAIN_TYPE_COMPAT = {
+    best: {
+      SALP: 'NHEF', SALF: 'NHEP', SAEP: 'NHLF', SAEF: 'NHLP',
+      SHLP: 'NAEF', SHLF: 'NAEP', SHEP: 'NALF', SHEF: 'NALP',
+      NALP: 'SHEF', NALF: 'SHEP', NAEP: 'SHLF', NAEF: 'SHLP',
+      NHLP: 'SAEF', NHLF: 'SAEP', NHEP: 'SALF', NHEF: 'SALP',
+    },
+    good: {
+      SALP: 'NAEP', SALF: 'NAEF', SAEP: 'SALP', SAEF: 'SALF',
+      SHLP: 'NHLP', SHLF: 'NHLF', SHEP: 'NHEP', SHEF: 'NHEF',
+      NALP: 'SALP', NALF: 'SALF', NAEP: 'SALP', NAEF: 'SALF',
+      NHLP: 'SHLP', NHLF: 'SHLF', NHEP: 'SHEP', NHEF: 'SHEF',
+    },
+    grow: {
+      SALP: 'SHLF', SALF: 'SALP', SAEP: 'SAEF', SAEF: 'SAEP',
+      SHLP: 'SHLF', SHLF: 'SHLP', SHEP: 'SHEF', SHEF: 'SHEP',
+      NALP: 'NALF', NALF: 'NALP', NAEP: 'NAEF', NAEF: 'NAEP',
+      NHLP: 'NHLF', NHLF: 'NHLP', NHEP: 'NHEF', NHEF: 'NHEP',
+    },
+  };
+
+  var COMPAT_LABELS = {
+    best: { title: '最高の補完パートナー', desc: '真逆の強みで互いを最大化する「凸凹コンビ」。発想の幅が倍になり、盲点をカバーし合える。' },
+    good: { title: '信頼の共創パートナー', desc: '軸を一部共有しつつ違いもある。安心感と適度な刺激が共存し、一緒に仕事がしやすい。' },
+    grow: { title: '成長を引き出す刺激パートナー', desc: '隣り合う軸が逆のため、自分にない視点をくれる。最初は衝突しやすいが、最も成長させてくれる相手。' },
+  };
+
+  // ============================================
   // BRAIN TYPE: 16 Types
   // ============================================
 
@@ -660,12 +754,52 @@
     // Improvement actions
     renderImprovementActions(r);
 
+    // Narrative Feedback (personal insights)
+    renderNarrativeFeedback(r);
+
     // Brain Type
     var bt = calculateBrainType();
     renderBrainType(bt);
 
+    // Brain Type Compatibility
+    renderBrainTypeCompat(bt);
+
     // AI prompt (include brain type)
     renderAIPrompt(r, bt);
+
+    // Populate share capture card
+    var shareTotal = document.getElementById('share-total');
+    var shareHealth = document.getElementById('share-health');
+    var shareSkills = document.getElementById('share-skills');
+    var shareBtCode = document.getElementById('share-bt-code');
+    var shareBtName = document.getElementById('share-bt-name');
+    if (shareTotal) shareTotal.textContent = r.total;
+    if (shareHealth) shareHealth.textContent = r.healthTotal;
+    if (shareSkills) shareSkills.textContent = r.skillsTotal;
+    if (shareBtCode) shareBtCode.textContent = bt.code;
+    if (shareBtName) shareBtName.textContent = bt.info.name;
+
+    // Wire up share buttons
+    var btnShareLine = document.getElementById('btn-share-line');
+    var btnShareX = document.getElementById('btn-share-x');
+    var btnSaveImage = document.getElementById('btn-save-image');
+
+    // Remove old listeners by cloning
+    if (btnShareLine) {
+      var newLine = btnShareLine.cloneNode(true);
+      btnShareLine.parentNode.replaceChild(newLine, btnShareLine);
+      newLine.addEventListener('click', function () { shareLine(r, bt); });
+    }
+    if (btnShareX) {
+      var newX = btnShareX.cloneNode(true);
+      btnShareX.parentNode.replaceChild(newX, btnShareX);
+      newX.addEventListener('click', function () { shareX(r, bt); });
+    }
+    if (btnSaveImage) {
+      var newImg = btnSaveImage.cloneNode(true);
+      btnSaveImage.parentNode.replaceChild(newImg, btnSaveImage);
+      newImg.addEventListener('click', function () { saveAsImage(); });
+    }
 
   }
 
@@ -765,6 +899,160 @@
       setTimeout(() => {
         item.querySelector('.breakdown-bar').style.width = pct + '%';
       }, 100);
+    });
+  }
+
+  // ============================================
+  // NARRATIVE FEEDBACK RENDERING
+  // ============================================
+
+  function renderNarrativeFeedback(results) {
+    var container = document.getElementById('narrative-feedback');
+    container.innerHTML = '';
+
+    // Find 2 lowest + 1 highest to create a compelling story
+    var part1cats = CATEGORIES.filter(function (c) { return c.part === 1; });
+    var part2cats = CATEGORIES.filter(function (c) { return c.part === 2; });
+
+    var allCats = part1cats.concat(part2cats).map(function (cat) {
+      return { id: cat.id, name: cat.name, nameEn: cat.nameEn, part: cat.part, score: results.categories[cat.id] };
+    }).sort(function (a, b) { return a.score - b.score; });
+
+    var weakest = allCats.slice(0, 2);
+    var strongest = allCats.slice(-1)[0];
+
+    // Opening narrative
+    var openDiv = document.createElement('div');
+    openDiv.className = 'narrative-opening';
+
+    var total = results.total;
+    var openText = '';
+    if (total >= 121) {
+      openText = 'あなたのBrain Capitalは非常に高い水準にある。脳の「複利効果」が機能し、健康な脳がスキルを伸ばし、高いスキルがさらに脳を活性化する好循環が回っている状態だ。';
+    } else if (total >= 91) {
+      openText = 'あなたのBrain Capitalは良好な状態にある。ただし「良好」は「最適」ではない。あと数カ所を戦略的に改善するだけで、パフォーマンスが大きく跳ね上がる可能性がある。';
+    } else if (total >= 61) {
+      openText = 'あなたのBrain Capitalには大きな伸びしろがある。これはネガティブな意味ではない。改善の方向性が明確だということは、効率的に成長できるということ。どこに集中すべきかを見てみよう。';
+    } else {
+      openText = 'あなたのBrain Capitalは立て直しのフェーズにある。しかし、ここに気づけたこと自体が最初の一歩だ。脳の回復力は想像以上に高い。正しい順序で手を打てば、短期間で大きな変化が起こる。';
+    }
+    openDiv.innerHTML = '<p class="narrative-text narrative-bold">' + openText + '</p>';
+    container.appendChild(openDiv);
+
+    // Strongest point
+    var strongDiv = document.createElement('div');
+    strongDiv.className = 'narrative-block narrative-strength';
+    var strongLevel = getNarrativeLevel(strongest.score);
+    strongDiv.innerHTML =
+      '<div class="narrative-label strength-label">YOUR STRENGTH</div>' +
+      '<h4 class="narrative-cat-name">' + strongest.id + '. ' + strongest.name + '<span class="narrative-cat-score">' + strongest.score + ' / 15</span></h4>' +
+      '<p class="narrative-text">' + NARRATIVE[strongest.id][strongLevel] + '</p>';
+    container.appendChild(strongDiv);
+
+    // Weak points
+    weakest.forEach(function (cat) {
+      var weakDiv = document.createElement('div');
+      weakDiv.className = 'narrative-block narrative-weakness';
+      var weakLevel = getNarrativeLevel(cat.score);
+      weakDiv.innerHTML =
+        '<div class="narrative-label weakness-label">FOCUS AREA</div>' +
+        '<h4 class="narrative-cat-name">' + cat.id + '. ' + cat.name + '<span class="narrative-cat-score">' + cat.score + ' / 15</span></h4>' +
+        '<p class="narrative-text">' + NARRATIVE[cat.id][weakLevel] + '</p>';
+      container.appendChild(weakDiv);
+    });
+
+    // Closing call-to-action
+    var closeDiv = document.createElement('div');
+    closeDiv.className = 'narrative-closing';
+    closeDiv.innerHTML = '<p class="narrative-text narrative-italic">脳は筋肉と同じ。正しい負荷をかければ成長する。上の弱点をひとつ選び、今日から1つだけアクションを起こしてほしい。小さな一歩が、4週間後には大きな違いを生む。</p>';
+    container.appendChild(closeDiv);
+  }
+
+  // ============================================
+  // BRAIN TYPE COMPATIBILITY RENDERING
+  // ============================================
+
+  function renderBrainTypeCompat(bt) {
+    var container = document.getElementById('brain-type-compat');
+    container.innerHTML = '';
+
+    var code = bt.code;
+    var compatTypes = ['best', 'good', 'grow'];
+
+    compatTypes.forEach(function (type) {
+      var partnerCode = BRAIN_TYPE_COMPAT[type][code];
+      if (!partnerCode) return;
+      var partnerInfo = BRAIN_TYPE_INFO[partnerCode] || { name: '—', description: '' };
+      var label = COMPAT_LABELS[type];
+
+      var card = document.createElement('div');
+      card.className = 'compat-card compat-' + type;
+      card.innerHTML =
+        '<div class="compat-header">' +
+          '<span class="compat-relation">' + label.title + '</span>' +
+        '</div>' +
+        '<div class="compat-body">' +
+          '<div class="compat-partner-code">' + partnerCode + '</div>' +
+          '<div class="compat-partner-name">' + partnerInfo.name + '</div>' +
+          '<p class="compat-desc">' + label.desc + '</p>' +
+          '<p class="compat-partner-detail">' + partnerInfo.description + '</p>' +
+        '</div>';
+      container.appendChild(card);
+    });
+  }
+
+  // ============================================
+  // SHARE & SAVE FUNCTIONS
+  // ============================================
+
+  function getShareText(results, bt) {
+    var level = getLevel(results.total);
+    return 'Brain Capital 診断結果\n' +
+      '総合スコア: ' + results.total + '/150（' + level.label + '）\n' +
+      'Brain Type: ' + bt.code + '（' + bt.info.name + '）\n' +
+      '#BrainCapital #UNLOCK診断';
+  }
+
+  function shareLine(results, bt) {
+    var text = getShareText(results, bt);
+    var url = window.location.href.split('?')[0];
+    var lineUrl = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text);
+    window.open(lineUrl, '_blank', 'width=600,height=500');
+  }
+
+  function shareX(results, bt) {
+    var text = getShareText(results, bt);
+    var url = window.location.href.split('?')[0];
+    var xUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
+    window.open(xUrl, '_blank', 'width=600,height=400');
+  }
+
+  function saveAsImage() {
+    var target = document.getElementById('share-capture');
+    if (!target) return;
+
+    var btn = document.getElementById('btn-save-image');
+    btn.textContent = '生成中...';
+    btn.disabled = true;
+
+    html2canvas(target, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      width: target.scrollWidth,
+      height: target.scrollHeight,
+    }).then(function (canvas) {
+      var link = document.createElement('a');
+      link.download = 'brain-capital-result.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      btn.textContent = '画像を保存';
+      btn.disabled = false;
+    }).catch(function (err) {
+      console.error('Image save failed:', err);
+      btn.textContent = '画像を保存';
+      btn.disabled = false;
     });
   }
 

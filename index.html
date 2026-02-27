@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="js/supabase-config.js"></script>
 </head>
 <body>
@@ -279,6 +280,14 @@
           </div>
         </section>
 
+        <!-- Narrative Feedback -->
+        <section class="results-section">
+          <h2 class="section-title">あなたの脳の「今」を読み解く</h2>
+          <div id="narrative-feedback" class="narrative-container">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
         <!-- Brain Type -->
         <section class="results-section">
           <h2 class="section-title">Brain Type — 脳の使い方タイプ</h2>
@@ -289,6 +298,15 @@
           </div>
           <div id="brain-type-axes" class="bt-axes-container">
             <!-- Rendered by JS: 4 axis bars -->
+          </div>
+        </section>
+
+        <!-- Brain Type Compatibility -->
+        <section class="results-section">
+          <h2 class="section-title">タイプ相性 — あなたと好相性のBrain Type</h2>
+          <p class="section-desc">脳の使い方が異なるパートナーとの組み合わせが、チームのパフォーマンスを最大化する。</p>
+          <div id="brain-type-compat" class="compat-container">
+            <!-- Rendered by JS -->
           </div>
         </section>
 
@@ -309,6 +327,52 @@
             <button type="button" id="btn-copy-prompt" class="btn-copy">コピー</button>
           </div>
         </section>
+
+        <!-- Share & Save -->
+        <section class="results-section share-section">
+          <h2 class="section-title">結果をシェア・保存する</h2>
+          <div class="share-buttons">
+            <button type="button" id="btn-share-line" class="btn-share btn-share-line">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 4.01 3.44 7.37 8.09 8.28.31.07.74.21.85.49.1.25.06.64.03.89l-.14.82c-.04.24-.19.93.81.51s5.39-3.18 7.35-5.44C21.07 13.67 22 12.15 22 10.5 22 5.81 17.52 2 12 2zm-3.07 11.29H7.08c-.27 0-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48s.48.22.48.48v3.68h1.37c.27 0 .48.22.48.48s-.22.48-.48.48zm1.63-.48c0 .27-.22.48-.48.48s-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48s.48.22.48.48v4.16zm4.53 0c0 .2-.12.37-.3.45a.5.5 0 01-.18.03.48.48 0 01-.39-.2l-1.9-2.58v2.3c0 .27-.22.48-.48.48s-.48-.22-.48-.48V8.65c0-.2.12-.37.3-.45a.5.5 0 01.57.17l1.9 2.58V8.65c0-.27.22-.48.48-.48s.48.22.48.48v4.16zm2.83-2.81c.27 0 .48.22.48.48s-.22.48-.48.48H16.1v.93h1.82c.27 0 .48.22.48.48s-.22.48-.48.48H15.6c-.27 0-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48h2.32c.27 0 .48.22.48.48s-.22.48-.48.48H16.1v.93h1.82z"/></svg>
+              LINEでシェア
+            </button>
+            <button type="button" id="btn-share-x" class="btn-share btn-share-x">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              Xでシェア
+            </button>
+            <button type="button" id="btn-save-image" class="btn-share btn-share-save">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              画像を保存
+            </button>
+          </div>
+        </section>
+
+        <!-- Share Capture Area (hidden, used for image export) -->
+        <div id="share-capture" class="share-capture">
+          <div class="share-capture-inner">
+            <div class="share-capture-header">
+              <span class="share-capture-logo">UNLOCK</span>
+              <span class="share-capture-title">Brain Capital 診断結果</span>
+            </div>
+            <div class="share-capture-scores">
+              <div class="share-capture-total">
+                <span class="share-capture-total-number" id="share-total">0</span>
+                <span class="share-capture-total-label">/ 150</span>
+              </div>
+              <div class="share-capture-sub">
+                <div>Health: <strong id="share-health">0</strong>/75</div>
+                <div>Skills: <strong id="share-skills">0</strong>/75</div>
+              </div>
+            </div>
+            <div class="share-capture-type">
+              <span class="share-capture-bt-code" id="share-bt-code">----</span>
+              <span class="share-capture-bt-name" id="share-bt-name">—</span>
+            </div>
+            <div class="share-capture-footer">
+              Brain Capital — 脳が、最大の資産になる時代。
+            </div>
+          </div>
+        </div>
 
         <!-- Footer -->
         <footer class="results-footer">
