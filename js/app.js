@@ -7,8 +7,13 @@
   'use strict';
 
   // ============================================
-  // DATA: 30 Assessment Questions
+  // DATA: Assessment Questions
+  // Part 1: Brain Health (A-E, 15 questions)
+  // Part 2: Brain Skills (F-J, 15 questions)
+  // Part 3: Brain Type  (K-N, 16 questions) — bipolar
   // ============================================
+
+  var TOTAL_QUESTIONS = 46;
 
   const CATEGORIES = [
     // Part 1: Brain Health (A–E)
@@ -153,6 +158,71 @@
       ],
       action: '今日からAIに1日1回「思考の壁打ち」をさせる',
     },
+    // Part 3: Brain Type (K–N) — bipolar questions
+    {
+      id: 'K',
+      part: 3,
+      partLabel: 'Part 3: Brain Type',
+      name: '知覚スタイル',
+      nameEn: 'Perception',
+      description: '情報をどう取り込むか。感覚皮質（具体的事実の処理）と前頭前皮質（抽象化・パターン認識）のどちらを優先的に使うかの傾向。',
+      bipolar: true,
+      axis: { left: 'S', right: 'N', leftLabel: 'Sensor（具体・事実）', rightLabel: 'iNtuitor（抽象・直感）' },
+      questions: [
+        { id: 'BT-01', leftText: '具体的なデータや事実から考え始める', rightText: '全体のビジョンやコンセプトから考え始める' },
+        { id: 'BT-02', leftText: '過去の経験や実績をベースに判断する', rightText: 'まだ試されていない可能性に惹かれる' },
+        { id: 'BT-03', leftText: '具体的な数字や事例がないと納得しにくい', rightText: '抽象的なコンセプトでもピンとくることが多い' },
+        { id: 'BT-04', leftText: '今ある現実を正確に把握することが大事だ', rightText: '将来あるべき姿を描くことが大事だ' },
+      ],
+    },
+    {
+      id: 'L',
+      part: 3,
+      partLabel: 'Part 3: Brain Type',
+      name: '処理スタイル',
+      nameEn: 'Processing',
+      description: '情報をどう処理するか。左脳的な逐次・分析処理と、右脳的な並列・統合処理のどちらが優勢かの傾向。',
+      bipolar: true,
+      axis: { left: 'A', right: 'H', leftLabel: 'Analyzer（分析・論理）', rightLabel: 'Holistic（統合・直感）' },
+      questions: [
+        { id: 'BT-05', leftText: '要素を分解して一つずつ論理的に整理する', rightText: '全体のパターンや関連性を直感的に把握する' },
+        { id: 'BT-06', leftText: '順序立てて一つずつ説明する方が得意だ', rightText: '全体像を示してから要点を伝える方が得意だ' },
+        { id: 'BT-07', leftText: '情報を整理し筋道を立てているときにひらめく', rightText: 'リラックスして自由に連想しているときにひらめく' },
+        { id: 'BT-08', leftText: '結論に至るプロセスを明確に説明できる', rightText: '「なんとなくこれが正しい」と感じて後から理由を見つける' },
+      ],
+    },
+    {
+      id: 'M',
+      part: 3,
+      partLabel: 'Part 3: Brain Type',
+      name: '判断スタイル',
+      nameEn: 'Judgment',
+      description: '意思決定の基準。背外側前頭前皮質（論理的推論）と腹内側前頭前皮質＋ミラーニューロン系（共感・価値判断）のバランス。',
+      bipolar: true,
+      axis: { left: 'L', right: 'E', leftLabel: 'Logical（論理・データ）', rightLabel: 'Empathic（共感・関係性）' },
+      questions: [
+        { id: 'BT-09', leftText: '意見が対立したら論理的に正しい方を選ぶべきだ', rightText: 'メンバーの感情や関係性も考慮して決めるべきだ' },
+        { id: 'BT-10', leftText: 'フィードバックは事実に基づき率直に伝えるのが誠実だ', rightText: '相手の気持ちに配慮した伝え方を優先するのが誠実だ' },
+        { id: 'BT-11', leftText: '成果は数値目標の達成度で測るのが公平だ', rightText: 'プロセスやチームへの貢献も同じくらい重要だ' },
+        { id: 'BT-12', leftText: '難しい決断では感情を排除して合理的に判断する', rightText: '自分や周囲の感情も重要な判断材料だと思う' },
+      ],
+    },
+    {
+      id: 'N',
+      part: 3,
+      partLabel: 'Part 3: Brain Type',
+      name: '行動スタイル',
+      nameEn: 'Action',
+      description: 'タスクへの取り組み方。基底核の習慣回路（計画・ルーティン）とドーパミン系の探索回路（即興・適応）のバランス。',
+      bipolar: true,
+      axis: { left: 'P', right: 'F', leftLabel: 'Planner（計画・構造）', rightLabel: 'Flexer（即興・適応）' },
+      questions: [
+        { id: 'BT-13', leftText: 'しっかり計画を立ててから動き始める', rightText: 'まず動いてみて途中で軌道修正する' },
+        { id: 'BT-14', leftText: '予定通りに進むと安心する', rightText: '余白があって柔軟に動ける方が心地いい' },
+        { id: 'BT-15', leftText: '変化は事前に予測して備えたい', rightText: '変化が来たらその場で対応する方が得意だ' },
+        { id: 'BT-16', leftText: '完成度を高めてからアウトプットしたい', rightText: '早く出してフィードバックで磨く方が効率的だ' },
+      ],
+    },
   ];
 
   const LEVEL_MAP = [
@@ -180,6 +250,29 @@
       name: '要改善型',
       description: '両方が低い状態。まずBrain Health（睡眠・運動・ストレス管理）から着手する。Health無くしてSkillsの向上は不可能。',
     },
+  };
+
+  // ============================================
+  // BRAIN TYPE: 16 Types
+  // ============================================
+
+  const BRAIN_TYPE_INFO = {
+    SALP: { name: '精密設計者', description: '事実を分析し、論理に基づいて緻密な計画を立てる。データドリブンな戦略家。' },
+    SALF: { name: '実践検証者', description: '事実とデータを武器に、仮説を素早く検証する。スピード×精度のバランサー。' },
+    SAEP: { name: '調和分析者', description: '人の気持ちもデータも見逃さない。チームの中で信頼される参謀役。' },
+    SAEF: { name: '現場適応者', description: '現場の空気を読みながら、データに基づいて即座に最適解を出す。' },
+    SHLP: { name: '堅実統合者', description: '経験を体系化し、確実に成果を積み上げる。組織の背骨となる存在。' },
+    SHLF: { name: '感覚適応者', description: '五感で状況を掴み、全体を俯瞰して合理的に動く。臨機応変の達人。' },
+    SHEP: { name: '共鳴守護者', description: '人と現場を守る安定のまとめ役。チームの心理的安全性を高める。' },
+    SHEF: { name: '場づくりの達人', description: '空気を読み、場の力を最大化する。自然体でチームを活性化させる。' },
+    NALP: { name: '戦略構築者', description: 'ビジョンを論理で設計図に落とし込む。構想力と実行力を兼ね備えた司令塔。' },
+    NALF: { name: '革新実験者', description: '仮説と実験を高速で回す変革者。未知の領域を切り拓くパイオニア。' },
+    NAEP: { name: '理念設計者', description: '人を動かすビジョンを緻密に設計する。理念と戦略を両立させるリーダー。' },
+    NAEF: { name: '創発触媒者', description: '異なる人と知を繋ぎ、化学反応を起こす。イノベーションの火付け役。' },
+    NHLP: { name: '構想実現者', description: '大きな構想を現実に着地させる。直感で見えた未来を計画で形にする。' },
+    NHLF: { name: '変革推進者', description: '閃きと行動力でゲームチェンジする。既存の枠を壊し新しい流れを作る。' },
+    NHEP: { name: '理想共創者', description: '理想の未来をチームで形にする。ビジョンと共感力で人を巻き込む。' },
+    NHEF: { name: '自由創造者', description: '枠にとらわれず、人と共に新しい世界を描く。最も自由で創造的なタイプ。' },
   };
 
   // ============================================
@@ -269,29 +362,56 @@
   function renderCategory(index) {
     const cat = CATEGORIES[index];
     categoryPartLabel.textContent = cat.partLabel;
-    categoryId.textContent = 'カテゴリ' + cat.id;
+    categoryId.textContent = cat.bipolar ? '軸 ' + cat.id : 'カテゴリ' + cat.id;
     categoryTitle.textContent = cat.name;
     categoryDescription.textContent = cat.description;
     partIndicator.textContent = 'Part ' + cat.part;
 
     questionsContainer.innerHTML = '';
-    cat.questions.forEach((q) => {
-      const card = document.createElement('div');
-      card.className = 'question-card' + (answers[q.id] ? ' answered' : '');
-      card.innerHTML =
-        '<div class="question-id">' + q.id + '</div>' +
-        '<div class="question-text">' + q.text + '</div>' +
-        '<div class="rating-group">' +
-          [1, 2, 3, 4, 5].map(function (n) {
-            return '<button type="button" class="rating-btn' + (answers[q.id] === n ? ' selected' : '') + '" data-qid="' + q.id + '" data-value="' + n + '">' + n + '</button>';
-          }).join('') +
-        '</div>' +
-        '<div class="rating-labels">' +
-          '<span class="rating-label-text">当てはまらない</span>' +
-          '<span class="rating-label-text">非常に当てはまる</span>' +
-        '</div>';
-      questionsContainer.appendChild(card);
-    });
+
+    if (cat.bipolar) {
+      // Bipolar questions (Brain Type) — two opposing statements
+      cat.questions.forEach((q) => {
+        var card = document.createElement('div');
+        card.className = 'question-card bipolar-card' + (answers[q.id] ? ' answered' : '');
+        card.innerHTML =
+          '<div class="question-id">' + q.id + '</div>' +
+          '<div class="bipolar-statements">' +
+            '<div class="bipolar-left">' + q.leftText + '</div>' +
+            '<div class="bipolar-vs">←→</div>' +
+            '<div class="bipolar-right">' + q.rightText + '</div>' +
+          '</div>' +
+          '<div class="rating-group">' +
+            [1, 2, 3, 4, 5].map(function (n) {
+              return '<button type="button" class="rating-btn' + (answers[q.id] === n ? ' selected' : '') + '" data-qid="' + q.id + '" data-value="' + n + '">' + n + '</button>';
+            }).join('') +
+          '</div>' +
+          '<div class="rating-labels">' +
+            '<span class="rating-label-text">' + cat.axis.leftLabel.split('（')[0] + '</span>' +
+            '<span class="rating-label-text">' + cat.axis.rightLabel.split('（')[0] + '</span>' +
+          '</div>';
+        questionsContainer.appendChild(card);
+      });
+    } else {
+      // Standard questions (Brain Health / Skills) — single statement
+      cat.questions.forEach((q) => {
+        var card = document.createElement('div');
+        card.className = 'question-card' + (answers[q.id] ? ' answered' : '');
+        card.innerHTML =
+          '<div class="question-id">' + q.id + '</div>' +
+          '<div class="question-text">' + q.text + '</div>' +
+          '<div class="rating-group">' +
+            [1, 2, 3, 4, 5].map(function (n) {
+              return '<button type="button" class="rating-btn' + (answers[q.id] === n ? ' selected' : '') + '" data-qid="' + q.id + '" data-value="' + n + '">' + n + '</button>';
+            }).join('') +
+          '</div>' +
+          '<div class="rating-labels">' +
+            '<span class="rating-label-text">当てはまらない</span>' +
+            '<span class="rating-label-text">非常に当てはまる</span>' +
+          '</div>';
+        questionsContainer.appendChild(card);
+      });
+    }
 
     updateProgress();
     updateNavButtons();
@@ -355,9 +475,9 @@
 
   function updateProgress() {
     const totalAnswered = Object.keys(answers).length;
-    const pct = (totalAnswered / 30) * 100;
+    const pct = (totalAnswered / TOTAL_QUESTIONS) * 100;
     progressBar.style.width = pct + '%';
-    progressText.textContent = totalAnswered + ' / 30';
+    progressText.textContent = totalAnswered + ' / ' + TOTAL_QUESTIONS;
   }
 
   function updateNavButtons() {
@@ -423,11 +543,49 @@
       });
       results.categories[cat.id] = sum;
       if (cat.part === 1) results.healthTotal += sum;
-      else results.skillsTotal += sum;
+      else if (cat.part === 2) results.skillsTotal += sum;
+      // Part 3 (Brain Type) scores stored in categories but not in totals
     });
 
     results.total = results.healthTotal + results.skillsTotal;
     return results;
+  }
+
+  // ============================================
+  // BRAIN TYPE CALCULATION
+  // ============================================
+
+  function calculateBrainType() {
+    var axes = {};
+    var typeCode = '';
+
+    // Each Part 3 category is one axis
+    CATEGORIES.filter(function (c) { return c.part === 3; }).forEach(function (cat) {
+      var sum = 0;
+      cat.questions.forEach(function (q) {
+        sum += answers[q.id] || 3; // default to middle
+      });
+      // sum range: 4-20, midpoint = 12
+      // ≤ 12 → left pole, > 12 → right pole
+      var letter = sum <= 12 ? cat.axis.left : cat.axis.right;
+      axes[cat.id] = {
+        sum: sum,
+        max: 20,
+        leftLabel: cat.axis.leftLabel,
+        rightLabel: cat.axis.rightLabel,
+        leftLetter: cat.axis.left,
+        rightLetter: cat.axis.right,
+        result: letter,
+        pct: ((sum - 4) / 16) * 100, // 0% = full left, 100% = full right
+      };
+      typeCode += letter;
+    });
+
+    return {
+      code: typeCode,
+      info: BRAIN_TYPE_INFO[typeCode] || { name: '—', description: '' },
+      axes: axes,
+    };
   }
 
   function getLevel(total) {
@@ -502,9 +660,52 @@
     // Improvement actions
     renderImprovementActions(r);
 
-    // AI prompt
-    renderAIPrompt(r);
+    // Brain Type
+    var bt = calculateBrainType();
+    renderBrainType(bt);
 
+    // AI prompt (include brain type)
+    renderAIPrompt(r, bt);
+
+  }
+
+  // ============================================
+  // BRAIN TYPE RESULTS RENDERING
+  // ============================================
+
+  function renderBrainType(bt) {
+    // Type card
+    $('#brain-type-code').textContent = bt.code;
+    $('#brain-type-name').textContent = bt.info.name;
+    $('#brain-type-description').textContent = bt.info.description;
+
+    // 4-axis bars
+    var axesContainer = document.getElementById('brain-type-axes');
+    axesContainer.innerHTML = '';
+    var axisOrder = ['K', 'L', 'M', 'N'];
+    axisOrder.forEach(function (catId) {
+      var ax = bt.axes[catId];
+      if (!ax) return;
+      var item = document.createElement('div');
+      item.className = 'bt-axis-item';
+      var leftActive = ax.pct <= 50 ? ' active' : '';
+      var rightActive = ax.pct > 50 ? ' active' : '';
+      item.innerHTML =
+        '<div class="bt-axis-labels">' +
+          '<span class="bt-axis-label' + leftActive + '">' + ax.leftLetter + ' ' + ax.leftLabel.split('（')[0] + '</span>' +
+          '<span class="bt-axis-label' + rightActive + '">' + ax.rightLetter + ' ' + ax.rightLabel.split('（')[0] + '</span>' +
+        '</div>' +
+        '<div class="bt-axis-bar-container">' +
+          '<div class="bt-axis-bar" style="width: 0%"></div>' +
+          '<div class="bt-axis-midline"></div>' +
+        '</div>';
+      axesContainer.appendChild(item);
+
+      // Animate bar
+      setTimeout(function () {
+        item.querySelector('.bt-axis-bar').style.width = ax.pct.toFixed(1) + '%';
+      }, 200);
+    });
   }
 
   function animateScoreRing(total, level) {
@@ -571,8 +772,8 @@
     const container = document.getElementById('improvement-actions');
     container.innerHTML = '';
 
-    // Find the 3 lowest scoring categories
-    const sorted = CATEGORIES.map((cat) => ({
+    // Find the 3 lowest scoring categories (Part 1 & 2 only)
+    const sorted = CATEGORIES.filter(function (c) { return c.part <= 2; }).map((cat) => ({
       ...cat,
       score: results.categories[cat.id],
     })).sort((a, b) => a.score - b.score);
@@ -591,7 +792,7 @@
     });
   }
 
-  function renderAIPrompt(results) {
+  function renderAIPrompt(results, brainType) {
     const catA = results.categories['A'];
     const catB = results.categories['B'];
     const catC = results.categories['C'];
@@ -624,6 +825,8 @@
 
 ■ 総合スコア: ${results.total} / 150
 
+■ Brain Type: ${brainType ? brainType.code : '—'}（${brainType ? brainType.info.name : '—'}）
+
 以下の形式で回答してください:
 
 1. 総合診断（現状の強みと最大のリスク）
@@ -645,8 +848,10 @@
     const cx = 200;
     const cy = 200;
     const maxR = 150;
-    const labels = CATEGORIES.map((c) => c.id + '. ' + c.name);
-    const values = CATEGORIES.map((c) => results.categories[c.id] / 15);
+    // Only Part 1 & 2 categories (A-J) for the radar chart
+    const radarCategories = CATEGORIES.filter(function (c) { return c.part <= 2; });
+    const labels = radarCategories.map((c) => c.id + '. ' + c.name);
+    const values = radarCategories.map((c) => results.categories[c.id] / 15);
     const n = labels.length;
 
     let html = '';
@@ -692,13 +897,13 @@
       const x = cx + labelR * Math.cos(angle);
       const y = cy + labelR * Math.sin(angle);
 
-      const score = results.categories[CATEGORIES[i].id];
+      const score = results.categories[radarCategories[i].id];
       let anchor = 'middle';
       if (Math.cos(angle) > 0.3) anchor = 'start';
       else if (Math.cos(angle) < -0.3) anchor = 'end';
 
       html += `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="central"
-                style="font-family: var(--font-sans); font-size: 10px; fill: #666; font-weight: 500;">${CATEGORIES[i].id}</text>`;
+                style="font-family: var(--font-sans); font-size: 10px; fill: #666; font-weight: 500;">${radarCategories[i].id}</text>`;
       html += `<text x="${x}" y="${y + 13}" text-anchor="${anchor}" dominant-baseline="central"
                 style="font-family: var(--font-sans); font-size: 9px; fill: #999;">${score}/15</text>`;
     }
@@ -791,6 +996,7 @@
   function buildResultRecord(results) {
     var level = getLevel(results.total);
     var type = getType(results.healthTotal, results.skillsTotal);
+    var bt = calculateBrainType();
     return {
       session_id: sessionId || 'unknown',
       line_uid: lineUser.uid || 'anonymous_' + Date.now(),
@@ -802,6 +1008,9 @@
       level: level.grade,
       level_label: level.label,
       type: type,
+      brain_type: bt.code,
+      brain_type_name: bt.info.name,
+      brain_type_axes: bt.axes,
       categories: results.categories,
       answers: Object.assign({}, answers),
     };

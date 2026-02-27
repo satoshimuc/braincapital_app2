@@ -1082,6 +1082,129 @@ strong {
 }
 
 /* ================================================
+   BIPOLAR QUESTIONS (Brain Type)
+   ================================================ */
+
+.bipolar-card .bipolar-statements {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.bipolar-left,
+.bipolar-right {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+  line-height: 1.6;
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-150);
+}
+
+.bipolar-vs {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--gray-300);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ================================================
+   BRAIN TYPE RESULTS
+   ================================================ */
+
+.bt-type-card {
+  text-align: center;
+  padding: 32px 24px;
+  border: 2px solid var(--gray-800);
+  border-radius: var(--radius-md);
+  margin-bottom: 32px;
+}
+
+.bt-type-code {
+  display: inline-block;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--black);
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+}
+
+.bt-type-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 12px;
+}
+
+.bt-type-description {
+  font-size: 13px;
+  color: var(--gray-600);
+  line-height: 1.8;
+}
+
+.bt-axes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bt-axis-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bt-axis-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.bt-axis-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-400);
+  transition: var(--transition);
+}
+
+.bt-axis-label.active {
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.bt-axis-bar-container {
+  position: relative;
+  height: 10px;
+  background: var(--gray-100);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.bt-axis-bar {
+  height: 100%;
+  background: var(--gray-700);
+  border-radius: 5px;
+  transition: width 0.8s ease;
+}
+
+.bt-axis-midline {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  background: var(--gray-300);
+  transform: translateX(-50%);
+}
+
+/* ================================================
    ANIMATIONS
    ================================================ */
 
@@ -1116,6 +1239,7 @@ strong {
 .question-card:nth-child(1) { animation-delay: 0.05s; }
 .question-card:nth-child(2) { animation-delay: 0.15s; }
 .question-card:nth-child(3) { animation-delay: 0.25s; }
+.question-card:nth-child(4) { animation-delay: 0.35s; }
 
 /* Category transition */
 .questions-container.transitioning {
