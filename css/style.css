@@ -1205,6 +1205,335 @@ strong {
 }
 
 /* ================================================
+   NARRATIVE FEEDBACK
+   ================================================ */
+
+.narrative-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.narrative-opening {
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--gray-150);
+}
+
+.narrative-block {
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+}
+
+.narrative-strength {
+  background: var(--gray-50);
+  border-left: 4px solid var(--gray-900);
+}
+
+.narrative-weakness {
+  background: var(--white);
+  border-left: 4px solid var(--gray-400);
+}
+
+.narrative-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.strength-label {
+  color: var(--gray-900);
+}
+
+.weakness-label {
+  color: var(--gray-500);
+}
+
+.narrative-cat-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.narrative-cat-score {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-400);
+  font-variant-numeric: tabular-nums;
+}
+
+.narrative-text {
+  font-size: 13px;
+  color: var(--gray-600);
+  line-height: 1.9;
+}
+
+.narrative-bold {
+  font-weight: 500;
+  color: var(--gray-800);
+  font-size: 14px;
+}
+
+.narrative-closing {
+  padding-top: 16px;
+  border-top: 1px solid var(--gray-150);
+}
+
+.narrative-italic {
+  font-style: italic;
+  color: var(--gray-500);
+}
+
+/* ================================================
+   BRAIN TYPE COMPATIBILITY
+   ================================================ */
+
+.compat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.compat-card {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.compat-header {
+  padding: 12px 20px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.compat-best .compat-header {
+  background: var(--gray-900);
+}
+
+.compat-best .compat-relation {
+  color: var(--white);
+}
+
+.compat-relation {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--gray-700);
+}
+
+.compat-body {
+  padding: 20px;
+}
+
+.compat-partner-code {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--black);
+  margin-bottom: 2px;
+}
+
+.compat-partner-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 12px;
+}
+
+.compat-desc {
+  font-size: 13px;
+  color: var(--gray-500);
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+.compat-partner-detail {
+  font-size: 12px;
+  color: var(--gray-400);
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* ================================================
+   SHARE & SAVE
+   ================================================ */
+
+.share-section {
+  border-bottom: none;
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
+  flex: 1;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.btn-share-line {
+  background: #06C755;
+  color: #fff;
+}
+
+.btn-share-line:hover {
+  background: #05a848;
+}
+
+.btn-share-x {
+  background: var(--gray-900);
+  color: #fff;
+}
+
+.btn-share-x:hover {
+  background: var(--gray-700);
+}
+
+.btn-share-save {
+  background: var(--white);
+  color: var(--gray-700);
+  border: 1.5px solid var(--gray-300);
+}
+
+.btn-share-save:hover {
+  border-color: var(--gray-600);
+  color: var(--gray-900);
+}
+
+.btn-share:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Share Capture (offscreen card for image export) */
+.share-capture {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 600px;
+  background: #fff;
+}
+
+.share-capture-inner {
+  padding: 48px 40px;
+  text-align: center;
+  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+}
+
+.share-capture-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #222;
+}
+
+.share-capture-logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #000;
+}
+
+.share-capture-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+}
+
+.share-capture-scores {
+  margin-bottom: 24px;
+}
+
+.share-capture-total {
+  margin-bottom: 12px;
+}
+
+.share-capture-total-number {
+  font-size: 72px;
+  font-weight: 700;
+  color: #000;
+  line-height: 1;
+}
+
+.share-capture-total-label {
+  font-size: 20px;
+  font-weight: 400;
+  color: #999;
+  margin-left: 4px;
+}
+
+.share-capture-sub {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  font-size: 14px;
+  color: #666;
+}
+
+.share-capture-sub strong {
+  font-weight: 700;
+  color: #222;
+}
+
+.share-capture-type {
+  padding: 20px;
+  margin: 24px 0;
+  border: 2px solid #222;
+  border-radius: 8px;
+}
+
+.share-capture-bt-code {
+  display: block;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: #000;
+  margin-bottom: 4px;
+}
+
+.share-capture-bt-name {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.share-capture-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #ddd;
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
+/* ================================================
    ANIMATIONS
    ================================================ */
 
