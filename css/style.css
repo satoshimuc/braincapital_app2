@@ -1412,125 +1412,145 @@ strong {
   background: var(--gray-700);
 }
 
-.btn-share-save {
-  background: var(--white);
-  color: var(--gray-700);
-  border: 1.5px solid var(--gray-300);
-}
-
-.btn-share-save:hover {
-  border-color: var(--gray-600);
-  color: var(--gray-900);
-}
-
 .btn-share:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Share Capture (offscreen card for image export) */
-.share-capture {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  width: 600px;
-  background: #fff;
+/* ================================================
+   LINE CTA (Primary Conversion)
+   ================================================ */
+
+.line-cta-section {
+  border-bottom: none;
+  padding-top: 48px;
+  padding-bottom: 48px;
 }
 
-.share-capture-inner {
-  padding: 48px 40px;
+.line-cta-card {
   text-align: center;
-  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+  padding: 40px 28px;
+  background: linear-gradient(135deg, #06C755 0%, #04a347 100%);
+  border-radius: var(--radius-lg);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
 }
 
-.share-capture-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #222;
+.line-cta-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
 }
 
-.share-capture-logo {
-  font-size: 18px;
+.line-cta-card::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  left: -30px;
+  width: 160px;
+  height: 160px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+}
+
+.line-cta-badge {
+  display: inline-block;
+  padding: 3px 14px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 4px;
-  color: #000;
+  letter-spacing: 2px;
+  color: #fff;
+  margin-bottom: 20px;
 }
 
-.share-capture-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #555;
-}
-
-.share-capture-scores {
-  margin-bottom: 24px;
-}
-
-.share-capture-total {
-  margin-bottom: 12px;
-}
-
-.share-capture-total-number {
-  font-size: 72px;
-  font-weight: 700;
-  color: #000;
-  line-height: 1;
-}
-
-.share-capture-total-label {
+.line-cta-title {
   font-size: 20px;
-  font-weight: 400;
-  color: #999;
-  margin-left: 4px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #fff;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
 }
 
-.share-capture-sub {
+.line-cta-desc {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.8;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.line-cta-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.line-cta-benefits li {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.line-cta-benefits li::before {
+  content: '\2713\0020';
+  font-weight: 700;
+}
+
+.btn-line-cta {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  gap: 32px;
-  font-size: 14px;
-  color: #666;
-}
-
-.share-capture-sub strong {
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  padding: 16px 24px;
+  background: #fff;
+  color: #06C755;
+  font-family: var(--font-sans);
+  font-size: 16px;
   font-weight: 700;
-  color: #222;
+  text-decoration: none;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-.share-capture-type {
-  padding: 20px;
-  margin: 24px 0;
-  border: 2px solid #222;
-  border-radius: 8px;
+.btn-line-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
 }
 
-.share-capture-bt-code {
-  display: block;
-  font-family: 'SF Mono', 'Consolas', monospace;
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  color: #000;
-  margin-bottom: 4px;
+.btn-line-cta:active {
+  transform: translateY(0);
 }
 
-.share-capture-bt-name {
-  display: block;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-}
-
-.share-capture-footer {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #ddd;
-  font-size: 12px;
-  color: #999;
-  font-style: italic;
+.line-cta-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 12px;
+  position: relative;
+  z-index: 1;
 }
 
 /* ================================================
