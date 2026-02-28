@@ -13,7 +13,243 @@
   // Part 3: Brain Type  (K-N, 16 questions) — bipolar
   // ============================================
 
-  var TOTAL_QUESTIONS = 46;
+  // ============================================
+  // I18N: Translations
+  // ============================================
+
+  var currentLang = 'ja'; // 'ja' or 'en'
+  var currentMode = 'both'; // 'type', 'capital', or 'both'
+
+  var I18N = {
+    ja: {
+      // Mode select
+      'mode-title': '診断モードを選んでください',
+      'mode-type-name': '脳タイプ検定',
+      'mode-type-desc': 'あなたのBrain Typeを判定',
+      'mode-capital-name': '脳資本測定',
+      'mode-capital-desc': 'Brain Health + Brain Skillsを測定',
+      'mode-both-name': '両方まとめて',
+      'mode-both-desc': 'フル診断',
+      'mode-both-badge': 'おすすめ',
+      // Landing
+      'hero-title': 'Brain Capital<br>セルフ診断キット',
+      'hero-subtitle-both': 'Brain Health + Brain Skills + Brain Type',
+      'hero-subtitle-capital': 'Brain Health + Brain Skills',
+      'hero-subtitle-type': 'Brain Type — 脳の使い方タイプ判定',
+      'lead-text': 'あなたの「脳の資産」は<br/>今、どんな状態だろうか？',
+      'body-text': '金融資産なら残高を見れば分かる。<br/>しかし<strong>脳の資産（Brain Capital）</strong>は、意識的に「測定」しなければ現状が見えない。',
+      'info-items-label': '診断項目',
+      'info-minutes-unit': '分',
+      'info-time-label': '所要時間',
+      'info-scale-label': '段階',
+      'info-scale-sublabel': '評価スケール',
+      'guide-title': '評価基準',
+      'guide-1': 'まったく当てはまらない',
+      'guide-2': 'あまり当てはまらない',
+      'guide-3': 'どちらとも言えない',
+      'guide-4': 'やや当てはまる',
+      'guide-5': '非常に当てはまる',
+      'note-text': '正直に、直感で答えること。「こうありたい」ではなく「今の自分」を評価する。',
+      'btn-start': '診断を開始する',
+      'btn-prev': '戻る',
+      'btn-next': '次へ',
+      'btn-next-finish': '結果を見る',
+      'btn-retry': 'もう一度診断する',
+      'btn-copy': 'コピー',
+      'btn-copy-done': 'コピーしました',
+      // Results
+      'results-main-title': 'Brain Capital 総合診断結果',
+      'section-balance-type': 'バランスタイプ',
+      'matrix-skills-high': 'Brain Skills 高い',
+      'matrix-skills-low': 'Brain Skills 低い',
+      'matrix-health-low': 'Brain Health 低い',
+      'matrix-health-high': 'Brain Health 高い',
+      'matrix-label-S': '理想型',
+      'matrix-label-A': '土台充実',
+      'matrix-label-B': 'スキル偏重',
+      'matrix-label-D': '要改善',
+      'section-category-scores': 'カテゴリ別スコア',
+      'section-health-breakdown': 'Brain Health — カテゴリ別',
+      'section-skills-breakdown': 'Brain Skills — カテゴリ別',
+      'section-score-guide': 'スコア解釈ガイド',
+      'interp-desc-S': '脳の資産が十分に蓄積されている。維持とさらなる成長を',
+      'interp-desc-A': '良好な状態。弱い領域を特定し、戦略的に強化すれば大幅に伸びる',
+      'interp-desc-B': '伸びしろが大きい。優先順位をつけて改善に取り組むフェーズ',
+      'interp-desc-C': '脳の資本が消耗している可能性。まずBrain Healthの立て直しが最優先',
+      'interp-desc-D': '早急な対策が必要。睡眠・ストレス管理から着手を',
+      'section-narrative': 'あなたの脳の「今」を読み解く',
+      'section-brain-type': 'Brain Type — 脳の使い方タイプ',
+      'section-compat': 'タイプ相性 — あなたと好相性のBrain Type',
+      'section-compat-desc': '脳の使い方が異なるパートナーとの組み合わせが、チームのパフォーマンスを最大化する。',
+      'section-improvement': '改善アクション',
+      'section-ai-prompt': 'AIパーソナル分析',
+      'section-ai-prompt-desc': '以下のプロンプトをChatGPTまたはClaudeに入力すると、パーソナライズされた改善プランが手に入る。',
+      'line-cta-title': '診断結果を活かすための<br>無料サポートを受け取る',
+      'line-cta-desc': 'LINE公式アカウントに登録すると、あなたのBrain Typeに合わせたパーソナライズド改善プランと、4週間の実践ガイドを無料でお届けします。',
+      'line-cta-b1': 'あなた専用の改善アクションプラン',
+      'line-cta-b2': '週1回の脳科学Tipsを配信',
+      'line-cta-b3': '次回診断のリマインド通知',
+      'line-cta-btn-text': 'LINE友だち追加で受け取る',
+      'line-cta-note': '※ 無料・いつでもブロック可能',
+      'section-share': '結果をシェアする',
+      'btn-share-line-text': 'LINEでシェア',
+      'btn-share-x-text': 'Xでシェア',
+      'footer-brand': 'Brain Capital — 脳が、最大の資産になる時代。',
+      // Assessment labels
+      'rating-low': '当てはまらない',
+      'rating-high': '非常に当てはまる',
+      'category-prefix': 'カテゴリ',
+      'axis-prefix': '軸 ',
+    },
+    en: {
+      'mode-title': 'Select Assessment Mode',
+      'mode-type-name': 'Brain Type Test',
+      'mode-type-desc': 'Determine your Brain Type',
+      'mode-capital-name': 'Brain Capital Assessment',
+      'mode-capital-desc': 'Brain Health + Brain Skills assessment',
+      'mode-both-name': 'Full Assessment',
+      'mode-both-desc': 'Complete full assessment',
+      'mode-both-badge': 'RECOMMENDED',
+      'hero-title': 'Brain Capital<br>Self-Assessment Kit',
+      'hero-subtitle-both': 'Brain Health + Brain Skills + Brain Type',
+      'hero-subtitle-capital': 'Brain Health + Brain Skills',
+      'hero-subtitle-type': 'Brain Type — Identify Your Cognitive Style',
+      'lead-text': 'What is the state of<br/>your "brain assets" right now?',
+      'body-text': 'You can check your bank balance at a glance.<br/>But your <strong>Brain Capital</strong> remains invisible unless you consciously measure it.',
+      'info-items-label': 'Questions',
+      'info-minutes-unit': 'min',
+      'info-time-label': 'Duration',
+      'info-scale-label': 'Levels',
+      'info-scale-sublabel': 'Rating Scale',
+      'guide-title': 'Rating Guide',
+      'guide-1': 'Strongly disagree',
+      'guide-2': 'Disagree',
+      'guide-3': 'Neutral',
+      'guide-4': 'Agree',
+      'guide-5': 'Strongly agree',
+      'note-text': 'Answer honestly and intuitively. Rate "who you are now", not "who you want to be".',
+      'btn-start': 'Start Assessment',
+      'btn-prev': 'Back',
+      'btn-next': 'Next',
+      'btn-next-finish': 'View Results',
+      'btn-retry': 'Take Again',
+      'btn-copy': 'Copy',
+      'btn-copy-done': 'Copied!',
+      'results-main-title': 'Brain Capital Assessment Results',
+      'section-balance-type': 'Balance Type',
+      'matrix-skills-high': 'Brain Skills High',
+      'matrix-skills-low': 'Brain Skills Low',
+      'matrix-health-low': 'Brain Health Low',
+      'matrix-health-high': 'Brain Health High',
+      'matrix-label-S': 'Ideal',
+      'matrix-label-A': 'Strong Foundation',
+      'matrix-label-B': 'Skill-Heavy',
+      'matrix-label-D': 'Needs Improvement',
+      'section-category-scores': 'Category Scores',
+      'section-health-breakdown': 'Brain Health — By Category',
+      'section-skills-breakdown': 'Brain Skills — By Category',
+      'section-score-guide': 'Score Interpretation Guide',
+      'interp-desc-S': 'Brain capital is well-accumulated. Focus on maintenance and further growth.',
+      'interp-desc-A': 'Good condition. Identify weak areas and strategically strengthen them for major gains.',
+      'interp-desc-B': 'Large room for growth. Prioritize and work on improvements.',
+      'interp-desc-C': 'Brain capital may be depleted. Rebuilding Brain Health is the top priority.',
+      'interp-desc-D': 'Urgent action needed. Start with sleep and stress management.',
+      'section-narrative': 'Reading Your Brain\'s Current State',
+      'section-brain-type': 'Brain Type — Your Cognitive Style',
+      'section-compat': 'Type Compatibility — Your Best Brain Type Partners',
+      'section-compat-desc': 'Partnering with people who use their brains differently maximizes team performance.',
+      'section-improvement': 'Improvement Actions',
+      'section-ai-prompt': 'AI Personal Analysis',
+      'section-ai-prompt-desc': 'Paste the prompt below into ChatGPT or Claude to get a personalized improvement plan.',
+      'line-cta-title': 'Get Free Support<br>Based on Your Results',
+      'line-cta-desc': 'Register with our LINE official account to receive a personalized improvement plan and a 4-week practical guide tailored to your Brain Type.',
+      'line-cta-b1': 'Your personalized action plan',
+      'line-cta-b2': 'Weekly neuroscience tips',
+      'line-cta-b3': 'Next assessment reminder',
+      'line-cta-btn-text': 'Add LINE Friend',
+      'line-cta-note': '* Free — block anytime',
+      'section-share': 'Share Your Results',
+      'btn-share-line-text': 'Share on LINE',
+      'btn-share-x-text': 'Share on X',
+      'footer-brand': 'Brain Capital — The era when your brain becomes your greatest asset.',
+      'rating-low': 'Disagree',
+      'rating-high': 'Strongly agree',
+      'category-prefix': 'Category ',
+      'axis-prefix': 'Axis ',
+    },
+  };
+
+  function t(key) {
+    return (I18N[currentLang] && I18N[currentLang][key]) || key;
+  }
+
+  function applyI18N() {
+    var dict = I18N[currentLang];
+    if (!dict) return;
+    Object.keys(dict).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) {
+        if (dict[id].indexOf('<') !== -1) {
+          el.innerHTML = dict[id];
+        } else {
+          el.textContent = dict[id];
+        }
+      }
+    });
+    // Update buttons
+    var btnStartEl = document.getElementById('btn-start');
+    if (btnStartEl) btnStartEl.textContent = t('btn-start');
+    var btnRetryEl = document.getElementById('btn-retry');
+    if (btnRetryEl) btnRetryEl.textContent = t('btn-retry');
+    var btnPrevEl = document.getElementById('btn-prev');
+    if (btnPrevEl) btnPrevEl.textContent = t('btn-prev');
+    var btnCopyEl = document.getElementById('btn-copy-prompt');
+    if (btnCopyEl) btnCopyEl.textContent = t('btn-copy');
+
+    // Update mode card dynamic items/time/desc
+    var modes = ['type', 'capital', 'both'];
+    modes.forEach(function (mode) {
+      var cfg = MODE_CONFIG[mode];
+      var detailEl = document.querySelector('#btn-mode-' + mode + ' .mode-card-detail');
+      if (detailEl) detailEl.textContent = cfg.items + (currentLang === 'en' ? ' items' : '問');
+      var timeEl = document.getElementById('mode-' + mode + '-time');
+      if (timeEl) timeEl.textContent = '~' + cfg.minutes + ' min';
+      // Update desc with count prefix
+      var descEl = document.getElementById('mode-' + mode + '-desc');
+      if (descEl) {
+        var prefix = currentLang === 'en' ? cfg.items + ' Qs — ' : cfg.items + '問で';
+        descEl.textContent = prefix + t('mode-' + mode + '-desc');
+      }
+    });
+  }
+
+  // ============================================
+  // MODE CONFIG: question counts & timing
+  // ============================================
+
+  // Items/minutes computed after CATEGORIES are defined
+  var MODE_CONFIG = {
+    type: { parts: [3], items: 0, minutes: 5 },
+    capital: { parts: [1, 2], items: 0, minutes: 10 },
+    both: { parts: [1, 2, 3], items: 0, minutes: 15 },
+  };
+
+  function getActiveCategories() {
+    var cfg = MODE_CONFIG[currentMode] || MODE_CONFIG.both;
+    return CATEGORIES.filter(function (c) {
+      return cfg.parts.indexOf(c.part) !== -1;
+    });
+  }
+
+  function getTotalQuestions() {
+    var total = 0;
+    getActiveCategories().forEach(function (cat) {
+      total += cat.questions.length;
+    });
+    return total;
+  }
+
+  var TOTAL_QUESTIONS = 78; // will be updated dynamically
 
   const CATEGORIES = [
     // Part 1: Brain Health (A–E)
@@ -412,6 +648,19 @@
     });
   });
 
+  // Compute MODE_CONFIG items from actual data
+  Object.keys(MODE_CONFIG).forEach(function (mode) {
+    var cfg = MODE_CONFIG[mode];
+    var count = 0;
+    CATEGORIES.forEach(function (cat) {
+      if (cfg.parts.indexOf(cat.part) !== -1) {
+        count += cat.questions.length;
+      }
+    });
+    cfg.items = count;
+    cfg.minutes = Math.ceil(count * 0.3); // ~18 seconds per question
+  });
+
   // ============================================
   // DOM REFERENCES
   // ============================================
@@ -419,6 +668,8 @@
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
 
+  const screenLang = $('#screen-lang');
+  const screenMode = $('#screen-mode');
   const screenLanding = $('#screen-landing');
   const screenAssessment = $('#screen-assessment');
   const screenResults = $('#screen-results');
@@ -454,10 +705,11 @@
   // ============================================
 
   function renderCategory(index) {
-    const cat = CATEGORIES[index];
+    var activeCats = getActiveCategories();
+    const cat = activeCats[index];
     categoryPartLabel.textContent = cat.partLabel;
-    categoryId.textContent = cat.bipolar ? '軸 ' + cat.id : 'カテゴリ' + cat.id;
-    categoryTitle.textContent = cat.name;
+    categoryId.textContent = cat.bipolar ? t('axis-prefix') + cat.id : t('category-prefix') + cat.id;
+    categoryTitle.textContent = currentLang === 'en' ? (cat.nameEn || cat.name) : cat.name;
     categoryDescription.textContent = cat.description;
     partIndicator.textContent = 'Part ' + cat.part;
 
@@ -500,8 +752,8 @@
             }).join('') +
           '</div>' +
           '<div class="rating-labels">' +
-            '<span class="rating-label-text">当てはまらない</span>' +
-            '<span class="rating-label-text">非常に当てはまる</span>' +
+            '<span class="rating-label-text">' + t('rating-low') + '</span>' +
+            '<span class="rating-label-text">' + t('rating-high') + '</span>' +
           '</div>';
         questionsContainer.appendChild(card);
       });
@@ -568,24 +820,35 @@
   });
 
   function updateProgress() {
-    const totalAnswered = Object.keys(answers).length;
-    const pct = (totalAnswered / TOTAL_QUESTIONS) * 100;
+    var activeTotal = getTotalQuestions();
+    // Count only answers for active categories
+    var activeCats = getActiveCategories();
+    var activeQuestionIds = {};
+    activeCats.forEach(function (cat) {
+      cat.questions.forEach(function (q) { activeQuestionIds[q.id] = true; });
+    });
+    var totalAnswered = 0;
+    Object.keys(answers).forEach(function (k) {
+      if (activeQuestionIds[k]) totalAnswered++;
+    });
+    const pct = (totalAnswered / activeTotal) * 100;
     progressBar.style.width = pct + '%';
-    progressText.textContent = totalAnswered + ' / ' + TOTAL_QUESTIONS;
+    progressText.textContent = totalAnswered + ' / ' + activeTotal;
   }
 
   function updateNavButtons() {
+    var activeCats = getActiveCategories();
     btnPrev.disabled = currentCategoryIndex === 0;
 
     // Check if all questions in current category are answered
-    const cat = CATEGORIES[currentCategoryIndex];
+    const cat = activeCats[currentCategoryIndex];
     const allAnswered = cat.questions.every((q) => answers[q.id]);
 
-    if (currentCategoryIndex === CATEGORIES.length - 1) {
-      btnNext.textContent = '結果を見る';
+    if (currentCategoryIndex === activeCats.length - 1) {
+      btnNext.textContent = t('btn-next-finish');
       btnNext.disabled = !allAnswered;
     } else {
-      btnNext.textContent = '次へ';
+      btnNext.textContent = t('btn-next');
       btnNext.disabled = !allAnswered;
     }
   }
@@ -605,7 +868,8 @@
   }
 
   function goNext() {
-    if (currentCategoryIndex < CATEGORIES.length - 1) {
+    var activeCats = getActiveCategories();
+    if (currentCategoryIndex < activeCats.length - 1) {
       transitionToCategory(currentCategoryIndex + 1);
     } else {
       showResults();
@@ -705,67 +969,89 @@
 
   function showResults() {
     showScreen(screenResults);
+
+    // Show/hide sections based on mode
+    var sections = document.querySelectorAll('[data-mode]');
+    sections.forEach(function (sec) {
+      var secMode = sec.getAttribute('data-mode');
+      if (currentMode === 'both') {
+        sec.style.display = '';
+      } else if (secMode === currentMode) {
+        sec.style.display = '';
+      } else {
+        sec.style.display = 'none';
+      }
+    });
+
     const r = calculateResults();
+    var bt = calculateBrainType();
 
     // Save results (localStorage + API)
     saveResults(r);
 
     // Date
     const now = new Date();
-    $('#results-date').textContent =
-      now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日 実施';
+    if (currentLang === 'en') {
+      $('#results-date').textContent =
+        now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    } else {
+      $('#results-date').textContent =
+        now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日 実施';
+    }
 
-    // Score ring animation
-    const level = getLevel(r.total);
-    animateScoreRing(r.total, level);
+    // Capital-related results
+    if (currentMode === 'capital' || currentMode === 'both') {
+      // Score ring animation
+      const level = getLevel(r.total);
+      animateScoreRing(r.total, level);
 
-    // Health / Skills bars
-    setTimeout(() => {
-      $('#health-bar').style.width = ((r.healthTotal / 75) * 100).toFixed(1) + '%';
-      $('#skills-bar').style.width = ((r.skillsTotal / 75) * 100).toFixed(1) + '%';
-    }, 300);
-    $('#health-score').textContent = r.healthTotal + ' / 75';
-    $('#skills-score').textContent = r.skillsTotal + ' / 75';
+      // Health / Skills bars
+      setTimeout(() => {
+        $('#health-bar').style.width = ((r.healthTotal / 75) * 100).toFixed(1) + '%';
+        $('#skills-bar').style.width = ((r.skillsTotal / 75) * 100).toFixed(1) + '%';
+      }, 300);
+      $('#health-score').textContent = r.healthTotal + ' / 75';
+      $('#skills-score').textContent = r.skillsTotal + ' / 75';
 
-    // Type
-    const type = getType(r.healthTotal, r.skillsTotal);
-    const typeInfo = TYPE_INFO[type];
-    $('#type-badge').textContent = 'Type ' + type;
-    $('#type-name').textContent = typeInfo.name;
-    $('#type-description').textContent = typeInfo.description;
+      // Type
+      const type = getType(r.healthTotal, r.skillsTotal);
+      const typeInfo = TYPE_INFO[type];
+      $('#type-badge').textContent = 'Type ' + type;
+      $('#type-name').textContent = typeInfo.name;
+      $('#type-description').textContent = typeInfo.description;
 
-    // Matrix highlight
-    $$('.matrix-cell').forEach((c) => c.classList.remove('active'));
-    const matrixCell = $('#matrix-' + type);
-    if (matrixCell) matrixCell.classList.add('active');
+      // Matrix highlight
+      $$('.matrix-cell').forEach((c) => c.classList.remove('active'));
+      const matrixCell = $('#matrix-' + type);
+      if (matrixCell) matrixCell.classList.add('active');
 
-    // Interpretation highlight
-    $$('.interp-row').forEach((row) => row.classList.remove('active'));
-    const interpRow = $('#interp-' + level.grade);
-    if (interpRow) interpRow.classList.add('active');
+      // Interpretation highlight
+      $$('.interp-row').forEach((row) => row.classList.remove('active'));
+      const interpRow = $('#interp-' + level.grade);
+      if (interpRow) interpRow.classList.add('active');
 
-    // Radar chart
-    drawRadarChart(r);
+      // Radar chart
+      drawRadarChart(r);
 
-    // Category breakdowns
-    renderBreakdown('health-breakdown', CATEGORIES.filter((c) => c.part === 1), r);
-    renderBreakdown('skills-breakdown', CATEGORIES.filter((c) => c.part === 2), r);
+      // Category breakdowns
+      renderBreakdown('health-breakdown', CATEGORIES.filter((c) => c.part === 1), r);
+      renderBreakdown('skills-breakdown', CATEGORIES.filter((c) => c.part === 2), r);
 
-    // Improvement actions
-    renderImprovementActions(r);
+      // Improvement actions
+      renderImprovementActions(r);
 
-    // Narrative Feedback (personal insights)
-    renderNarrativeFeedback(r);
+      // Narrative Feedback (personal insights)
+      renderNarrativeFeedback(r);
 
-    // Brain Type
-    var bt = calculateBrainType();
-    renderBrainType(bt);
+      // AI prompt (include brain type)
+      renderAIPrompt(r, bt);
+    }
 
-    // Brain Type Compatibility
-    renderBrainTypeCompat(bt);
-
-    // AI prompt (include brain type)
-    renderAIPrompt(r, bt);
+    // Brain Type results
+    if (currentMode === 'type' || currentMode === 'both') {
+      renderBrainType(bt);
+      renderBrainTypeCompat(bt);
+    }
 
     // Wire up share buttons
     var btnShareLine = document.getElementById('btn-share-line');
@@ -1281,10 +1567,55 @@
   // EVENT LISTENERS
   // ============================================
 
+  // ============================================
+  // LANGUAGE SELECT
+  // ============================================
+
+  function selectLanguage(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang === 'ja' ? 'ja' : 'en';
+    applyI18N();
+    showScreen(screenMode);
+  }
+
+  $('#btn-lang-ja').addEventListener('click', function () { selectLanguage('ja'); });
+  $('#btn-lang-en').addEventListener('click', function () { selectLanguage('en'); });
+
+  // ============================================
+  // MODE SELECT
+  // ============================================
+
+  function selectMode(mode) {
+    currentMode = mode;
+    TOTAL_QUESTIONS = getTotalQuestions();
+
+    // Update landing page info based on mode
+    var cfg = MODE_CONFIG[mode];
+    var infoItems = document.getElementById('info-items');
+    var infoMinutes = document.getElementById('info-minutes');
+    var heroSubtitle = document.getElementById('hero-subtitle');
+
+    if (infoItems) infoItems.textContent = cfg.items;
+    if (infoMinutes) infoMinutes.textContent = cfg.minutes;
+    if (heroSubtitle) {
+      heroSubtitle.innerHTML = t('hero-subtitle-' + mode);
+    }
+
+    showScreen(screenLanding);
+  }
+
+  $('#btn-mode-type').addEventListener('click', function () { selectMode('type'); });
+  $('#btn-mode-capital').addEventListener('click', function () { selectMode('capital'); });
+  $('#btn-mode-both').addEventListener('click', function () { selectMode('both'); });
+
+  // ============================================
+  // ASSESSMENT START / NAV
+  // ============================================
+
   btnStart.addEventListener('click', () => {
     currentCategoryIndex = 0;
     sessionId = generateSessionId();
-    console.log('Assessment started, session:', sessionId);
+    console.log('Assessment started, session:', sessionId, 'mode:', currentMode, 'lang:', currentLang);
     showScreen(screenAssessment);
     renderCategory(0);
   });
@@ -1297,16 +1628,16 @@
     Object.keys(answers).forEach((k) => delete answers[k]);
     currentCategoryIndex = 0;
     sessionId = null;
-    showScreen(screenLanding);
+    showScreen(screenLang);
   });
 
   btnCopyPrompt.addEventListener('click', () => {
     const text = $('#ai-prompt').textContent;
     navigator.clipboard.writeText(text).then(() => {
-      btnCopyPrompt.textContent = 'コピーしました';
+      btnCopyPrompt.textContent = t('btn-copy-done');
       btnCopyPrompt.classList.add('copied');
       setTimeout(() => {
-        btnCopyPrompt.textContent = 'コピー';
+        btnCopyPrompt.textContent = t('btn-copy');
         btnCopyPrompt.classList.remove('copied');
       }, 2000);
     }).catch(() => {
@@ -1319,10 +1650,10 @@
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      btnCopyPrompt.textContent = 'コピーしました';
+      btnCopyPrompt.textContent = t('btn-copy-done');
       btnCopyPrompt.classList.add('copied');
       setTimeout(() => {
-        btnCopyPrompt.textContent = 'コピー';
+        btnCopyPrompt.textContent = t('btn-copy');
         btnCopyPrompt.classList.remove('copied');
       }, 2000);
     });

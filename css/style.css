@@ -1652,4 +1652,203 @@ strong {
   .landing-container {
     padding: 64px 32px 80px;
   }
+
+  .select-container {
+    padding: 64px 32px 80px;
+  }
+}
+
+/* ================================================
+   LANGUAGE & MODE SELECT SCREENS
+   ================================================ */
+
+.select-container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.select-logo {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.select-logo .logo-image {
+  height: 48px;
+  width: auto;
+  filter: grayscale(100%);
+}
+
+.select-logo .logo-text,
+.select-logo .header-logo {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--black);
+  text-transform: uppercase;
+}
+
+.select-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gray-800);
+  text-align: center;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.select-options {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 400px;
+}
+
+.select-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 40px;
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: var(--font-sans);
+  flex: 1;
+  min-width: 160px;
+}
+
+.select-card:hover {
+  border-color: var(--gray-800);
+  background: var(--gray-50);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.select-card:active {
+  transform: translateY(0);
+}
+
+.select-card-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.select-card-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+/* Mode Select */
+.mode-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: var(--font-sans);
+  text-align: left;
+  position: relative;
+}
+
+.mode-card:hover {
+  border-color: var(--gray-800);
+  background: var(--gray-50);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.mode-card:active {
+  transform: translateY(0);
+}
+
+.mode-card-recommended {
+  border-color: var(--gray-800);
+  background: var(--gray-50);
+}
+
+.mode-card-recommend-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  background: var(--gray-900);
+  color: var(--white);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 2px;
+  align-self: flex-start;
+  margin-bottom: 4px;
+}
+
+.mode-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mode-card-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.mode-card-badge {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-400);
+  background: var(--gray-100);
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.mode-card-desc {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.mode-card-detail {
+  font-size: 12px;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .select-options {
+    flex-direction: column;
+  }
+
+  .select-card {
+    padding: 24px 32px;
+  }
+
+  .select-title {
+    font-size: 18px;
+  }
 }
