@@ -1331,7 +1331,9 @@
     const catI = results.categories['I'];
     const catJ = results.categories['J'];
 
-    const prompt = `私のBrain Capital セルフ診断の結果を分析し、
+    const prompt = `※ このプロンプトは、UNLOCK が提供する Brain Capital（脳資本）測定および脳タイプ診断の知見をもとに自動生成されています。
+
+私のBrain Capital セルフ診断の結果を分析し、
 パーソナライズされた改善プランを作成してください。
 
 ■ Brain Health スコア
