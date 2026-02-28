@@ -14,8 +14,66 @@
 </head>
 <body>
 
+  <!-- ========== SCREEN 0a: LANGUAGE SELECT ========== -->
+  <div id="screen-lang" class="screen active">
+    <div class="select-container">
+      <div class="select-logo">
+        <img src="assets/logo.png" alt="UNLOCK" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span class="logo-text" style="display:none;">UNLOCK</span>
+      </div>
+      <h1 class="select-title" id="lang-title">言語を選択 / Select Language</h1>
+      <div class="select-options">
+        <button type="button" id="btn-lang-ja" class="select-card">
+          <span class="select-card-icon">🇯🇵</span>
+          <span class="select-card-label">日本語</span>
+        </button>
+        <button type="button" id="btn-lang-en" class="select-card">
+          <span class="select-card-icon">🇬🇧</span>
+          <span class="select-card-label">English</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 0b: MODE SELECT ========== -->
+  <div id="screen-mode" class="screen">
+    <div class="select-container">
+      <div class="select-logo">
+        <span class="header-logo">UNLOCK</span>
+      </div>
+      <h1 class="select-title" id="mode-title">診断モードを選んでください</h1>
+      <div class="mode-options">
+        <button type="button" id="btn-mode-type" class="mode-card">
+          <div class="mode-card-header">
+            <span class="mode-card-name" id="mode-type-name">脳タイプ検定</span>
+            <span class="mode-card-badge" id="mode-type-time">~15 min</span>
+          </div>
+          <p class="mode-card-desc" id="mode-type-desc">48問であなたのBrain Typeを判定</p>
+          <div class="mode-card-detail">48 items</div>
+        </button>
+        <button type="button" id="btn-mode-capital" class="mode-card">
+          <div class="mode-card-header">
+            <span class="mode-card-name" id="mode-capital-name">脳資本測定</span>
+            <span class="mode-card-badge" id="mode-capital-time">~10 min</span>
+          </div>
+          <p class="mode-card-desc" id="mode-capital-desc">30問でBrain Health + Brain Skillsを測定</p>
+          <div class="mode-card-detail">30 items</div>
+        </button>
+        <button type="button" id="btn-mode-both" class="mode-card mode-card-recommended">
+          <div class="mode-card-recommend-badge" id="mode-both-badge">RECOMMENDED</div>
+          <div class="mode-card-header">
+            <span class="mode-card-name" id="mode-both-name">両方まとめて</span>
+            <span class="mode-card-badge" id="mode-both-time">~25 min</span>
+          </div>
+          <p class="mode-card-desc" id="mode-both-desc">78問のフル診断</p>
+          <div class="mode-card-detail">78 items</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ========== SCREEN 1: LANDING ========== -->
-  <div id="screen-landing" class="screen active">
+  <div id="screen-landing" class="screen">
     <div class="landing-container">
       <header class="landing-header">
         <div class="logo-mark">
@@ -27,50 +85,43 @@
       </header>
 
       <div class="landing-hero">
-        <h1 class="hero-title">Brain Capital<br>セルフ診断キット</h1>
-        <p class="hero-subtitle">Brain Health（15問）+ Brain Skills（15問）+ Brain Type（16問）</p>
+        <h1 class="hero-title" id="hero-title">Brain Capital<br>セルフ診断キット</h1>
+        <p class="hero-subtitle" id="hero-subtitle"></p>
       </div>
 
       <div class="landing-body">
-        <p class="lead-text">
-          あなたの「脳の資産」は<br/>今、どんな状態だろうか？
-        </p>
-        <p class="body-text">
-          金融資産なら残高を見れば分かる。<br/>しかし<strong>脳の資産（Brain Capital）</strong>は、意識的に「測定」しなければ現状が見えない。
-        </p>
-        <p class="body-text">
-          このセルフ診断キットは、<br/>WEF × McKinseyレポート「The Human Advantage」が定義するBrain Capital（Brain Health + Brain Skills）の枠組みをベースに、脳科学のエビデンスを加えて構成した、Brain Health（15項目）+ Brain Skills（15項目）= 計30項目であなたのBrain Capitalを可視化する。
-        </p>
+        <p class="lead-text" id="lead-text"></p>
+        <p class="body-text" id="body-text"></p>
 
         <div class="info-grid">
           <div class="info-card">
-            <span class="info-number">46</span>
-            <span class="info-label">診断項目</span>
+            <span class="info-number" id="info-items">78</span>
+            <span class="info-label" id="info-items-label">診断項目</span>
           </div>
           <div class="info-card">
-            <span class="info-number">15</span>
-            <span class="info-label">分</span>
-            <span class="info-sublabel">所要時間</span>
+            <span class="info-number" id="info-minutes">25</span>
+            <span class="info-label" id="info-minutes-unit">分</span>
+            <span class="info-sublabel" id="info-time-label">所要時間</span>
           </div>
           <div class="info-card">
             <span class="info-number">5</span>
-            <span class="info-label">段階</span>
-            <span class="info-sublabel">評価スケール</span>
+            <span class="info-label" id="info-scale-label">段階</span>
+            <span class="info-sublabel" id="info-scale-sublabel">評価スケール</span>
           </div>
         </div>
 
         <div class="scoring-guide">
-          <h3 class="guide-title">評価基準</h3>
+          <h3 class="guide-title" id="guide-title">評価基準</h3>
           <div class="guide-items">
-            <div class="guide-item"><span class="guide-score">1</span><span class="guide-desc">まったく当てはまらない</span></div>
-            <div class="guide-item"><span class="guide-score">2</span><span class="guide-desc">あまり当てはまらない</span></div>
-            <div class="guide-item"><span class="guide-score">3</span><span class="guide-desc">どちらとも言えない</span></div>
-            <div class="guide-item"><span class="guide-score">4</span><span class="guide-desc">やや当てはまる</span></div>
-            <div class="guide-item"><span class="guide-score">5</span><span class="guide-desc">非常に当てはまる</span></div>
+            <div class="guide-item"><span class="guide-score">1</span><span class="guide-desc" id="guide-1">まったく当てはまらない</span></div>
+            <div class="guide-item"><span class="guide-score">2</span><span class="guide-desc" id="guide-2">あまり当てはまらない</span></div>
+            <div class="guide-item"><span class="guide-score">3</span><span class="guide-desc" id="guide-3">どちらとも言えない</span></div>
+            <div class="guide-item"><span class="guide-score">4</span><span class="guide-desc" id="guide-4">やや当てはまる</span></div>
+            <div class="guide-item"><span class="guide-score">5</span><span class="guide-desc" id="guide-5">非常に当てはまる</span></div>
           </div>
         </div>
 
-        <p class="note-text">
+        <p class="note-text" id="note-text">
           正直に、直感で答えること。「こうありたい」ではなく「今の自分」を評価する。
         </p>
       </div>
@@ -93,7 +144,7 @@
           <div class="progress-bar-container">
             <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
           </div>
-          <span id="progress-text" class="progress-text">0 / 30</span>
+          <span id="progress-text" class="progress-text">0 / 78</span>
         </div>
         <div class="header-right">
           <span id="part-indicator" class="part-indicator">Part 1</span>
@@ -136,9 +187,9 @@
 
       <div class="results-body">
         <!-- Total Score Section -->
-        <section class="results-hero">
+        <section class="results-hero" data-mode="capital">
           <p class="results-date" id="results-date"></p>
-          <h1 class="results-main-title">Brain Capital 総合診断結果</h1>
+          <h1 class="results-main-title" id="results-main-title">Brain Capital 総合診断結果</h1>
 
           <div class="score-ring-container">
             <svg id="score-ring" class="score-ring" viewBox="0 0 200 200">
@@ -173,8 +224,8 @@
         </section>
 
         <!-- Type Classification -->
-        <section class="results-section">
-          <h2 class="section-title">バランスタイプ</h2>
+        <section class="results-section" data-mode="capital">
+          <h2 class="section-title" id="section-balance-type">バランスタイプ</h2>
           <div class="type-card" id="type-card">
             <div class="type-badge" id="type-badge">Type S</div>
             <h3 class="type-name" id="type-name">理想型</h3>
@@ -182,66 +233,62 @@
           </div>
 
           <div class="type-matrix">
-            <div class="matrix-axis-y">Brain Skills 高い</div>
+            <div class="matrix-axis-y" id="matrix-skills-high">Brain Skills 高い</div>
             <div class="matrix-grid">
               <div class="matrix-cell" id="matrix-B">
                 <span class="matrix-type">Type B</span>
-                <span class="matrix-label">スキル偏重</span>
+                <span class="matrix-label" id="matrix-label-B">スキル偏重</span>
               </div>
               <div class="matrix-cell" id="matrix-S">
                 <span class="matrix-type">Type S</span>
-                <span class="matrix-label">理想型</span>
+                <span class="matrix-label" id="matrix-label-S">理想型</span>
               </div>
               <div class="matrix-cell" id="matrix-D">
                 <span class="matrix-type">Type D</span>
-                <span class="matrix-label">要改善</span>
+                <span class="matrix-label" id="matrix-label-D">要改善</span>
               </div>
               <div class="matrix-cell" id="matrix-A">
                 <span class="matrix-type">Type A</span>
-                <span class="matrix-label">土台充実</span>
+                <span class="matrix-label" id="matrix-label-A">土台充実</span>
               </div>
             </div>
-            <div class="matrix-axis-y-bottom">Brain Skills 低い</div>
+            <div class="matrix-axis-y-bottom" id="matrix-skills-low">Brain Skills 低い</div>
             <div class="matrix-axis-x">
-              <span>Brain Health 低い</span>
-              <span>Brain Health 高い</span>
+              <span id="matrix-health-low">Brain Health 低い</span>
+              <span id="matrix-health-high">Brain Health 高い</span>
             </div>
           </div>
         </section>
 
         <!-- Radar Chart -->
-        <section class="results-section">
-          <h2 class="section-title">カテゴリ別スコア</h2>
+        <section class="results-section" data-mode="capital">
+          <h2 class="section-title" id="section-category-scores">カテゴリ別スコア</h2>
           <div class="radar-container">
             <svg id="radar-chart" class="radar-chart" viewBox="0 0 400 400"></svg>
           </div>
         </section>
 
         <!-- Category Breakdown -->
-        <section class="results-section">
-          <h2 class="section-title">Brain Health — カテゴリ別</h2>
-          <div id="health-breakdown" class="category-breakdown">
-            <!-- Rendered by JS -->
-          </div>
+        <section class="results-section" data-mode="capital">
+          <h2 class="section-title" id="section-health-breakdown">Brain Health — カテゴリ別</h2>
+          <div id="health-breakdown" class="category-breakdown"></div>
         </section>
 
-        <section class="results-section">
-          <h2 class="section-title">Brain Skills — カテゴリ別</h2>
-          <div id="skills-breakdown" class="category-breakdown">
-            <!-- Rendered by JS -->
-          </div>
+        <section class="results-section" data-mode="capital">
+          <h2 class="section-title" id="section-skills-breakdown">Brain Skills — カテゴリ別</h2>
+          <div id="skills-breakdown" class="category-breakdown"></div>
         </section>
 
         <!-- Score Interpretation -->
-        <section class="results-section">
-          <h2 class="section-title">スコア解釈ガイド</h2>
+        <section class="results-section" data-mode="capital">
+          <h2 class="section-title" id="section-score-guide">スコア解釈ガイド</h2>
           <div class="interpretation-table">
             <div class="interp-row" id="interp-S">
               <div class="interp-badge">S</div>
               <div class="interp-info">
                 <span class="interp-range">121〜150</span>
                 <span class="interp-level">Elite</span>
-                <p class="interp-desc">脳の資産が十分に蓄積されている。維持とさらなる成長を</p>
+                <p class="interp-desc" id="interp-desc-S">脳の資産が十分に蓄積されている。維持とさらなる成長を</p>
               </div>
             </div>
             <div class="interp-row" id="interp-A">
@@ -249,7 +296,7 @@
               <div class="interp-info">
                 <span class="interp-range">91〜120</span>
                 <span class="interp-level">Strong</span>
-                <p class="interp-desc">良好な状態。弱い領域を特定し、戦略的に強化すれば大幅に伸びる</p>
+                <p class="interp-desc" id="interp-desc-A">良好な状態。弱い領域を特定し、戦略的に強化すれば大幅に伸びる</p>
               </div>
             </div>
             <div class="interp-row" id="interp-B">
@@ -257,7 +304,7 @@
               <div class="interp-info">
                 <span class="interp-range">61〜90</span>
                 <span class="interp-level">Developing</span>
-                <p class="interp-desc">伸びしろが大きい。優先順位をつけて改善に取り組むフェーズ</p>
+                <p class="interp-desc" id="interp-desc-B">伸びしろが大きい。優先順位をつけて改善に取り組むフェーズ</p>
               </div>
             </div>
             <div class="interp-row" id="interp-C">
@@ -265,7 +312,7 @@
               <div class="interp-info">
                 <span class="interp-range">31〜60</span>
                 <span class="interp-level">At Risk</span>
-                <p class="interp-desc">脳の資本が消耗している可能性。まずBrain Healthの立て直しが最優先</p>
+                <p class="interp-desc" id="interp-desc-C">脳の資本が消耗している可能性。まずBrain Healthの立て直しが最優先</p>
               </div>
             </div>
             <div class="interp-row" id="interp-D">
@@ -273,54 +320,46 @@
               <div class="interp-info">
                 <span class="interp-range">〜30</span>
                 <span class="interp-level">Critical</span>
-                <p class="interp-desc">早急な対策が必要。睡眠・ストレス管理から着手を</p>
+                <p class="interp-desc" id="interp-desc-D">早急な対策が必要。睡眠・ストレス管理から着手を</p>
               </div>
             </div>
           </div>
         </section>
 
         <!-- Narrative Feedback -->
-        <section class="results-section">
-          <h2 class="section-title">あなたの脳の「今」を読み解く</h2>
-          <div id="narrative-feedback" class="narrative-container">
-            <!-- Rendered by JS -->
-          </div>
+        <section class="results-section" data-mode="capital">
+          <h2 class="section-title" id="section-narrative">あなたの脳の「今」を読み解く</h2>
+          <div id="narrative-feedback" class="narrative-container"></div>
         </section>
 
         <!-- Brain Type -->
-        <section class="results-section">
-          <h2 class="section-title">Brain Type — 脳の使い方タイプ</h2>
+        <section class="results-section" data-mode="type">
+          <h2 class="section-title" id="section-brain-type">Brain Type — 脳の使い方タイプ</h2>
           <div class="bt-type-card">
             <div class="bt-type-code" id="brain-type-code">----</div>
             <h3 class="bt-type-name" id="brain-type-name">—</h3>
             <p class="bt-type-description" id="brain-type-description"></p>
           </div>
-          <div id="brain-type-axes" class="bt-axes-container">
-            <!-- Rendered by JS: 4 axis bars -->
-          </div>
+          <div id="brain-type-axes" class="bt-axes-container"></div>
         </section>
 
         <!-- Brain Type Compatibility -->
-        <section class="results-section">
-          <h2 class="section-title">タイプ相性 — あなたと好相性のBrain Type</h2>
-          <p class="section-desc">脳の使い方が異なるパートナーとの組み合わせが、チームのパフォーマンスを最大化する。</p>
-          <div id="brain-type-compat" class="compat-container">
-            <!-- Rendered by JS -->
-          </div>
+        <section class="results-section" data-mode="type">
+          <h2 class="section-title" id="section-compat">タイプ相性 — あなたと好相性のBrain Type</h2>
+          <p class="section-desc" id="section-compat-desc">脳の使い方が異なるパートナーとの組み合わせが、チームのパフォーマンスを最大化する。</p>
+          <div id="brain-type-compat" class="compat-container"></div>
         </section>
 
         <!-- Improvement Actions -->
-        <section class="results-section">
-          <h2 class="section-title">改善アクション</h2>
-          <div id="improvement-actions" class="improvement-actions">
-            <!-- Rendered by JS -->
-          </div>
+        <section class="results-section" data-mode="capital">
+          <h2 class="section-title" id="section-improvement">改善アクション</h2>
+          <div id="improvement-actions" class="improvement-actions"></div>
         </section>
 
         <!-- AI Prompt Section -->
-        <section class="results-section">
-          <h2 class="section-title">AIパーソナル分析</h2>
-          <p class="section-desc">以下のプロンプトをChatGPTまたはClaudeに入力すると、パーソナライズされた改善プランが手に入る。</p>
+        <section class="results-section" data-mode="capital">
+          <h2 class="section-title" id="section-ai-prompt">AIパーソナル分析</h2>
+          <p class="section-desc" id="section-ai-prompt-desc">以下のプロンプトをChatGPTまたはClaudeに入力すると、パーソナライズされた改善プランが手に入る。</p>
           <div class="prompt-box">
             <pre id="ai-prompt" class="prompt-text"></pre>
             <button type="button" id="btn-copy-prompt" class="btn-copy">コピー</button>
@@ -331,39 +370,39 @@
         <section class="results-section line-cta-section">
           <div class="line-cta-card">
             <div class="line-cta-badge">LIMITED</div>
-            <h2 class="line-cta-title">診断結果を活かすための<br>無料サポートを受け取る</h2>
-            <p class="line-cta-desc">LINE公式アカウントに登録すると、あなたのBrain Typeに合わせたパーソナライズド改善プランと、4週間の実践ガイドを無料でお届けします。</p>
+            <h2 class="line-cta-title" id="line-cta-title">診断結果を活かすための<br>無料サポートを受け取る</h2>
+            <p class="line-cta-desc" id="line-cta-desc">LINE公式アカウントに登録すると、あなたのBrain Typeに合わせたパーソナライズド改善プランと、4週間の実践ガイドを無料でお届けします。</p>
             <ul class="line-cta-benefits">
-              <li>あなた専用の改善アクションプラン</li>
-              <li>週1回の脳科学Tipsを配信</li>
-              <li>次回診断のリマインド通知</li>
+              <li id="line-cta-b1">あなた専用の改善アクションプラン</li>
+              <li id="line-cta-b2">週1回の脳科学Tipsを配信</li>
+              <li id="line-cta-b3">次回診断のリマインド通知</li>
             </ul>
             <a href="https://lin.ee/XXXXXXXXX" target="_blank" rel="noopener" id="btn-line-cta" class="btn-line-cta">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 4.01 3.44 7.37 8.09 8.28.31.07.74.21.85.49.1.25.06.64.03.89l-.14.82c-.04.24-.19.93.81.51s5.39-3.18 7.35-5.44C21.07 13.67 22 12.15 22 10.5 22 5.81 17.52 2 12 2zm-3.07 11.29H7.08c-.27 0-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48s.48.22.48.48v3.68h1.37c.27 0 .48.22.48.48s-.22.48-.48.48zm1.63-.48c0 .27-.22.48-.48.48s-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48s.48.22.48.48v4.16zm4.53 0c0 .2-.12.37-.3.45a.5.5 0 01-.18.03.48.48 0 01-.39-.2l-1.9-2.58v2.3c0 .27-.22.48-.48.48s-.48-.22-.48-.48V8.65c0-.2.12-.37.3-.45a.5.5 0 01.57.17l1.9 2.58V8.65c0-.27.22-.48.48-.48s.48.22.48.48v4.16zm2.83-2.81c.27 0 .48.22.48.48s-.22.48-.48.48H16.1v.93h1.82c.27 0 .48.22.48.48s-.22.48-.48.48H15.6c-.27 0-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48h2.32c.27 0 .48.22.48.48s-.22.48-.48.48H16.1v.93h1.82z"/></svg>
-              LINE友だち追加で受け取る
+              <span id="line-cta-btn-text">LINE友だち追加で受け取る</span>
             </a>
-            <p class="line-cta-note">※ 無料・いつでもブロック可能</p>
+            <p class="line-cta-note" id="line-cta-note">※ 無料・いつでもブロック可能</p>
           </div>
         </section>
 
         <!-- Share -->
         <section class="results-section share-section">
-          <h2 class="section-title">結果をシェアする</h2>
+          <h2 class="section-title" id="section-share">結果をシェアする</h2>
           <div class="share-buttons">
             <button type="button" id="btn-share-line" class="btn-share btn-share-line">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 4.01 3.44 7.37 8.09 8.28.31.07.74.21.85.49.1.25.06.64.03.89l-.14.82c-.04.24-.19.93.81.51s5.39-3.18 7.35-5.44C21.07 13.67 22 12.15 22 10.5 22 5.81 17.52 2 12 2zm-3.07 11.29H7.08c-.27 0-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48s.48.22.48.48v3.68h1.37c.27 0 .48.22.48.48s-.22.48-.48.48zm1.63-.48c0 .27-.22.48-.48.48s-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48s.48.22.48.48v4.16zm4.53 0c0 .2-.12.37-.3.45a.5.5 0 01-.18.03.48.48 0 01-.39-.2l-1.9-2.58v2.3c0 .27-.22.48-.48.48s-.48-.22-.48-.48V8.65c0-.2.12-.37.3-.45a.5.5 0 01.57.17l1.9 2.58V8.65c0-.27.22-.48.48-.48s.48.22.48.48v4.16zm2.83-2.81c.27 0 .48.22.48.48s-.22.48-.48.48H16.1v.93h1.82c.27 0 .48.22.48.48s-.22.48-.48.48H15.6c-.27 0-.48-.22-.48-.48V8.65c0-.27.22-.48.48-.48h2.32c.27 0 .48.22.48.48s-.22.48-.48.48H16.1v.93h1.82z"/></svg>
-              LINEでシェア
+              <span id="btn-share-line-text">LINEでシェア</span>
             </button>
             <button type="button" id="btn-share-x" class="btn-share btn-share-x">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-              Xでシェア
+              <span id="btn-share-x-text">Xでシェア</span>
             </button>
           </div>
         </section>
 
         <!-- Footer -->
         <footer class="results-footer">
-          <p class="footer-brand">Brain Capital — 脳が、最大の資産になる時代。</p>
+          <p class="footer-brand" id="footer-brand">Brain Capital — 脳が、最大の資産になる時代。</p>
           <p class="footer-credit">&copy; 2025 UNLOCK. All Rights Reserved.</p>
         </footer>
       </div>
