@@ -767,22 +767,9 @@
     // AI prompt (include brain type)
     renderAIPrompt(r, bt);
 
-    // Populate share capture card
-    var shareTotal = document.getElementById('share-total');
-    var shareHealth = document.getElementById('share-health');
-    var shareSkills = document.getElementById('share-skills');
-    var shareBtCode = document.getElementById('share-bt-code');
-    var shareBtName = document.getElementById('share-bt-name');
-    if (shareTotal) shareTotal.textContent = r.total;
-    if (shareHealth) shareHealth.textContent = r.healthTotal;
-    if (shareSkills) shareSkills.textContent = r.skillsTotal;
-    if (shareBtCode) shareBtCode.textContent = bt.code;
-    if (shareBtName) shareBtName.textContent = bt.info.name;
-
     // Wire up share buttons
     var btnShareLine = document.getElementById('btn-share-line');
     var btnShareX = document.getElementById('btn-share-x');
-    var btnSaveImage = document.getElementById('btn-save-image');
 
     // Remove old listeners by cloning
     if (btnShareLine) {
@@ -794,11 +781,6 @@
       var newX = btnShareX.cloneNode(true);
       btnShareX.parentNode.replaceChild(newX, btnShareX);
       newX.addEventListener('click', function () { shareX(r, bt); });
-    }
-    if (btnSaveImage) {
-      var newImg = btnSaveImage.cloneNode(true);
-      btnSaveImage.parentNode.replaceChild(newImg, btnSaveImage);
-      newImg.addEventListener('click', function () { saveAsImage(); });
     }
 
   }
@@ -1025,35 +1007,6 @@
     var url = window.location.href.split('?')[0];
     var xUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
     window.open(xUrl, '_blank', 'width=600,height=400');
-  }
-
-  function saveAsImage() {
-    var target = document.getElementById('share-capture');
-    if (!target) return;
-
-    var btn = document.getElementById('btn-save-image');
-    btn.textContent = '生成中...';
-    btn.disabled = true;
-
-    html2canvas(target, {
-      backgroundColor: '#ffffff',
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      width: target.scrollWidth,
-      height: target.scrollHeight,
-    }).then(function (canvas) {
-      var link = document.createElement('a');
-      link.download = 'brain-capital-result.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      btn.textContent = '画像を保存';
-      btn.disabled = false;
-    }).catch(function (err) {
-      console.error('Image save failed:', err);
-      btn.textContent = '画像を保存';
-      btn.disabled = false;
-    });
   }
 
   function renderImprovementActions(results) {
