@@ -568,30 +568,40 @@
   // ============================================
 
   var BRAIN_TYPE_COMPAT = {
+    // best: 全4軸反転（K知覚・L処理・M判断・N行動）→ 完全な補完
     best: {
       SALP: 'NHEF', SALF: 'NHEP', SAEP: 'NHLF', SAEF: 'NHLP',
       SHLP: 'NAEF', SHLF: 'NAEP', SHEP: 'NALF', SHEF: 'NALP',
       NALP: 'SHEF', NALF: 'SHEP', NAEP: 'SHLF', NAEF: 'SHLP',
       NHLP: 'SAEF', NHLF: 'SAEP', NHEP: 'SALF', NHEF: 'SALP',
     },
+    // good: 外側2軸反転（K知覚・N行動）→ 思考・判断の核が共通、入出力が異なる
     good: {
-      SALP: 'NAEP', SALF: 'NAEF', SAEP: 'SALP', SAEF: 'SALF',
-      SHLP: 'NHLP', SHLF: 'NHLF', SHEP: 'NHEP', SHEF: 'NHEF',
-      NALP: 'SALP', NALF: 'SALF', NAEP: 'SALP', NAEF: 'SALF',
-      NHLP: 'SHLP', NHLF: 'SHLF', NHEP: 'SHEP', NHEF: 'SHEF',
+      SALP: 'NALF', SALF: 'NALP', SAEP: 'NAEF', SAEF: 'NAEP',
+      SHLP: 'NHLF', SHLF: 'NHLP', SHEP: 'NHEF', SHEF: 'NHEP',
+      NALP: 'SALF', NALF: 'SALP', NAEP: 'SAEF', NAEF: 'SAEP',
+      NHLP: 'SHLF', NHLF: 'SHLP', NHEP: 'SHEF', NHEF: 'SHEP',
     },
+    // grow: 内側2軸反転（L処理・M判断）→ 世界の見方は同じ、思考エンジンが異なる
     grow: {
-      SALP: 'SHLF', SALF: 'SALP', SAEP: 'SAEF', SAEF: 'SAEP',
-      SHLP: 'SHLF', SHLF: 'SHLP', SHEP: 'SHEF', SHEF: 'SHEP',
-      NALP: 'NALF', NALF: 'NALP', NAEP: 'NAEF', NAEF: 'NAEP',
-      NHLP: 'NHLF', NHLF: 'NHLP', NHEP: 'NHEF', NHEF: 'NHEP',
+      SALP: 'SHEP', SALF: 'SHEF', SAEP: 'SHLP', SAEF: 'SHLF',
+      SHLP: 'SAEP', SHLF: 'SAEF', SHEP: 'SALP', SHEF: 'SALF',
+      NALP: 'NHEP', NALF: 'NHEF', NAEP: 'NHLP', NAEF: 'NHLF',
+      NHLP: 'NAEP', NHLF: 'NAEF', NHEP: 'NALP', NHEF: 'NALF',
     },
   };
 
   var COMPAT_LABELS = {
-    best: { title: '最高の補完パートナー', desc: '真逆の強みで互いを最大化する「凸凹コンビ」。発想の幅が倍になり、盲点をカバーし合える。' },
-    good: { title: '信頼の共創パートナー', desc: '軸を一部共有しつつ違いもある。安心感と適度な刺激が共存し、一緒に仕事がしやすい。' },
-    grow: { title: '成長を引き出す刺激パートナー', desc: '隣り合う軸が逆のため、自分にない視点をくれる。最初は衝突しやすいが、最も成長させてくれる相手。' },
+    ja: {
+      best: { title: '最高の補完パートナー', desc: '全4軸が真逆の「凸凹コンビ」。知覚・処理・判断・行動のすべてが異なるため、発想の幅が倍になり、互いの盲点を完全にカバーし合える。' },
+      good: { title: '信頼の共創パートナー', desc: '思考と判断の核が共通で、自然にわかり合える。一方、情報の受け取り方と行動スタイルが異なるため、同じ結論に別ルートから到達でき、チームの実行力が広がる。' },
+      grow: { title: '成長を引き出す刺激パートナー', desc: '世界の見方と行動パターンは似ているのに、思考プロセスと判断基準が真逆。「なぜそう考える？」と問いかけてくれる、最高の成長触媒。' },
+    },
+    en: {
+      best: { title: 'Best Complement', desc: 'Opposite on all 4 axes. Your differences double the range of ideas and cover each other\'s blind spots completely.' },
+      good: { title: 'Trusted Co-Creator', desc: 'You share the same thinking and judgment core, so understanding comes naturally. Different perception and action styles let you reach the same conclusions via different routes, expanding team capability.' },
+      grow: { title: 'Growth Catalyst', desc: 'You see the world the same way, yet your thinking process and judgment criteria are opposite. The partner who asks "why do you think that?" — your greatest catalyst for growth.' },
+    },
   };
 
   // ============================================
@@ -1263,7 +1273,7 @@
       var partnerCode = BRAIN_TYPE_COMPAT[type][code];
       if (!partnerCode) return;
       var partnerInfo = BRAIN_TYPE_INFO[partnerCode] || { name: '—', description: '' };
-      var label = COMPAT_LABELS[type];
+      var label = COMPAT_LABELS[currentLang][type];
 
       var card = document.createElement('div');
       card.className = 'compat-card compat-' + type;
