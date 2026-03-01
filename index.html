@@ -22,6 +22,7 @@
         <span class="logo-text" style="display:none;">UNLOCK</span>
       </div>
       <h1 class="select-title" id="lang-title">言語を選択 / Select Language</h1>
+      <p class="select-subtitle" id="lang-subtitle">あなたの脳の資産（Brain Capital）を測定し、<br>脳タイプを診断します。約5分で完了。</p>
       <div class="select-options">
         <button type="button" id="btn-lang-ja" class="select-card">
           <span class="select-card-icon">🇯🇵</span>
@@ -186,6 +187,14 @@
       </header>
 
       <div class="results-body">
+        <!-- ===== GROUP 1: Score Overview ===== -->
+        <div class="results-group" data-mode="capital">
+          <div class="results-group-header">
+            <span class="results-group-number">01</span>
+            <span class="results-group-label" id="group-label-score">スコア概要</span>
+          </div>
+        </div>
+
         <!-- Total Score Section -->
         <section class="results-hero" data-mode="capital">
           <p class="results-date" id="results-date"></p>
@@ -260,6 +269,14 @@
           </div>
         </section>
 
+        <!-- ===== GROUP 2: Detailed Analysis ===== -->
+        <div class="results-group" data-mode="capital">
+          <div class="results-group-header">
+            <span class="results-group-number">02</span>
+            <span class="results-group-label" id="group-label-detail">詳細分析</span>
+          </div>
+        </div>
+
         <!-- Radar Chart -->
         <section class="results-section" data-mode="capital">
           <h2 class="section-title" id="section-category-scores">カテゴリ別スコア</h2>
@@ -325,6 +342,14 @@
             </div>
           </div>
         </section>
+
+        <!-- ===== GROUP 3: Insights & Actions ===== -->
+        <div class="results-group">
+          <div class="results-group-header">
+            <span class="results-group-number">03</span>
+            <span class="results-group-label" id="group-label-insights">あなたへの提案</span>
+          </div>
+        </div>
 
         <!-- Narrative Feedback -->
         <section class="results-section" data-mode="capital">

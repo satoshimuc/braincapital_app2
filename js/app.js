@@ -22,6 +22,8 @@
 
   var I18N = {
     ja: {
+      // Language select
+      'lang-subtitle': 'あなたの脳の資産（Brain Capital）を測定し、<br>脳タイプを診断します。約5分で完了。',
       // Mode select
       'mode-title': '診断モードを選んでください',
       'mode-type-name': '脳タイプ検定',
@@ -82,6 +84,10 @@
       'section-compat': 'タイプ相性 — あなたと好相性のBrain Type',
       'section-compat-desc': '脳の使い方が異なるパートナーとの組み合わせが、チームのパフォーマンスを最大化する。',
       'section-improvement': '改善アクション',
+      // Results group headers
+      'group-label-score': 'スコア概要',
+      'group-label-detail': '詳細分析',
+      'group-label-insights': 'あなたへの提案',
       'section-ai-prompt': 'AIパーソナル分析',
       'section-ai-prompt-desc': '以下のプロンプトをChatGPTまたはClaudeに入力すると、パーソナライズされた改善プランが手に入る。',
       'line-cta-title': '診断結果を活かすための<br>無料サポートを受け取る',
@@ -102,6 +108,8 @@
       'axis-prefix': '軸 ',
     },
     en: {
+      // Language select
+      'lang-subtitle': 'Measure your Brain Capital and<br>discover your Brain Type. Takes about 5 min.',
       'mode-title': 'Select Assessment Mode',
       'mode-type-name': 'Brain Type Test',
       'mode-type-desc': 'Determine your Brain Type',
@@ -159,6 +167,10 @@
       'section-compat': 'Type Compatibility — Your Best Brain Type Partners',
       'section-compat-desc': 'Partnering with people who use their brains differently maximizes team performance.',
       'section-improvement': 'Improvement Actions',
+      // Results group headers
+      'group-label-score': 'Score Overview',
+      'group-label-detail': 'Detailed Analysis',
+      'group-label-insights': 'Insights & Actions',
       'section-ai-prompt': 'AI Personal Analysis',
       'section-ai-prompt-desc': 'Paste the prompt below into ChatGPT or Claude to get a personalized improvement plan.',
       'line-cta-title': 'Get Free Support<br>Based on Your Results',
