@@ -69,7 +69,28 @@
           <p class="mode-card-desc" id="mode-both-desc">78問のフル診断</p>
           <div class="mode-card-detail">78 items</div>
         </button>
+      <button type="button" id="btn-history" class="btn-history" style="display:none;">過去の結果を見る</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN: HISTORY ========== -->
+  <div id="screen-history" class="screen">
+    <div class="history-container">
+      <header class="history-header">
+        <div class="header-left">
+          <span class="header-logo">UNLOCK</span>
+        </div>
+        <div class="header-right">
+          <button type="button" id="btn-history-back" class="btn-text">戻る</button>
+        </div>
+      </header>
+      <h1 class="history-title" id="history-title">過去の診断結果</h1>
+      <div id="history-list" class="history-list">
+        <!-- Cards rendered by JS -->
+      </div>
+      <p id="history-empty" class="history-empty" style="display:none;">過去の診断結果はありません。</p>
+      <p id="history-login-required" class="history-empty" style="display:none;">過去の結果を見るにはLINEログインが必要です。</p>
     </div>
   </div>
 
@@ -182,6 +203,7 @@
           <span class="header-logo">UNLOCK</span>
         </div>
         <div class="header-right">
+          <button type="button" id="btn-back-history" class="btn-text" style="display:none;">履歴に戻る</button>
           <button type="button" id="btn-retry" class="btn-text">もう一度診断する</button>
         </div>
       </header>

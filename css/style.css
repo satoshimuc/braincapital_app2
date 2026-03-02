@@ -1896,3 +1896,130 @@ strong {
     font-size: 18px;
   }
 }
+
+/* ---------- History Button (Mode Select) ---------- */
+.btn-history {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin: 16px auto 0;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  color: var(--gray-600);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-history:hover {
+  border-color: var(--gray-600);
+  color: var(--gray-900);
+}
+
+/* ---------- History Screen ---------- */
+.history-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 8px;
+}
+
+.history-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 20px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+  font-family: var(--font-sans);
+}
+
+.history-card:hover {
+  border-color: var(--gray-400);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.history-card-date {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-600);
+  flex-shrink: 0;
+}
+
+.history-card-scores {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.history-score {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.history-score small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--gray-400);
+}
+
+.history-level {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--gray-800);
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.history-brain-type {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray-800);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+}
+
+.history-brain-type-name {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.history-empty {
+  text-align: center;
+  color: var(--gray-500);
+  font-size: 14px;
+  margin-top: 40px;
+  line-height: 1.8;
+}
