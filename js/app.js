@@ -106,6 +106,13 @@
       'rating-high': '非常に当てはまる',
       'category-prefix': 'カテゴリ',
       'axis-prefix': '軸 ',
+      // History
+      'btn-history': '過去の結果を見る',
+      'history-title': '過去の診断結果',
+      'history-empty': '過去の診断結果はありません。',
+      'history-login-required': '過去の結果を見るにはLINEログインが必要です。',
+      'btn-history-back': '戻る',
+      'btn-back-history': '履歴に戻る',
     },
     en: {
       // Language select
@@ -188,6 +195,13 @@
       'rating-high': 'Strongly agree',
       'category-prefix': 'Category ',
       'axis-prefix': 'Axis ',
+      // History
+      'btn-history': 'View Past Results',
+      'history-title': 'Past Results',
+      'history-empty': 'No past results found.',
+      'history-login-required': 'LINE login is required to view past results.',
+      'btn-history-back': 'Back',
+      'btn-back-history': 'Back to History',
     },
   };
 
@@ -217,6 +231,12 @@
     if (btnPrevEl) btnPrevEl.textContent = t('btn-prev');
     var btnCopyEl = document.getElementById('btn-copy-prompt');
     if (btnCopyEl) btnCopyEl.textContent = t('btn-copy');
+    var btnHistoryEl = document.getElementById('btn-history');
+    if (btnHistoryEl) btnHistoryEl.textContent = t('btn-history');
+    var btnHistoryBackEl = document.getElementById('btn-history-back');
+    if (btnHistoryBackEl) btnHistoryBackEl.textContent = t('btn-history-back');
+    var btnBackHistoryEl = document.getElementById('btn-back-history');
+    if (btnBackHistoryEl) btnBackHistoryEl.textContent = t('btn-back-history');
 
     // Update mode card dynamic items/time/desc
     var modes = ['type', 'capital', 'both'];
@@ -692,6 +712,7 @@
 
   const screenLang = $('#screen-lang');
   const screenMode = $('#screen-mode');
+  const screenHistory = $('#screen-history');
   const screenLanding = $('#screen-landing');
   const screenAssessment = $('#screen-assessment');
   const screenResults = $('#screen-results');
@@ -701,6 +722,9 @@
   const btnNext = $('#btn-next');
   const btnRetry = $('#btn-retry');
   const btnCopyPrompt = $('#btn-copy-prompt');
+
+  // History
+  var viewingHistory = false; // true when viewing a past result
 
   const progressBar = $('#progress-bar');
   const progressText = $('#progress-text');
@@ -1489,6 +1513,7 @@
     if (uid) {
       lineUser.uid = uid;
       console.log('LINE UID from URL param:', uid);
+      showHistoryButton();
     }
     if (name) {
       lineUser.displayName = name;
@@ -1522,6 +1547,7 @@
         lineUser.displayName = profile.displayName;
         lineUser.pictureUrl = profile.pictureUrl || null;
         console.log('LINE profile loaded:', lineUser.displayName, '(uid:', lineUser.uid + ')');
+        showHistoryButton();
       }).catch(function (err) {
         console.warn('getProfile failed:', err);
       });
@@ -1647,8 +1673,234 @@
   btnNext.addEventListener('click', goNext);
   btnPrev.addEventListener('click', goPrev);
 
+  // ============================================
+  // HISTORY: Past Results
+  // ============================================
+
+  function showHistoryButton() {
+    var btn = document.getElementById('btn-history');
+    if (!btn) return;
+    // Show if user has a LINE UID (not anonymous)
+    if (lineUser.uid && !lineUser.uid.startsWith('anonymous_')) {
+      btn.style.display = '';
+    }
+  }
+
+  function loadHistory() {
+    var listEl = document.getElementById('history-list');
+    var emptyEl = document.getElementById('history-empty');
+    var loginEl = document.getElementById('history-login-required');
+    listEl.innerHTML = '';
+    emptyEl.style.display = 'none';
+    loginEl.style.display = 'none';
+
+    if (!lineUser.uid || lineUser.uid.startsWith('anonymous_')) {
+      loginEl.textContent = t('history-login-required');
+      loginEl.style.display = '';
+      return;
+    }
+
+    if (!supabase) {
+      emptyEl.textContent = t('history-empty');
+      emptyEl.style.display = '';
+      return;
+    }
+
+    supabase
+      .from('assessment_results')
+      .select('*')
+      .eq('line_uid', lineUser.uid)
+      .order('created_at', { ascending: false })
+      .limit(20)
+      .then(function (res) {
+        if (res.error) {
+          console.error('History fetch failed:', res.error.message);
+          emptyEl.textContent = t('history-empty');
+          emptyEl.style.display = '';
+          return;
+        }
+
+        var data = res.data;
+        if (!data || data.length === 0) {
+          emptyEl.textContent = t('history-empty');
+          emptyEl.style.display = '';
+          return;
+        }
+
+        data.forEach(function (record) {
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'history-card';
+
+          var d = new Date(record.created_at);
+          var dateStr;
+          if (currentLang === 'en') {
+            dateStr = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+          } else {
+            dateStr = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+          }
+
+          var hasCapital = record.total != null && record.total > 0;
+          var hasBrainType = record.brain_type && record.brain_type !== '----';
+
+          var scoreHtml = '';
+          if (hasCapital) {
+            scoreHtml += '<span class="history-score">' + record.total + '<small>/150</small></span>';
+            scoreHtml += '<span class="history-level">' + (record.level || '') + '</span>';
+          }
+          if (hasBrainType) {
+            scoreHtml += '<span class="history-brain-type">' + record.brain_type + '</span>';
+            if (record.brain_type_name) {
+              scoreHtml += '<span class="history-brain-type-name">' + record.brain_type_name + '</span>';
+            }
+          }
+
+          card.innerHTML =
+            '<div class="history-card-date">' + dateStr + '</div>' +
+            '<div class="history-card-scores">' + scoreHtml + '</div>';
+
+          card.addEventListener('click', function () {
+            showResultsFromRecord(record);
+          });
+
+          listEl.appendChild(card);
+        });
+      });
+  }
+
+  function showResultsFromRecord(record) {
+    viewingHistory = true;
+
+    // Determine mode from saved data
+    var hasCapital = record.total != null && record.total > 0;
+    var hasBrainType = record.brain_type && record.brain_type !== '----' && record.brain_type !== '';
+    if (hasCapital && hasBrainType) {
+      currentMode = 'both';
+    } else if (hasBrainType) {
+      currentMode = 'type';
+    } else {
+      currentMode = 'capital';
+    }
+
+    showScreen(screenResults);
+
+    // Show/hide sections based on mode
+    var sections = document.querySelectorAll('[data-mode]');
+    sections.forEach(function (sec) {
+      var secMode = sec.getAttribute('data-mode');
+      if (currentMode === 'both') {
+        sec.style.display = '';
+      } else if (secMode === currentMode) {
+        sec.style.display = '';
+      } else {
+        sec.style.display = 'none';
+      }
+    });
+
+    // Show "back to history" button
+    var btnBackHistory = document.getElementById('btn-back-history');
+    if (btnBackHistory) btnBackHistory.style.display = '';
+
+    // Date
+    var d = new Date(record.created_at);
+    if (currentLang === 'en') {
+      $('#results-date').textContent =
+        d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    } else {
+      $('#results-date').textContent =
+        d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日 実施';
+    }
+
+    // Build results object from record
+    var r = {
+      total: record.total || 0,
+      healthTotal: record.health_total || 0,
+      skillsTotal: record.skills_total || 0,
+      categories: record.categories || {},
+    };
+
+    // Capital-related results
+    if (currentMode === 'capital' || currentMode === 'both') {
+      var level = getLevel(r.total);
+      animateScoreRing(r.total, level);
+
+      setTimeout(function () {
+        $('#health-bar').style.width = ((r.healthTotal / 75) * 100).toFixed(1) + '%';
+        $('#skills-bar').style.width = ((r.skillsTotal / 75) * 100).toFixed(1) + '%';
+      }, 300);
+      $('#health-score').textContent = r.healthTotal + ' / 75';
+      $('#skills-score').textContent = r.skillsTotal + ' / 75';
+
+      var type = record.type || getType(r.healthTotal, r.skillsTotal);
+      var typeInfo = TYPE_INFO[type];
+      if (typeInfo) {
+        $('#type-badge').textContent = 'Type ' + type;
+        $('#type-name').textContent = typeInfo.name;
+        $('#type-description').textContent = typeInfo.description;
+      }
+
+      $$('.matrix-cell').forEach(function (c) { c.classList.remove('active'); });
+      var matrixCell = $('#matrix-' + type);
+      if (matrixCell) matrixCell.classList.add('active');
+
+      $$('.interp-row').forEach(function (row) { row.classList.remove('active'); });
+      var interpRow = $('#interp-' + level.grade);
+      if (interpRow) interpRow.classList.add('active');
+
+      drawRadarChart(r);
+      renderBreakdown('health-breakdown', CATEGORIES.filter(function (c) { return c.part === 1; }), r);
+      renderBreakdown('skills-breakdown', CATEGORIES.filter(function (c) { return c.part === 2; }), r);
+      renderImprovementActions(r);
+      renderNarrativeFeedback(r);
+    }
+
+    // Brain Type results
+    if ((currentMode === 'type' || currentMode === 'both') && hasBrainType) {
+      var btCode = record.brain_type;
+      var btInfo = BRAIN_TYPE_INFO[btCode] || { name: record.brain_type_name || '—', description: '' };
+      var btAxes = record.brain_type_axes || {};
+
+      var bt = { code: btCode, info: btInfo, axes: btAxes };
+      renderBrainType(bt);
+      renderBrainTypeCompat(bt);
+    }
+
+    // AI prompt (reconstruct if capital data available)
+    if (currentMode === 'capital' || currentMode === 'both') {
+      var btForPrompt = null;
+      if (hasBrainType) {
+        btForPrompt = {
+          code: record.brain_type,
+          info: BRAIN_TYPE_INFO[record.brain_type] || { name: record.brain_type_name || '—', description: '' },
+          axes: record.brain_type_axes || {},
+        };
+      }
+      renderAIPrompt(r, btForPrompt);
+    }
+  }
+
+  // History button event
+  document.getElementById('btn-history').addEventListener('click', function () {
+    document.getElementById('history-title').textContent = t('history-title');
+    showScreen(screenHistory);
+    loadHistory();
+  });
+
+  document.getElementById('btn-history-back').addEventListener('click', function () {
+    showScreen(screenMode);
+  });
+
+  document.getElementById('btn-back-history').addEventListener('click', function () {
+    viewingHistory = false;
+    document.getElementById('btn-back-history').style.display = 'none';
+    showScreen(screenHistory);
+    loadHistory();
+  });
+
   btnRetry.addEventListener('click', () => {
     // Reset
+    viewingHistory = false;
+    document.getElementById('btn-back-history').style.display = 'none';
     Object.keys(answers).forEach((k) => delete answers[k]);
     currentCategoryIndex = 0;
     sessionId = null;
