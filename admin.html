@@ -207,6 +207,32 @@
     }
     .btn-sm-danger:hover { background: #fef2f2; }
 
+    /* Department Management */
+    .dept-mgmt { margin-top: 32px; }
+    .dept-mgmt-title {
+      font-size: 16px; font-weight: 700; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .dept-mgmt-org-name {
+      font-size: 13px; font-weight: 500; color: var(--gray-500);
+      padding: 2px 10px; background: var(--gray-100); border-radius: 4px;
+    }
+    .dept-form { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; }
+    .dept-form .org-form-group input { min-width: 200px; }
+    .dept-list-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--gray-100);
+    }
+    .dept-list-item:last-child { border-bottom: none; }
+    .dept-list-name { font-size: 13px; font-weight: 500; color: var(--gray-800); }
+    .dept-list-order { font-size: 11px; color: var(--gray-400); font-family: monospace; margin-left: 8px; }
+    .btn-sm-dept {
+      padding: 6px 14px; border: 1px solid var(--gray-300); border-radius: 4px;
+      background: var(--white); font-family: var(--font-sans); font-size: 12px;
+      color: var(--gray-600); cursor: pointer; font-weight: 600;
+    }
+    .btn-sm-dept:hover { border-color: var(--gray-600); color: var(--gray-800); }
+
     /* Auth Gate */
     .auth-gate {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -375,6 +401,42 @@
           <p>「組織を追加」ボタンから法人を登録すると、専用の配布URLが生成されます。</p>
         </div>
       </div>
+      <!-- Department Management (shown when org selected) -->
+      <div class="dept-mgmt" id="dept-mgmt" style="display:none;">
+        <div class="dept-mgmt-title">
+          部門管理
+          <span class="dept-mgmt-org-name" id="dept-mgmt-org-name"></span>
+        </div>
+        <div class="dept-form">
+          <div class="org-form-group">
+            <label>部門名</label>
+            <input type="text" id="dept-name-input" placeholder="例: 営業部">
+          </div>
+          <div class="org-form-group">
+            <label>表示順</label>
+            <input type="number" id="dept-order-input" placeholder="0" value="0" style="width:80px;">
+          </div>
+          <button type="button" id="btn-add-dept" class="btn-add-org">部門を追加</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>部門名</th>
+                <th>表示順</th>
+                <th>作成日</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="depts-tbody"></tbody>
+          </table>
+          <div id="depts-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-title">部門が登録されていません</div>
+            <p>「部門を追加」から部門を登録してください。従業員アプリの登録時に選択肢として表示されます。</p>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /tab-orgs -->
 
   </div><!-- /admin-container -->
@@ -887,7 +949,10 @@
           '<td>' + statusLabel + '</td>' +
           '<td style="text-align:center;font-weight:600;">' + count + '</td>' +
           '<td class="date-cell">' + dateStr + '</td>' +
-          '<td><button type="button" class="btn-sm-danger btn-delete-org" data-code="' + o.org_code + '">削除</button></td>' +
+          '<td style="display:flex;gap:6px;">' +
+            '<button type="button" class="btn-sm-dept btn-manage-dept" data-code="' + o.org_code + '" data-name="' + o.org_name + '">部門管理</button>' +
+            '<button type="button" class="btn-sm-danger btn-delete-org" data-code="' + o.org_code + '">削除</button>' +
+          '</td>' +
         '</tr>';
       }).join('');
     }
@@ -942,6 +1007,105 @@
             }
           });
       }
+    });
+
+    // ---- Department Management ----
+    var currentDeptOrgCode = null;
+    var currentDepts = [];
+
+    document.getElementById('orgs-tbody').addEventListener('click', function (e) {
+      var deptBtn = e.target.closest('.btn-manage-dept');
+      if (deptBtn) {
+        var code = deptBtn.getAttribute('data-code');
+        var name = deptBtn.getAttribute('data-name');
+        showDeptManagement(code, name);
+      }
+    });
+
+    function showDeptManagement(orgCode, orgName) {
+      currentDeptOrgCode = orgCode;
+      document.getElementById('dept-mgmt').style.display = '';
+      document.getElementById('dept-mgmt-org-name').textContent = orgName;
+      document.getElementById('dept-name-input').value = '';
+      document.getElementById('dept-order-input').value = '0';
+      loadDepts();
+    }
+
+    function loadDepts() {
+      if (!sb || !currentDeptOrgCode) return;
+      sb.from('departments')
+        .select('*')
+        .eq('org_code', currentDeptOrgCode)
+        .order('sort_order')
+        .then(function (res) {
+          currentDepts = res.data || [];
+          renderDepts();
+        });
+    }
+
+    function renderDepts() {
+      var tbody = document.getElementById('depts-tbody');
+      var emptyEl = document.getElementById('depts-empty');
+
+      if (currentDepts.length === 0) {
+        tbody.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      tbody.innerHTML = currentDepts.map(function (d) {
+        var date = new Date(d.created_at);
+        var dateStr = date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate();
+        return '<tr>' +
+          '<td style="font-weight:500;">' + d.name + '</td>' +
+          '<td style="text-align:center;font-family:monospace;">' + (d.sort_order || 0) + '</td>' +
+          '<td class="date-cell">' + dateStr + '</td>' +
+          '<td><button type="button" class="btn-sm-danger btn-delete-dept" data-id="' + d.id + '">削除</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('btn-add-dept').addEventListener('click', function () {
+      var nameInput = document.getElementById('dept-name-input');
+      var orderInput = document.getElementById('dept-order-input');
+      var name = nameInput.value.trim();
+      if (!name) { nameInput.focus(); return; }
+      if (!sb || !currentDeptOrgCode) return;
+
+      sb.from('departments')
+        .insert([{
+          org_code: currentDeptOrgCode,
+          name: name,
+          sort_order: parseInt(orderInput.value, 10) || 0,
+        }])
+        .then(function (res) {
+          if (res.error) {
+            alert('追加に失敗しました: ' + res.error.message);
+          } else {
+            nameInput.value = '';
+            orderInput.value = String((parseInt(orderInput.value, 10) || 0) + 1);
+            loadDepts();
+          }
+        });
+    });
+
+    document.getElementById('depts-tbody').addEventListener('click', function (e) {
+      var delBtn = e.target.closest('.btn-delete-dept');
+      if (!delBtn) return;
+      var deptId = delBtn.getAttribute('data-id');
+      if (!confirm('この部門を削除しますか？')) return;
+      if (!sb) return;
+      sb.from('departments')
+        .delete()
+        .eq('id', deptId)
+        .then(function (res) {
+          if (res.error) {
+            alert('削除に失敗しました: ' + res.error.message);
+          } else {
+            loadDepts();
+          }
+        });
     });
 
     // ---- Init (called after auth) ----
