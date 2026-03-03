@@ -4,6 +4,12 @@
     { "source": "/app/", "destination": "/index.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/admin/", "destination": "/admin.html" },
+    { "source": "/corporate", "destination": "/corporate/index.html" },
+    { "source": "/corporate/", "destination": "/corporate/index.html" },
+    { "source": "/corporate/hr", "destination": "/corporate/hr.html" },
+    { "source": "/corporate/hr/", "destination": "/corporate/hr.html" },
+    { "source": "/corporate/oh", "destination": "/corporate/oh.html" },
+    { "source": "/corporate/oh/", "destination": "/corporate/oh.html" },
     { "source": "/", "destination": "/lp/index.html" }
   ],
   "headers": [

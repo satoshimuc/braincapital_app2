@@ -1,0 +1,80 @@
+/* ================================================
+   UNLOCK — Occupational Health Dashboard styles
+   ================================================ */
+
+.topbar-role{font-size:11px;color:var(--gray-400);font-weight:500;margin-left:12px;padding-left:12px;border-left:1px solid var(--gray-200)}
+
+.oh-container{max-width:960px;margin:0 auto;padding:24px 20px}
+
+/* --- Summary cards --- */
+.oh-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.summary-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;text-align:center}
+.summary-label{font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.summary-value{font-size:28px;font-weight:800;color:var(--gray-900)}
+.summary-red{border-color:var(--red);border-width:2px}
+.summary-red .summary-value{color:var(--red)}
+.summary-yellow{border-color:var(--yellow);border-width:2px}
+.summary-yellow .summary-value{color:var(--yellow)}
+.summary-green{border-color:var(--green);border-width:2px}
+.summary-green .summary-value{color:var(--green)}
+
+/* --- Filters --- */
+.oh-filters{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.oh-filters .filter-group{flex:1;min-width:160px}
+.oh-filters .form-select{padding:8px 12px;font-size:13px}
+
+/* --- Consent note --- */
+.consent-note{font-size:11px;color:var(--gray-400);font-weight:400;margin-left:8px}
+
+/* --- Triage table --- */
+.table-scroll{overflow-x:auto}
+.oh-table{width:100%;border-collapse:collapse;font-size:13px}
+.oh-table th{font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;text-align:left;border-bottom:2px solid var(--gray-200);white-space:nowrap}
+.oh-table td{padding:10px 12px;border-bottom:1px solid var(--gray-100);color:var(--gray-700)}
+.oh-table tr:hover td{background:var(--gray-50)}
+.oh-table .num{text-align:right;font-family:var(--font-mono)}
+.btn-detail{padding:4px 10px;font-size:11px;font-weight:600;background:var(--gray-900);color:var(--white);border:none;border-radius:var(--radius-sm);cursor:pointer}
+.btn-detail:hover{background:var(--gray-700)}
+
+/* --- Individual detail --- */
+.individual-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--gray-200)}
+.ind-scores{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.ind-score-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;text-align:center}
+.ind-score-label{font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.ind-score-value{font-size:32px;font-weight:800;color:var(--gray-900)}
+
+/* --- Trend chart --- */
+.trend-chart-lg{width:100%;height:200px}
+.trend-legend{display:flex;gap:20px;justify-content:center;margin-top:12px;font-size:12px;color:var(--gray-500)}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* --- Check-in detail --- */
+.checkin-detail-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-100)}
+.checkin-detail-row:last-child{border-bottom:none}
+.checkin-q-text{font-size:13px;color:var(--gray-700);flex:1}
+.checkin-q-score{font-size:16px;font-weight:700;font-family:var(--font-mono);width:40px;text-align:center}
+.checkin-q-score.low{color:var(--red)}
+.checkin-q-score.mid{color:var(--yellow)}
+.checkin-q-score.high{color:var(--green)}
+
+/* --- Risk history --- */
+.risk-history-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--gray-100)}
+.risk-history-row:last-child{border-bottom:none}
+.risk-history-date{font-size:11px;color:var(--gray-400);font-family:var(--font-mono);width:80px;flex-shrink:0}
+.risk-history-msg{font-size:13px;color:var(--gray-700);flex:1}
+.risk-history-resolved{font-size:11px;color:var(--green);font-weight:600}
+
+/* --- Audit notice --- */
+.audit-notice{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px 16px;font-size:12px;color:var(--gray-500);margin:24px 0;line-height:1.6}
+
+/* --- Responsive --- */
+@media(max-width:768px){
+  .oh-summary{grid-template-columns:repeat(2,1fr)}
+  .ind-scores{grid-template-columns:1fr}
+  .oh-container{padding:16px 12px}
+}
+@media(max-width:480px){
+  .oh-summary{grid-template-columns:1fr}
+  .oh-filters{flex-direction:column}
+}
