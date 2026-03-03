@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNLOCK — HR Dashboard</title>
+  <link rel="stylesheet" href="css/corporate.css">
+  <link rel="stylesheet" href="css/hr.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../js/supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- ===== Top bar ===== -->
+  <div class="topbar">
+    <div>
+      <span class="topbar-logo">UNLOCK</span>
+      <span class="topbar-org" id="topbar-org"></span>
+      <span class="topbar-role">HR Dashboard</span>
+    </div>
+    <div class="topbar-right">
+      <button type="button" class="btn-text" id="btn-logout">ログアウト</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Login ===== -->
+  <div id="screen-login" class="screen active">
+    <div class="container" style="padding-top:80px;">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">HR管理者ログイン</h1>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:32px;">人事管理者としてログインしてください。</p>
+      <div class="form-group">
+        <label class="form-label">アクセストークン</label>
+        <input class="form-input" id="login-token" type="password" placeholder="トークンを入力">
+      </div>
+      <button type="button" class="btn-primary" id="btn-login">ログイン</button>
+      <p id="login-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Dashboard ===== -->
+  <div id="screen-dashboard" class="screen">
+    <div class="hr-container">
+
+      <!-- Filters -->
+      <div class="hr-filters">
+        <div class="filter-group">
+          <label class="form-label">部門</label>
+          <select class="form-select" id="filter-dept">
+            <option value="">全部門</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">期間</label>
+          <select class="form-select" id="filter-period">
+            <option value="4">過去4週間</option>
+            <option value="8" selected>過去8週間</option>
+            <option value="12">過去12週間</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="hr-summary" id="hr-summary">
+        <div class="summary-card">
+          <div class="summary-label">回答者数</div>
+          <div class="summary-value" id="sum-respondents">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">平均スコア</div>
+          <div class="summary-value" id="sum-avg-score">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">注意シグナル</div>
+          <div class="summary-value" id="sum-signals">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">回答率</div>
+          <div class="summary-value" id="sum-response-rate">—</div>
+        </div>
+      </div>
+
+      <!-- k-anonymity notice -->
+      <div class="k-notice" id="k-notice" style="display:none;">
+        <strong>プライバシー保護:</strong> 回答者が10名未満の部門のデータは表示されません（k-匿名性）。
+      </div>
+
+      <!-- Org-wide trend -->
+      <div class="card">
+        <div class="card-title">組織全体の週次推移</div>
+        <svg id="org-trend-chart" class="trend-chart-lg" viewBox="0 0 700 200"></svg>
+        <div class="trend-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#222;"></span>総合</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#c00;"></span>ストレス</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#0a8f3c;"></span>健康</span>
+        </div>
+      </div>
+
+      <!-- Department breakdown -->
+      <div class="card">
+        <div class="card-title">部門別スコア（直近週）</div>
+        <div id="dept-table-container">
+          <table class="hr-table" id="dept-table">
+            <thead>
+              <tr>
+                <th>部門</th>
+                <th>回答者</th>
+                <th>総合</th>
+                <th>ストレス</th>
+                <th>健康</th>
+                <th>リスク</th>
+              </tr>
+            </thead>
+            <tbody id="dept-table-body"></tbody>
+          </table>
+        </div>
+        <div id="dept-empty" class="loading" style="display:none;">データがありません。</div>
+      </div>
+
+      <!-- Score distribution -->
+      <div class="card">
+        <div class="card-title">スコア分布（直近週）</div>
+        <div class="distribution-grid" id="distribution-grid">
+          <div class="dist-bar-chart" id="dist-chart"></div>
+        </div>
+      </div>
+
+      <!-- Risk signal summary -->
+      <div class="card">
+        <div class="card-title">リスクシグナル推移</div>
+        <div id="risk-summary"></div>
+      </div>
+
+      <!-- Policy templates -->
+      <div class="card">
+        <div class="card-title">施策テンプレート</div>
+        <div class="card-desc" style="margin-bottom:16px;">組織のスコアに基づく推奨施策です。</div>
+        <div id="policy-templates"></div>
+      </div>
+
+      <p style="text-align:center;margin:24px 0;font-size:12px;color:var(--gray-400);">&copy; 2025 UNLOCK. All Rights Reserved.</p>
+    </div>
+  </div>
+
+  <script src="js/hr.js"></script>
+</body>
+</html>
