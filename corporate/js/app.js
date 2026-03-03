@@ -146,6 +146,11 @@
 
   function populateDepartments() {
     var sel = $('#reg-department');
+    if (departments.length === 0) {
+      sel.innerHTML = '<option value="">部門が未登録です（管理者にお問い合わせください）</option>';
+      $('#btn-register').disabled = true;
+      return;
+    }
     sel.innerHTML = '<option value="">選択してください</option>';
     departments.forEach(function (d) {
       var opt = document.createElement('option');
@@ -153,6 +158,7 @@
       opt.textContent = d.name;
       sel.appendChild(opt);
     });
+    $('#btn-register').disabled = false;
   }
 
   function afterLogin() {
