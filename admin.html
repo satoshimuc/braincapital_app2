@@ -144,6 +144,69 @@
     .empty-state { text-align: center; padding: 64px 32px; color: var(--gray-400); }
     .empty-state-title { font-size: 16px; font-weight: 600; color: var(--gray-600); margin-bottom: 8px; }
 
+    /* Tabs */
+    .admin-tabs {
+      display: flex; gap: 0; margin-bottom: 32px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .admin-tab {
+      padding: 12px 24px; background: none; border: none; border-bottom: 2px solid transparent;
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; color: var(--gray-500);
+      cursor: pointer;
+    }
+    .admin-tab:hover { color: var(--gray-800); }
+    .admin-tab.active { color: var(--black); border-bottom-color: var(--black); font-weight: 600; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Org filter */
+    .org-filter-select {
+      padding: 10px 16px; border: 1px solid var(--gray-200); border-radius: 6px;
+      font-family: var(--font-sans); font-size: 13px; color: var(--gray-800);
+      background: var(--white); outline: none; cursor: pointer;
+    }
+
+    .org-badge {
+      display: inline-block; padding: 2px 8px; border: 1px solid var(--gray-300);
+      border-radius: 3px; font-size: 11px; font-weight: 500; color: var(--gray-600);
+      background: var(--gray-50);
+    }
+
+    /* Org Management */
+    .org-form { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; }
+    .org-form-group { display: flex; flex-direction: column; gap: 4px; }
+    .org-form-group label { font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; }
+    .org-form-group input {
+      padding: 10px 16px; border: 1px solid var(--gray-200); border-radius: 6px;
+      font-family: var(--font-sans); font-size: 13px; color: var(--gray-800);
+      background: var(--white); outline: none;
+    }
+    .org-form-group input:focus { border-color: var(--gray-600); }
+    .btn-add-org {
+      padding: 10px 20px; background: var(--gray-900); color: var(--white); border: none;
+      border-radius: 6px; font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+    }
+    .btn-add-org:hover { background: var(--gray-700); }
+    .org-link-box {
+      padding: 8px 12px; background: var(--gray-50); border: 1px solid var(--gray-200);
+      border-radius: 4px; font-size: 11px; font-family: monospace; color: var(--gray-600);
+      word-break: break-all; cursor: pointer;
+    }
+    .org-link-box:hover { border-color: var(--gray-400); }
+    .btn-sm {
+      padding: 6px 12px; border: 1px solid var(--gray-300); border-radius: 4px;
+      background: var(--white); font-family: var(--font-sans); font-size: 11px;
+      color: var(--gray-600); cursor: pointer;
+    }
+    .btn-sm:hover { border-color: var(--gray-600); color: var(--gray-800); }
+    .btn-sm-danger {
+      padding: 6px 12px; border: 1px solid #c00; border-radius: 4px;
+      background: var(--white); font-family: var(--font-sans); font-size: 11px;
+      color: #c00; cursor: pointer;
+    }
+    .btn-sm-danger:hover { background: #fef2f2; }
+
     /* Auth Gate */
     .auth-gate {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -202,6 +265,15 @@
   </header>
 
   <div class="admin-container">
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button type="button" class="admin-tab active" data-tab="tab-results">診断結果</button>
+      <button type="button" class="admin-tab" data-tab="tab-orgs">組織管理</button>
+    </div>
+
+    <!-- TAB: Results -->
+    <div id="tab-results" class="tab-content active">
+
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -229,6 +301,10 @@
     <!-- Controls -->
     <div class="controls">
       <input type="text" id="search" class="search-input" placeholder="名前または UID で検索...">
+      <select id="org-filter" class="org-filter-select">
+        <option value="">すべての組織</option>
+        <option value="__personal__">個人（組織なし）</option>
+      </select>
       <select id="sort-select" class="sort-select">
         <option value="date-desc">日時（新しい順）</option>
         <option value="date-asc">日時（古い順）</option>
@@ -246,6 +322,7 @@
         <thead>
           <tr>
             <th>ユーザー</th>
+            <th>組織</th>
             <th>日時</th>
             <th>合計</th>
             <th>Health</th>
@@ -263,7 +340,44 @@
         <p>ユーザーが診断を完了すると、ここに結果が表示されます。</p>
       </div>
     </div>
-  </div>
+
+    </div><!-- /tab-results -->
+
+    <!-- TAB: Organizations -->
+    <div id="tab-orgs" class="tab-content">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:24px;">組織管理</h2>
+
+      <div class="org-form">
+        <div class="org-form-group">
+          <label>組織名</label>
+          <input type="text" id="org-name-input" placeholder="例: UNLOCK Inc.">
+        </div>
+        <button type="button" id="btn-add-org" class="btn-add-org">組織を追加</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>組織名</th>
+              <th>コード</th>
+              <th>配布URL</th>
+              <th>状態</th>
+              <th>回答数</th>
+              <th>作成日</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="orgs-tbody"></tbody>
+        </table>
+        <div id="orgs-empty" class="empty-state" style="display:none;">
+          <div class="empty-state-title">組織が登録されていません</div>
+          <p>「組織を追加」ボタンから法人を登録すると、専用の配布URLが生成されます。</p>
+        </div>
+      </div>
+    </div><!-- /tab-orgs -->
+
+  </div><!-- /admin-container -->
 
   <!-- Detail Modal -->
   <div class="modal-overlay" id="modal-overlay">
@@ -346,8 +460,42 @@
     };
 
     var allResults = [];
+    var allOrgs = [];       // { org_code, org_name, is_active, created_at }
+    var orgNameMap = {};    // code -> name
 
     // ---- Data Loading (Supabase) ----
+    function loadOrgs() {
+      if (!sb) return Promise.resolve();
+      return sb.from('organizations')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .then(function (res) {
+          if (res.error) {
+            console.warn('Org load failed:', res.error.message);
+            allOrgs = [];
+          } else {
+            allOrgs = res.data || [];
+          }
+          orgNameMap = {};
+          allOrgs.forEach(function (o) { orgNameMap[o.org_code] = o.org_name; });
+          populateOrgFilter();
+        });
+    }
+
+    function populateOrgFilter() {
+      var sel = document.getElementById('org-filter');
+      var current = sel.value;
+      // Keep first two options (all / personal)
+      while (sel.options.length > 2) sel.remove(2);
+      allOrgs.forEach(function (o) {
+        var opt = document.createElement('option');
+        opt.value = o.org_code;
+        opt.textContent = o.org_name;
+        sel.appendChild(opt);
+      });
+      sel.value = current;
+    }
+
     function loadResults() {
       if (!sb) {
         allResults = [];
@@ -383,6 +531,7 @@
                 brainTypeAxes: r.brain_type_axes,
                 categories: r.categories,
                 answers: r.answers,
+                orgCode: r.org_code || null,
               };
             });
           }
@@ -392,11 +541,12 @@
 
     // ---- Stats ----
     function renderStats() {
-      var total = allResults.length;
-      var uniqueUsers = new Set(allResults.map(function (r) { return r.lineUid; })).size;
-      var avgTotal = total > 0 ? (allResults.reduce(function (s, r) { return s + r.total; }, 0) / total).toFixed(0) : '—';
-      var avgHealth = total > 0 ? (allResults.reduce(function (s, r) { return s + r.healthTotal; }, 0) / total).toFixed(0) : '—';
-      var avgSkills = total > 0 ? (allResults.reduce(function (s, r) { return s + r.skillsTotal; }, 0) / total).toFixed(0) : '—';
+      var filtered = getFilteredSorted();
+      var total = filtered.length;
+      var uniqueUsers = new Set(filtered.map(function (r) { return r.lineUid; })).size;
+      var avgTotal = total > 0 ? (filtered.reduce(function (s, r) { return s + r.total; }, 0) / total).toFixed(0) : '—';
+      var avgHealth = total > 0 ? (filtered.reduce(function (s, r) { return s + r.healthTotal; }, 0) / total).toFixed(0) : '—';
+      var avgSkills = total > 0 ? (filtered.reduce(function (s, r) { return s + r.skillsTotal; }, 0) / total).toFixed(0) : '—';
 
       document.getElementById('stat-total').textContent = total;
       document.getElementById('stat-users').textContent = uniqueUsers;
@@ -409,8 +559,13 @@
     function getFilteredSorted() {
       var query = document.getElementById('search').value.toLowerCase();
       var sortBy = document.getElementById('sort-select').value;
+      var orgFilter = document.getElementById('org-filter').value;
 
       var filtered = allResults.filter(function (r) {
+        // Org filter
+        if (orgFilter === '__personal__' && r.orgCode) return false;
+        if (orgFilter && orgFilter !== '__personal__' && r.orgCode !== orgFilter) return false;
+
         if (!query) return true;
         return (r.displayName || '').toLowerCase().indexOf(query) !== -1 ||
                (r.lineUid || '').toLowerCase().indexOf(query) !== -1;
@@ -453,10 +608,13 @@
           ? r.lineUid.substring(0, 8) + '...'
           : (r.lineUid || '—');
 
+        var orgLabel = r.orgCode ? '<span class="org-badge">' + (orgNameMap[r.orgCode] || r.orgCode) + '</span>' : '<span style="color:#ccc;">—</span>';
+
         return '<tr data-idx="' + idx + '" style="cursor:pointer;">' +
           '<td><div class="user-cell">' + avatarHtml +
             '<div><div class="user-name">' + (r.displayName || '—') + '</div>' +
             '<div class="user-uid">' + uidShort + '</div></div></div></td>' +
+          '<td>' + orgLabel + '</td>' +
           '<td class="date-cell">' + dateStr + '</td>' +
           '<td class="score-cell">' + r.total + ' / 150</td>' +
           '<td class="score-cell">' + r.healthTotal + '</td>' +
@@ -592,7 +750,7 @@
       if (rows.length === 0) return;
 
       var catIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-      var header = ['LINE UID', '表示名', '日時', '合計', 'Health', 'Skills', 'ランク', 'タイプ', 'Brain Type']
+      var header = ['LINE UID', '表示名', '組織', '日時', '合計', 'Health', 'Skills', 'ランク', 'タイプ', 'Brain Type']
         .concat(catIds.map(function (id) { return id + '_' + CATEGORY_NAMES[id]; }));
 
       var csvRows = [header.join(',')];
@@ -603,6 +761,7 @@
         var row = [
           '"' + (r.lineUid || '') + '"',
           '"' + (r.displayName || '') + '"',
+          '"' + (orgNameMap[r.orgCode] || r.orgCode || '') + '"',
           '"' + dateStr + '"',
           r.total, r.healthTotal, r.skillsTotal,
           r.level, r.type, '"' + (r.brainType || '') + '"'
@@ -623,7 +782,18 @@
     // ---- Event Listeners ----
     document.getElementById('search').addEventListener('input', renderTable);
     document.getElementById('sort-select').addEventListener('change', renderTable);
+    document.getElementById('org-filter').addEventListener('change', function () { renderStats(); renderTable(); });
     document.getElementById('btn-export').addEventListener('click', exportCSV);
+
+    // ---- Tabs ----
+    document.querySelectorAll('.admin-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.admin-tab').forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+      });
+    });
 
     document.getElementById('btn-clear').addEventListener('click', function () {
       if (!confirm('全ての結果データを削除しますか？この操作は元に戻せません。')) return;
@@ -660,9 +830,126 @@
       if (e.target === this) this.classList.remove('active');
     });
 
+    // ---- Organization Management ----
+    function generateOrgCode() {
+      var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      var code = '';
+      for (var i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    }
+
+    function getAppBaseUrl() {
+      // Detect base URL for the assessment app
+      var loc = window.location;
+      var base = loc.protocol + '//' + loc.host;
+      // If on Vercel deployment, use /app path
+      if (loc.pathname.indexOf('/admin') !== -1) {
+        base += '/app';
+      } else {
+        base += loc.pathname.replace(/admin\.html.*/, 'index.html');
+      }
+      return base;
+    }
+
+    function renderOrgs() {
+      var tbody = document.getElementById('orgs-tbody');
+      var emptyEl = document.getElementById('orgs-empty');
+
+      if (allOrgs.length === 0) {
+        tbody.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      var baseUrl = getAppBaseUrl();
+      // Count results per org
+      var countMap = {};
+      allResults.forEach(function (r) {
+        if (r.orgCode) countMap[r.orgCode] = (countMap[r.orgCode] || 0) + 1;
+      });
+
+      tbody.innerHTML = allOrgs.map(function (o) {
+        var d = new Date(o.created_at);
+        var dateStr = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+        var url = baseUrl + '?org=' + o.org_code;
+        var count = countMap[o.org_code] || 0;
+        var statusLabel = o.is_active
+          ? '<span style="color:green;font-weight:600;">有効</span>'
+          : '<span style="color:#999;">無効</span>';
+
+        return '<tr>' +
+          '<td style="font-weight:600;">' + o.org_name + '</td>' +
+          '<td><code style="font-size:12px;background:#f0f0f0;padding:2px 8px;border-radius:3px;">' + o.org_code + '</code></td>' +
+          '<td><div class="org-link-box" title="クリックでコピー" data-url="' + url + '">' + url + '</div></td>' +
+          '<td>' + statusLabel + '</td>' +
+          '<td style="text-align:center;font-weight:600;">' + count + '</td>' +
+          '<td class="date-cell">' + dateStr + '</td>' +
+          '<td><button type="button" class="btn-sm-danger btn-delete-org" data-code="' + o.org_code + '">削除</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('btn-add-org').addEventListener('click', function () {
+      var nameInput = document.getElementById('org-name-input');
+      var name = nameInput.value.trim();
+      if (!name) { nameInput.focus(); return; }
+      if (!sb) return;
+
+      var code = generateOrgCode();
+      sb.from('organizations')
+        .insert([{ org_code: code, org_name: name, is_active: true }])
+        .then(function (res) {
+          if (res.error) {
+            alert('追加に失敗しました: ' + res.error.message);
+          } else {
+            nameInput.value = '';
+            loadOrgs().then(function () { renderOrgs(); });
+          }
+        });
+    });
+
+    // Delegate click for org link copy and delete
+    document.getElementById('orgs-tbody').addEventListener('click', function (e) {
+      // Copy URL
+      var linkBox = e.target.closest('.org-link-box');
+      if (linkBox) {
+        var url = linkBox.getAttribute('data-url');
+        navigator.clipboard.writeText(url).then(function () {
+          var orig = linkBox.textContent;
+          linkBox.textContent = 'コピーしました!';
+          setTimeout(function () { linkBox.textContent = orig; }, 1500);
+        });
+        return;
+      }
+      // Delete org
+      var delBtn = e.target.closest('.btn-delete-org');
+      if (delBtn) {
+        var code = delBtn.getAttribute('data-code');
+        var orgName = orgNameMap[code] || code;
+        if (!confirm('「' + orgName + '」を削除しますか？\n既存の診断結果データは削除されません。')) return;
+        if (!sb) return;
+        sb.from('organizations')
+          .delete()
+          .eq('org_code', code)
+          .then(function (res) {
+            if (res.error) {
+              alert('削除に失敗しました: ' + res.error.message);
+            } else {
+              loadOrgs().then(function () { renderOrgs(); });
+            }
+          });
+      }
+    });
+
     // ---- Init (called after auth) ----
     function initAdmin() {
-      loadResults();
+      loadOrgs().then(function () {
+        loadResults();
+        renderOrgs();
+      });
     }
 
     // Auto-init if already authenticated (session still valid)
