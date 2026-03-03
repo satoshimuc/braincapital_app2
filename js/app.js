@@ -674,6 +674,12 @@
     pictureUrl: null,
   };
 
+  // Organization (populated from ?org=CODE URL parameter)
+  var currentOrg = {
+    code: null,
+    name: null,
+  };
+
   // Generate a unique session ID
   function generateSessionId() {
     return 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
@@ -1566,6 +1572,48 @@
     setTimeout(fetchLineProfile, 1500);
   }
 
+  // 3. Validate org code from URL parameter
+  function validateOrgCode() {
+    var orgParam = getUrlParam('org');
+    if (!orgParam || !supabase) return;
+
+    supabase
+      .from('organizations')
+      .select('org_code, org_name')
+      .eq('org_code', orgParam)
+      .eq('is_active', true)
+      .limit(1)
+      .then(function (res) {
+        if (res.error || !res.data || res.data.length === 0) {
+          console.info('Org code not found or inactive:', orgParam);
+          return;
+        }
+        currentOrg.code = res.data[0].org_code;
+        currentOrg.name = res.data[0].org_name;
+        console.log('Organization validated:', currentOrg.name, '(' + currentOrg.code + ')');
+        showOrgBanner();
+      });
+  }
+
+  function showOrgBanner() {
+    if (!currentOrg.name) return;
+    // Add org banner to language select, mode select, and landing screens
+    var targets = ['screen-lang', 'screen-mode', 'screen-landing', 'screen-assessment'];
+    targets.forEach(function (id) {
+      var screen = document.getElementById(id);
+      if (!screen) return;
+      // Remove existing banner if any
+      var existing = screen.querySelector('.org-banner');
+      if (existing) existing.remove();
+      var banner = document.createElement('div');
+      banner.className = 'org-banner';
+      banner.innerHTML = '<span class="org-banner-label">' + currentOrg.name + '</span>';
+      screen.insertBefore(banner, screen.firstChild);
+    });
+  }
+
+  validateOrgCode();
+
   // ============================================
   // RESULT SAVING (Supabase)
   // ============================================
@@ -1590,6 +1638,7 @@
       brain_type_axes: bt.axes,
       categories: results.categories,
       answers: Object.assign({}, answers),
+      org_code: currentOrg.code || null,
     };
   }
 
