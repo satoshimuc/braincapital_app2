@@ -296,6 +296,7 @@
       <button type="button" class="admin-tab active" data-tab="tab-results">診断結果</button>
       <button type="button" class="admin-tab" data-tab="tab-orgs">組織管理</button>
       <button type="button" class="admin-tab" data-tab="tab-clubs">クラブ管理</button>
+      <button type="button" class="admin-tab" data-tab="tab-kids">キッズ管理</button>
     </div>
 
     <!-- TAB: Results -->
@@ -498,6 +499,79 @@
         </div>
       </div>
     </div><!-- /tab-clubs -->
+
+    <!-- TAB: Kids Organizations -->
+    <div id="tab-kids" class="tab-content">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:24px;">キッズ組織管理</h2>
+
+      <div class="org-form">
+        <div class="org-form-group">
+          <label>組織名</label>
+          <input type="text" id="kidorg-name-input" placeholder="例: ABC学習塾">
+        </div>
+        <div class="org-form-group">
+          <label>種別</label>
+          <select id="kidorg-type-input" style="padding:8px;border:1px solid var(--gray-200);border-radius:4px;">
+            <option value="juku">塾</option>
+            <option value="school">学校</option>
+            <option value="afterschool">習い事</option>
+            <option value="home">家庭</option>
+          </select>
+        </div>
+        <button type="button" id="btn-add-kidorg" class="btn-add-org">組織を追加</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>組織名</th>
+              <th>種別</th>
+              <th>コード</th>
+              <th>児童URL</th>
+              <th>保護者URL</th>
+              <th>講師URL</th>
+              <th>作成日</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="kidorgs-tbody"></tbody>
+        </table>
+        <div id="kidorgs-empty" class="empty-state" style="display:none;">
+          <div class="empty-state-title">キッズ組織が登録されていません</div>
+          <p>「組織を追加」から登録すると、児童・保護者・講師用のURLが生成されます。</p>
+        </div>
+      </div>
+
+      <!-- Group management for selected kid org -->
+      <div id="kidgroup-mgmt" style="display:none;margin-top:32px;">
+        <div class="dept-mgmt-title">
+          グループ管理
+          <span class="dept-mgmt-org-name" id="kidgroup-mgmt-org-name"></span>
+        </div>
+        <div class="dept-form">
+          <div class="org-form-group">
+            <label>グループ名</label>
+            <input type="text" id="kidgroup-name-input" placeholder="例: 小5クラス">
+          </div>
+          <div class="org-form-group">
+            <label>表示順</label>
+            <input type="number" id="kidgroup-order-input" placeholder="0" value="0" style="width:80px;">
+          </div>
+          <button type="button" id="btn-add-kidgroup" class="btn-add-org">グループを追加</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>グループ名</th><th>表示順</th><th>作成日</th><th></th></tr></thead>
+            <tbody id="kidgroups-tbody"></tbody>
+          </table>
+          <div id="kidgroups-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-title">グループが未登録です</div>
+            <p>グループを追加すると、児童登録時に選択できるようになります。</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-kids -->
 
   </div><!-- /admin-container -->
 
@@ -1311,6 +1385,119 @@
         });
     });
 
+    // ---- Kids Org Management ----
+    var kidOrgs = [];
+    var selectedKidOrgCode = null;
+
+    function getKidsBaseUrl() {
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        return location.origin;
+      }
+      return 'https://braincapital.unlock.tokyo';
+    }
+
+    function loadKidOrgs() {
+      return sb.from('kid_orgs').select('*').order('created_at', { ascending: false })
+        .then(function (res) {
+          kidOrgs = res.data || [];
+          renderKidOrgs();
+        });
+    }
+
+    function renderKidOrgs() {
+      var tbody = document.getElementById('kidorgs-tbody');
+      var empty = document.getElementById('kidorgs-empty');
+      if (kidOrgs.length === 0) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+      empty.style.display = 'none';
+      var base = getKidsBaseUrl();
+      var typeLabels = { juku: '塾', school: '学校', afterschool: '習い事', home: '家庭' };
+      tbody.innerHTML = kidOrgs.map(function (o) {
+        return '<tr>' +
+          '<td>' + o.org_name + '</td>' +
+          '<td>' + (typeLabels[o.org_type] || o.org_type) + '</td>' +
+          '<td><code>' + o.org_code + '</code></td>' +
+          '<td><code style="font-size:11px;">' + base + '/kids?org=' + o.org_code + '</code></td>' +
+          '<td><code style="font-size:11px;">' + base + '/kids/parent?org=' + o.org_code + '</code></td>' +
+          '<td><code style="font-size:11px;">' + base + '/kids/instructor?org=' + o.org_code + '</code></td>' +
+          '<td>' + new Date(o.created_at).toLocaleDateString('ja-JP') + '</td>' +
+          '<td><button type="button" class="btn-manage-kidorg" data-code="' + o.org_code + '" data-name="' + o.org_name + '" style="font-size:12px;padding:4px 8px;border:1px solid var(--gray-300);border-radius:4px;background:var(--white);cursor:pointer;margin-right:4px;">グループ管理</button>' +
+          '<button type="button" class="btn-delete-kidorg" data-code="' + o.org_code + '" style="font-size:12px;padding:4px 8px;border:1px solid var(--gray-300);border-radius:4px;background:var(--white);cursor:pointer;color:red;">削除</button></td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('btn-add-kidorg').addEventListener('click', function () {
+      var name = document.getElementById('kidorg-name-input').value.trim();
+      var orgType = document.getElementById('kidorg-type-input').value;
+      if (!name) return;
+      var code = generateOrgCode();
+      sb.from('kid_orgs').insert({ org_name: name, org_code: code, org_type: orgType })
+        .then(function (res) {
+          if (res.error) { alert('エラー: ' + res.error.message); return; }
+          document.getElementById('kidorg-name-input').value = '';
+          loadKidOrgs();
+        });
+    });
+
+    document.getElementById('kidorgs-tbody').addEventListener('click', function (e) {
+      var manageBtn = e.target.closest('.btn-manage-kidorg');
+      if (manageBtn) {
+        selectedKidOrgCode = manageBtn.getAttribute('data-code');
+        document.getElementById('kidgroup-mgmt').style.display = '';
+        document.getElementById('kidgroup-mgmt-org-name').textContent = manageBtn.getAttribute('data-name');
+        loadKidGroups();
+        return;
+      }
+      var delBtn = e.target.closest('.btn-delete-kidorg');
+      if (delBtn) {
+        if (!confirm('この組織を削除しますか？関連するデータもすべて削除されます。')) return;
+        sb.from('kid_orgs').delete().eq('org_code', delBtn.getAttribute('data-code'))
+          .then(function (res) {
+            if (res.error) { alert('削除に失敗しました: ' + res.error.message); return; }
+            document.getElementById('kidgroup-mgmt').style.display = 'none';
+            loadKidOrgs();
+          });
+      }
+    });
+
+    function loadKidGroups() {
+      sb.from('kid_groups').select('*').eq('org_code', selectedKidOrgCode).order('sort_order')
+        .then(function (res) {
+          var groups = res.data || [];
+          var tbody = document.getElementById('kidgroups-tbody');
+          var empty = document.getElementById('kidgroups-empty');
+          if (groups.length === 0) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+          empty.style.display = 'none';
+          tbody.innerHTML = groups.map(function (g) {
+            return '<tr><td>' + g.group_name + '</td><td>' + g.sort_order + '</td><td>' + new Date(g.created_at).toLocaleDateString('ja-JP') + '</td>' +
+              '<td><button type="button" class="btn-delete-kidgroup" data-id="' + g.id + '" style="font-size:12px;padding:4px 8px;border:1px solid var(--gray-300);border-radius:4px;background:var(--white);cursor:pointer;color:red;">削除</button></td></tr>';
+          }).join('');
+        });
+    }
+
+    document.getElementById('btn-add-kidgroup').addEventListener('click', function () {
+      var name = document.getElementById('kidgroup-name-input').value.trim();
+      var order = parseInt(document.getElementById('kidgroup-order-input').value) || 0;
+      if (!name || !selectedKidOrgCode) return;
+      sb.from('kid_groups').insert({ org_code: selectedKidOrgCode, group_name: name, sort_order: order })
+        .then(function (res) {
+          if (res.error) { alert('エラー: ' + res.error.message); return; }
+          document.getElementById('kidgroup-name-input').value = '';
+          loadKidGroups();
+        });
+    });
+
+    document.getElementById('kidgroups-tbody').addEventListener('click', function (e) {
+      var delBtn = e.target.closest('.btn-delete-kidgroup');
+      if (!delBtn) return;
+      if (!confirm('このグループを削除しますか？')) return;
+      sb.from('kid_groups').delete().eq('id', delBtn.getAttribute('data-id'))
+        .then(function (res) {
+          if (res.error) { alert('削除に失敗しました: ' + res.error.message); return; }
+          loadKidGroups();
+        });
+    });
+
     // ---- Init (called after auth) ----
     function initAdmin() {
       loadOrgs().then(function () {
@@ -1318,6 +1505,7 @@
         renderOrgs();
       });
       loadClubs();
+      loadKidOrgs();
     }
 
     // Auto-init if already authenticated (session still valid)

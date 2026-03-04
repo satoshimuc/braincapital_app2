@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNLOCK — 保護者ダッシュボード</title>
+  <link rel="stylesheet" href="/kids/css/kids.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- ===== Top bar ===== -->
+  <div class="topbar">
+    <div>
+      <span class="topbar-logo">UNLOCK</span>
+      <span class="topbar-org" id="topbar-org"></span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-role">保護者</span>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Auth ===== -->
+  <div id="screen-auth" class="screen active">
+    <div class="container" style="padding-top:80px;">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">保護者ダッシュボード</h1>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:32px;">お子さまのようすを週まとめでお届けします。<br>※ 生データや点数は表示されません。</p>
+      <div class="form-group">
+        <label class="form-label">保護者トークン</label>
+        <input class="form-input" id="auth-token" type="text" placeholder="管理者から配布されたトークンを入力">
+      </div>
+      <button type="button" class="btn-primary" id="btn-auth">ログイン</button>
+      <p id="auth-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Dashboard ===== -->
+  <div id="screen-dashboard" class="screen">
+    <div class="dash-container">
+      <!-- Child selector (if multiple children) -->
+      <div id="child-selector" style="margin-bottom:16px;display:none;">
+        <select class="form-select" id="child-select"></select>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="summary-cards" id="summary-cards"></div>
+
+      <!-- Signal notice (abstract) -->
+      <div id="signal-notice"></div>
+
+      <!-- Weekly summaries -->
+      <div class="section-header">週まとめ</div>
+      <div id="weekly-list"></div>
+
+      <!-- Engagement tips -->
+      <div class="section-header">おうちでできるヒント</div>
+      <div id="tips-area"></div>
+
+      <p style="text-align:center;margin:32px 0;font-size:12px;color:var(--gray-400);">&copy; 2025 UNLOCK Kids — 保護者ダッシュボード</p>
+    </div>
+  </div>
+
+  <script src="/kids/js/parent.js"></script>
+</body>
+</html>

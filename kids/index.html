@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNLOCK — Brain Capital キッズ</title>
+  <link rel="stylesheet" href="/kids/css/kids.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- ===== Top bar ===== -->
+  <div class="topbar" id="topbar" style="display:none;">
+    <div>
+      <span class="topbar-logo">UNLOCK</span>
+      <span class="topbar-org" id="topbar-org"></span>
+    </div>
+    <div class="topbar-right">
+      <span id="topbar-streak" class="streak-badge" style="display:none;">🔥 <span id="streak-count">0</span>日</span>
+      <button type="button" class="btn-text" id="btn-badges">バッジ</button>
+      <button type="button" class="btn-text" id="btn-settings">設定</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Register ===== -->
+  <div id="screen-register" class="screen active">
+    <div class="container" style="padding-top:80px;">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">UNLOCK キッズ</h1>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:32px;">きみの「のう」と「きもち」をチェックしよう！<br>まいにち2分でできるよ。</p>
+      <div class="form-group">
+        <label class="form-label">グループ</label>
+        <select class="form-select" id="reg-group"><option value="">読み込み中...</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">なまえ（ニックネーム）</label>
+        <input class="form-input" id="reg-name" type="text" placeholder="例: タロウ">
+      </div>
+      <div class="form-group">
+        <label class="form-label">年齢グループ</label>
+        <select class="form-select" id="reg-age-group">
+          <option value="kids">小学生（8〜12歳）</option>
+          <option value="teens">中高生（13〜18歳）</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">うまれた年（任意）</label>
+        <input class="form-input" id="reg-birth-year" type="number" placeholder="例: 2014">
+      </div>
+      <button type="button" class="btn-primary" id="btn-register">はじめる！</button>
+      <p id="reg-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Home (Kids version) ===== -->
+  <div id="screen-home-kids" class="screen">
+    <div class="container">
+      <div class="character-hero">
+        <div class="character-face" id="kids-face">😊</div>
+        <div class="character-msg" id="kids-msg">きょうもげんき！</div>
+        <div class="character-sub" id="kids-sub">チェックインして、きょうのきぶんをおしえてね</div>
+      </div>
+
+      <button type="button" class="btn-primary" id="btn-kids-checkin" style="margin:16px 0;">きょうのチェックイン 🎯</button>
+
+      <!-- Today's drill -->
+      <div id="kids-drill-area"></div>
+
+      <!-- Badge preview -->
+      <div class="section-header">あつめたバッジ</div>
+      <div id="kids-badge-preview" class="badge-grid"></div>
+
+      <p style="text-align:center;margin:24px 0;font-size:12px;color:var(--gray-400);">&copy; 2025 UNLOCK Kids</p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Home (Teens version) ===== -->
+  <div id="screen-home-teens" class="screen">
+    <div class="container">
+      <div class="character-hero">
+        <div id="teens-signal"></div>
+        <div class="character-face" id="teens-score" style="font-size:48px;font-weight:800;">—</div>
+        <div class="character-msg" id="teens-msg">今日のReadiness</div>
+        <div class="character-sub" id="teens-action"></div>
+      </div>
+
+      <button type="button" class="btn-primary" id="btn-teens-checkin" style="margin:16px 0;">デイリーチェックイン</button>
+
+      <!-- Today's drill -->
+      <div id="teens-drill-area"></div>
+
+      <!-- Trend -->
+      <div class="section-header">直近4週間の推移</div>
+      <div class="card">
+        <svg id="teens-trend-chart" class="trend-chart" viewBox="0 0 580 160"></svg>
+        <div class="trend-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--accent);"></span>Readiness</span>
+        </div>
+        <div id="teens-trend-empty" class="loading" style="display:none;">まだデータがありません</div>
+      </div>
+
+      <p style="text-align:center;margin:24px 0;font-size:12px;color:var(--gray-400);">&copy; 2025 UNLOCK Kids</p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Kids Check-in (3Q × 3-choice) ===== -->
+  <div id="screen-checkin-kids" class="screen">
+    <div class="container" style="padding-top:24px;padding-bottom:100px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">きょうのきぶん</h2>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:24px;">えらんでタップするだけ！</p>
+      <div id="kids-checkin-questions"></div>
+      <button type="button" class="btn-primary" id="btn-kids-checkin-submit" disabled>おくる！ ✨</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Teens Check-in (5Q × 5-level) ===== -->
+  <div id="screen-checkin-teens" class="screen">
+    <div class="container" style="padding-top:24px;padding-bottom:100px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">デイリーチェックイン</h2>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:24px;">今の状態を直感で。</p>
+      <div id="teens-checkin-questions"></div>
+      <button type="button" class="btn-primary" id="btn-teens-checkin-submit" disabled>送信する</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Done ===== -->
+  <div id="screen-done" class="screen">
+    <div class="container" style="padding-top:80px;">
+      <div class="done-icon" id="done-icon">🎉</div>
+      <div class="done-title" id="done-title">できた！</div>
+      <div class="done-desc" id="done-desc">きょうもチェックインありがとう！</div>
+      <div id="done-drill-area"></div>
+      <div id="done-badge-area"></div>
+      <button type="button" class="btn-primary" id="btn-done-home">もどる</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Drill ===== -->
+  <div id="screen-drill" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:16px;" id="drill-title-text">きょうのあそび</h2>
+      <div id="drill-detail"></div>
+      <button type="button" class="btn-stamp" id="btn-drill-done" style="margin:16px 0;">できた！ 🌟</button>
+      <button type="button" class="btn-text" id="btn-drill-back">← もどる</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Badges ===== -->
+  <div id="screen-badges" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:16px;">バッジコレクション</h2>
+      <div id="badge-collection" class="badge-grid"></div>
+      <button type="button" class="btn-text" id="btn-badges-back" style="margin-top:24px;">← もどる</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Settings ===== -->
+  <div id="screen-settings" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:16px;">設定</h2>
+      <div class="card">
+        <div class="card-title">保護者への共有</div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">保護者に週まとめを共有</div>
+            <div class="toggle-desc">週1回、かんたんなまとめが保護者に届きます</div>
+          </div>
+          <div class="toggle-switch"><input type="checkbox" id="settings-share-parent" checked></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">プロフィール</div>
+        <p style="font-size:13px;color:var(--gray-600);" id="settings-profile"></p>
+      </div>
+      <button type="button" class="btn-text" id="btn-settings-back" style="margin-top:16px;">← もどる</button>
+    </div>
+  </div>
+
+  <script src="/kids/js/app.js"></script>
+</body>
+</html>
