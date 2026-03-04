@@ -16,6 +16,12 @@
     { "source": "/sports/coach/", "destination": "/sports/coach.html" },
     { "source": "/sports/trainer", "destination": "/sports/trainer.html" },
     { "source": "/sports/trainer/", "destination": "/sports/trainer.html" },
+    { "source": "/kids", "destination": "/kids/index.html" },
+    { "source": "/kids/", "destination": "/kids/index.html" },
+    { "source": "/kids/parent", "destination": "/kids/parent.html" },
+    { "source": "/kids/parent/", "destination": "/kids/parent.html" },
+    { "source": "/kids/instructor", "destination": "/kids/instructor.html" },
+    { "source": "/kids/instructor/", "destination": "/kids/instructor.html" },
     { "source": "/", "destination": "/lp/index.html" }
   ],
   "headers": [

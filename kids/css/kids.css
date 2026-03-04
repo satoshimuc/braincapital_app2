@@ -1,0 +1,160 @@
+/* ================================================
+   UNLOCK — Kids/Teens Brain Capital
+   Fun-first, safe, no ranking, no comparison
+   ================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#000;--gray-900:#111;--gray-800:#222;--gray-700:#333;--gray-600:#555;
+  --gray-500:#777;--gray-400:#999;--gray-300:#BBB;--gray-200:#DDD;--gray-150:#E8E8E8;
+  --gray-100:#F0F0F0;--gray-50:#F7F7F7;--white:#FFF;
+  --green:#0a8f3c;--green-bg:#edfdf3;--yellow:#b8860b;--yellow-bg:#fef9ec;
+  --red:#c00;--red-bg:#fef2f2;
+  --accent:#6C5CE7;--accent-light:#a29bfe;--accent-bg:#f0edff;
+  --fun-pink:#fd79a8;--fun-blue:#74b9ff;--fun-green:#55efc4;--fun-yellow:#ffeaa7;
+  --font-sans:'Inter','Noto Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-mono:'SF Mono','Fira Code','Consolas',monospace;
+  --transition:.25s cubic-bezier(.4,0,.2,1);
+  --radius-sm:4px;--radius-md:8px;--radius-lg:12px;--radius-xl:20px;
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-sans);color:var(--gray-800);background:var(--gray-50);line-height:1.7;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+.container{max-width:640px;margin:0 auto;padding:0 20px}
+
+/* --- Top bar --- */
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--accent)}
+.topbar-org{font-size:11px;color:var(--gray-500);margin-left:8px}
+.topbar-right{display:flex;gap:12px;align-items:center}
+.topbar-role{font-size:11px;color:var(--gray-400);font-weight:500;margin-left:12px;padding-left:12px;border-left:1px solid var(--gray-200)}
+
+/* --- Buttons --- */
+.btn-primary{display:block;width:100%;padding:14px 24px;background:var(--accent);color:var(--white);border:none;border-radius:var(--radius-lg);font-family:var(--font-sans);font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition);text-align:center}
+.btn-primary:hover{background:var(--accent-light)}
+.btn-primary:disabled{background:var(--gray-300);cursor:not-allowed}
+.btn-secondary{display:block;width:100%;padding:12px 24px;background:var(--white);color:var(--gray-800);border:1px solid var(--gray-300);border-radius:var(--radius-lg);font-family:var(--font-sans);font-size:14px;font-weight:500;cursor:pointer;transition:var(--transition);text-align:center}
+.btn-text{background:none;border:none;color:var(--gray-600);font-family:var(--font-sans);font-size:13px;cursor:pointer;padding:8px}
+.btn-text:hover{color:var(--gray-900)}
+.btn-stamp{display:block;width:100%;padding:16px;background:var(--fun-green);color:var(--gray-900);border:none;border-radius:var(--radius-xl);font-family:var(--font-sans);font-size:16px;font-weight:700;cursor:pointer;transition:var(--transition);text-align:center}
+.btn-stamp:hover{transform:scale(1.03)}
+
+/* --- Cards --- */
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:8px}
+.card-desc{font-size:13px;color:var(--gray-600);line-height:1.7}
+
+/* --- Forms --- */
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px}
+.form-input,.form-select{width:100%;padding:12px 16px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;color:var(--gray-800);background:var(--white);outline:none}
+.form-input:focus,.form-select:focus{border-color:var(--accent)}
+
+/* ===================== */
+/* KIDS-SPECIFIC STYLES  */
+/* ===================== */
+
+/* --- Character hero --- */
+.character-hero{text-align:center;padding:24px 0 8px}
+.character-face{font-size:80px;line-height:1;margin-bottom:8px;transition:var(--transition)}
+.character-msg{font-size:16px;font-weight:600;color:var(--gray-800);margin-bottom:4px}
+.character-sub{font-size:13px;color:var(--gray-500)}
+
+/* --- Streak badge --- */
+.streak-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--fun-yellow);border-radius:100px;font-size:13px;font-weight:700;color:var(--gray-800)}
+
+/* --- Kids 3-choice buttons --- */
+.kids-choice-group{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.kids-choice-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;border:2px solid var(--gray-200);border-radius:var(--radius-xl);background:var(--white);cursor:pointer;transition:var(--transition);font-family:var(--font-sans)}
+.kids-choice-btn:hover{border-color:var(--accent-light);background:var(--accent-bg)}
+.kids-choice-btn.selected{border-color:var(--accent);background:var(--accent-bg);transform:scale(1.05)}
+.kids-choice-icon{font-size:36px;line-height:1}
+.kids-choice-label{font-size:12px;font-weight:600;color:var(--gray-700)}
+
+/* --- Kids question --- */
+.kids-question{margin-bottom:32px;text-align:center}
+.kids-question-text{font-size:18px;font-weight:700;color:var(--gray-800);margin-bottom:16px;line-height:1.5}
+
+/* --- Teens 5-level rating --- */
+.teens-question{margin-bottom:28px}
+.teens-question-text{font-size:15px;font-weight:500;color:var(--gray-800);margin-bottom:10px;line-height:1.6}
+.rating-group{display:flex;gap:8px;justify-content:center}
+.rating-btn{width:48px;height:48px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:var(--white);font-family:var(--font-sans);font-size:16px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:var(--transition)}
+.rating-btn:hover{border-color:var(--accent)}
+.rating-btn.selected{background:var(--accent);color:var(--white);border-color:var(--accent)}
+.rating-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--gray-400)}
+
+/* --- Drill card --- */
+.drill-card{background:var(--white);border:2px solid var(--gray-200);border-radius:var(--radius-xl);padding:24px;margin-bottom:16px;text-align:center;transition:var(--transition)}
+.drill-card-icon{font-size:48px;margin-bottom:8px}
+.drill-card-title{font-size:16px;font-weight:700;color:var(--gray-900);margin-bottom:4px}
+.drill-card-meta{font-size:12px;color:var(--gray-400);margin-bottom:12px}
+.drill-card-desc{font-size:14px;color:var(--gray-600);line-height:1.7;text-align:left;margin-bottom:12px}
+.drill-card-video{display:inline-block;padding:8px 16px;background:var(--accent-bg);border-radius:var(--radius-md);font-size:13px;color:var(--accent);font-weight:600}
+
+/* --- Badge grid --- */
+.badge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.badge-item{text-align:center;padding:12px 4px}
+.badge-icon{font-size:32px;line-height:1;margin-bottom:4px}
+.badge-title{font-size:10px;font-weight:600;color:var(--gray-700);line-height:1.3}
+.badge-locked{opacity:.25;filter:grayscale(1)}
+
+/* --- Signal (gentle) --- */
+.signal-gentle{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600}
+.signal-great{background:var(--green-bg);color:var(--green)}
+.signal-ok{background:var(--fun-yellow);color:var(--yellow)}
+.signal-rest{background:var(--accent-bg);color:var(--accent)}
+
+/* --- Done screen --- */
+.done-icon{font-size:64px;text-align:center;margin-bottom:16px}
+.done-title{font-size:22px;font-weight:800;text-align:center;margin-bottom:8px;color:var(--accent)}
+.done-desc{font-size:14px;color:var(--gray-600);text-align:center;line-height:1.7;margin-bottom:24px}
+
+/* --- Trend (simple) --- */
+.trend-chart{width:100%;height:160px}
+.trend-legend{display:flex;gap:16px;justify-content:center;margin-top:12px;font-size:12px;color:var(--gray-500)}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* --- Section header --- */
+.section-header{font-size:12px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px}
+
+/* --- Settings toggle --- */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--gray-100)}
+.toggle-label{font-size:14px;color:var(--gray-700)}
+.toggle-desc{font-size:11px;color:var(--gray-400);margin-top:2px}
+
+/* --- Loading --- */
+.loading{text-align:center;padding:48px;color:var(--gray-400);font-size:14px}
+
+/* --- Parent / Instructor shared --- */
+.dash-container{max-width:960px;margin:0 auto;padding:24px 20px}
+.summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.summary-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;text-align:center}
+.summary-value{font-size:28px;font-weight:800;line-height:1}
+.summary-label{font-size:11px;color:var(--gray-500);margin-top:4px}
+
+/* --- Parent weekly card --- */
+.weekly-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px}
+.weekly-card-week{font-size:11px;color:var(--gray-400);font-family:var(--font-mono);margin-bottom:8px}
+.weekly-card-summary{font-size:14px;color:var(--gray-700);line-height:1.8;margin-bottom:12px}
+.weekly-card-tip{background:var(--accent-bg);border-radius:var(--radius-md);padding:16px;font-size:13px;color:var(--accent);line-height:1.7}
+.weekly-card-tip strong{display:block;font-size:12px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+
+/* --- Instructor table --- */
+.inst-table{width:100%;border-collapse:collapse;font-size:13px}
+.inst-table th{font-size:11px;font-weight:600;color:var(--gray-500);padding:8px 12px;text-align:left;border-bottom:2px solid var(--gray-200)}
+.inst-table td{padding:10px 12px;border-bottom:1px solid var(--gray-100)}
+
+/* --- Responsive --- */
+@media(max-width:480px){
+  .character-face{font-size:60px}
+  .kids-choice-group{gap:8px}
+  .kids-choice-btn{padding:12px 4px}
+  .kids-choice-icon{font-size:28px}
+  .badge-grid{grid-template-columns:repeat(3,1fr)}
+  .summary-cards{grid-template-columns:1fr}
+  .card{padding:20px}
+}
