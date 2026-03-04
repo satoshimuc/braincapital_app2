@@ -10,6 +10,12 @@
     { "source": "/corporate/hr/", "destination": "/corporate/hr.html" },
     { "source": "/corporate/oh", "destination": "/corporate/oh.html" },
     { "source": "/corporate/oh/", "destination": "/corporate/oh.html" },
+    { "source": "/sports", "destination": "/sports/index.html" },
+    { "source": "/sports/", "destination": "/sports/index.html" },
+    { "source": "/sports/coach", "destination": "/sports/coach.html" },
+    { "source": "/sports/coach/", "destination": "/sports/coach.html" },
+    { "source": "/sports/trainer", "destination": "/sports/trainer.html" },
+    { "source": "/sports/trainer/", "destination": "/sports/trainer.html" },
     { "source": "/", "destination": "/lp/index.html" }
   ],
   "headers": [

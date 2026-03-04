@@ -1,0 +1,38 @@
+/* ================================================
+   UNLOCK — Trainer Dashboard styles
+   ================================================ */
+.trainer-container{max-width:960px;margin:0 auto;padding:24px 20px}
+.individual-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--gray-200)}
+
+/* Detail score rows */
+.detail-score-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray-100)}
+.detail-score-row:last-child{border-bottom:none}
+.detail-score-label{font-size:13px;color:var(--gray-700);flex:1}
+.detail-score-value{font-size:18px;font-weight:700;font-family:var(--font-mono);width:40px;text-align:center}
+.detail-score-value.low{color:var(--red)}
+.detail-score-value.mid{color:var(--yellow)}
+.detail-score-value.high{color:var(--green)}
+.detail-score-bar{flex:2;height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden}
+.detail-score-fill{height:100%;border-radius:4px;transition:width .3s ease}
+
+/* Alert row */
+.alert-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--gray-100);cursor:pointer;transition:var(--transition)}
+.alert-row:hover{background:var(--gray-50)}
+.alert-row:last-child{border-bottom:none}
+.alert-info{flex:1}
+.alert-name{font-size:14px;font-weight:600;color:var(--gray-800)}
+.alert-cats{font-size:12px;color:var(--gray-500);margin-top:2px}
+.alert-date{font-size:11px;color:var(--gray-400);font-family:var(--font-mono)}
+
+/* Risk history */
+.risk-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--gray-100)}
+.risk-row:last-child{border-bottom:none}
+.risk-date{font-size:11px;color:var(--gray-400);font-family:var(--font-mono);width:80px;flex-shrink:0}
+.risk-msg{font-size:13px;color:var(--gray-700);flex:1}
+
+/* Audit notice */
+.audit-notice{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px 16px;font-size:12px;color:var(--gray-500);margin:24px 0;line-height:1.6}
+
+@media(max-width:768px){
+  .trainer-container{padding:16px 12px}
+}
