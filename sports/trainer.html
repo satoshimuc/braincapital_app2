@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNLOCK — Trainer Dashboard</title>
+  <link rel="stylesheet" href="/sports/css/sports.css">
+  <link rel="stylesheet" href="/sports/css/trainer.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- ===== Top bar ===== -->
+  <div class="topbar">
+    <div>
+      <span class="topbar-logo">UNLOCK</span>
+      <span class="topbar-club" id="topbar-club"></span>
+      <span class="topbar-role">Trainer</span>
+    </div>
+    <div class="topbar-right">
+      <button type="button" class="btn-text" id="btn-back-list" style="display:none;">← 一覧に戻る</button>
+      <button type="button" class="btn-text" id="btn-logout">ログアウト</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Login ===== -->
+  <div id="screen-login" class="screen active">
+    <div class="container" style="padding-top:80px;">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">トレーナー ログイン</h1>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:32px;">トレーナーとしてログインしてください。</p>
+      <div class="form-group">
+        <label class="form-label">アクセストークン</label>
+        <input class="form-input" id="login-token" type="password" placeholder="トークンを入力">
+      </div>
+      <button type="button" class="btn-primary" id="btn-login">ログイン</button>
+      <p id="login-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Triage List ===== -->
+  <div id="screen-triage" class="screen">
+    <div class="trainer-container">
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button type="button" class="tab-btn active" data-tab="tab-alerts">アラート</button>
+        <button type="button" class="tab-btn" data-tab="tab-all">全選手</button>
+        <button type="button" class="tab-btn" data-tab="tab-trend">チームトレンド</button>
+      </div>
+
+      <!-- TAB: Alerts -->
+      <div id="tab-alerts" class="tab-content active">
+        <div class="coach-summary">
+          <div class="coach-summary-card summary-card-red">
+            <div class="coach-summary-value" id="sum-red">0</div>
+            <div class="coach-summary-label">要注意</div>
+          </div>
+          <div class="coach-summary-card summary-card-yellow">
+            <div class="coach-summary-value" id="sum-yellow">0</div>
+            <div class="coach-summary-label">注意</div>
+          </div>
+          <div class="coach-summary-card summary-card-green">
+            <div class="coach-summary-value" id="sum-green">0</div>
+            <div class="coach-summary-label">良好</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;">
+          <div class="card-title" style="padding:16px 16px 0;">リスクシグナル一覧</div>
+          <div id="alert-list"></div>
+          <div id="alert-empty" class="loading" style="display:none;">リスクシグナルはありません。</div>
+        </div>
+      </div>
+
+      <!-- TAB: All Players -->
+      <div id="tab-all" class="tab-content">
+        <div class="form-group" style="margin-bottom:16px;">
+          <select class="form-select" id="filter-team" style="max-width:240px;">
+            <option value="">全チーム</option>
+          </select>
+        </div>
+        <div class="card" style="padding:0;">
+          <div id="all-player-list"></div>
+        </div>
+      </div>
+
+      <!-- TAB: Trend -->
+      <div id="tab-trend" class="tab-content">
+        <div class="card">
+          <div class="card-title">チーム平均 Body / Brain Readiness</div>
+          <svg id="team-trend-chart" class="trend-chart-lg" viewBox="0 0 700 200"></svg>
+          <div class="trend-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:var(--accent);"></span>Body</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--green);"></span>Brain</span>
+          </div>
+        </div>
+      </div>
+
+      <p style="text-align:center;margin:24px 0;font-size:12px;color:var(--gray-400);">&copy; 2025 UNLOCK Sports</p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Individual Detail ===== -->
+  <div id="screen-individual" class="screen">
+    <div class="trainer-container">
+      <div class="individual-header">
+        <div>
+          <h2 id="ind-name" style="font-size:18px;font-weight:700;margin-bottom:2px;"></h2>
+          <p id="ind-meta" style="font-size:13px;color:var(--gray-500);"></p>
+        </div>
+        <div id="ind-signal"></div>
+      </div>
+
+      <!-- Scores -->
+      <div class="readiness-duo" style="margin-bottom:24px;">
+        <div class="readiness-sub">
+          <div class="readiness-sub-value body-label" id="ind-body">—</div>
+          <div class="readiness-sub-label">Body Readiness</div>
+        </div>
+        <div class="readiness-sub">
+          <div class="readiness-sub-value brain-label" id="ind-brain">—</div>
+          <div class="readiness-sub-label">Brain Readiness</div>
+        </div>
+      </div>
+
+      <!-- Detailed scores -->
+      <div class="card">
+        <div class="card-title">直近チェックインの詳細スコア</div>
+        <div id="ind-detail-scores"></div>
+      </div>
+
+      <!-- Trend -->
+      <div class="card">
+        <div class="card-title">4週間の推移</div>
+        <svg id="ind-trend-chart" class="trend-chart-lg" viewBox="0 0 700 200"></svg>
+        <div class="trend-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--accent);"></span>Body</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--green);"></span>Brain</span>
+        </div>
+      </div>
+
+      <!-- Risk history -->
+      <div class="card">
+        <div class="card-title">リスクシグナル履歴</div>
+        <div id="ind-risk-history"></div>
+      </div>
+
+      <!-- Audit notice -->
+      <div class="audit-notice">
+        <strong>監査記録:</strong> この個人データの閲覧は監査ログに記録されています。
+      </div>
+    </div>
+  </div>
+
+  <script src="/sports/js/trainer.js"></script>
+</body>
+</html>

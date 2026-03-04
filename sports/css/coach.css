@@ -1,0 +1,22 @@
+/* ================================================
+   UNLOCK — Coach Dashboard styles
+   ================================================ */
+.coach-container{max-width:960px;margin:0 auto;padding:24px 20px}
+.coach-meta-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+
+/* --- Match summary --- */
+.match-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.match-stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;text-align:center}
+.match-stat-value{font-size:24px;font-weight:800;line-height:1}
+.match-stat-label{font-size:11px;color:var(--gray-500);margin-top:4px}
+
+/* RPE distribution */
+.rpe-dist{display:flex;gap:4px;align-items:flex-end;height:80px;margin-bottom:8px}
+.rpe-bar{flex:1;background:var(--gray-200);border-radius:2px 2px 0 0;transition:height .3s ease}
+.rpe-bar-labels{display:flex;gap:4px}
+.rpe-bar-labels span{flex:1;text-align:center;font-size:10px;color:var(--gray-400);font-family:var(--font-mono)}
+
+@media(max-width:768px){
+  .coach-container{padding:16px 12px}
+  .match-stat-grid{grid-template-columns:1fr}
+}

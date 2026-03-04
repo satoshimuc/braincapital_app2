@@ -1,0 +1,192 @@
+/* ================================================
+   UNLOCK — Sports Brain Capital Monitoring
+   Shared styles for player / coach / trainer
+   ================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#000;--gray-900:#111;--gray-800:#222;--gray-700:#333;--gray-600:#555;
+  --gray-500:#777;--gray-400:#999;--gray-300:#BBB;--gray-200:#DDD;--gray-150:#E8E8E8;
+  --gray-100:#F0F0F0;--gray-50:#F7F7F7;--white:#FFF;
+  --green:#0a8f3c;--green-bg:#edfdf3;--yellow:#b8860b;--yellow-bg:#fef9ec;
+  --red:#c00;--red-bg:#fef2f2;
+  --accent:#1a73e8;--accent-bg:#e8f0fe;
+  --font-sans:'Inter','Noto Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-mono:'SF Mono','Fira Code','Consolas',monospace;
+  --transition:.25s cubic-bezier(.4,0,.2,1);
+  --radius-sm:4px;--radius-md:8px;--radius-lg:12px;--radius-xl:16px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.06);--shadow-md:0 2px 8px rgba(0,0,0,.08);
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-sans);color:var(--gray-800);background:var(--gray-50);line-height:1.7;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+/* --- Screen system --- */
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+
+/* --- Container --- */
+.container{max-width:640px;margin:0 auto;padding:0 20px}
+
+/* --- Top bar --- */
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--black)}
+.topbar-club{font-size:11px;color:var(--gray-500);font-weight:500;margin-left:8px}
+.topbar-right{display:flex;gap:12px;align-items:center}
+.topbar-role{font-size:11px;color:var(--gray-400);font-weight:500;margin-left:12px;padding-left:12px;border-left:1px solid var(--gray-200)}
+
+/* --- Buttons --- */
+.btn-primary{display:block;width:100%;padding:14px 24px;background:var(--gray-900);color:var(--white);border:none;border-radius:var(--radius-md);font-family:var(--font-sans);font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition);text-align:center}
+.btn-primary:hover{background:var(--gray-700)}
+.btn-primary:disabled{background:var(--gray-300);cursor:not-allowed}
+.btn-secondary{display:block;width:100%;padding:12px 24px;background:var(--white);color:var(--gray-800);border:1px solid var(--gray-300);border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;font-weight:500;cursor:pointer;transition:var(--transition);text-align:center}
+.btn-secondary:hover{border-color:var(--gray-600)}
+.btn-text{background:none;border:none;color:var(--gray-600);font-family:var(--font-sans);font-size:13px;cursor:pointer;padding:8px}
+.btn-text:hover{color:var(--gray-900)}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:var(--radius-sm)}
+.btn-inline{display:inline-block;width:auto;padding:8px 16px}
+.btn-skip{display:block;width:100%;padding:10px;background:none;border:1px dashed var(--gray-300);border-radius:var(--radius-md);font-family:var(--font-sans);font-size:13px;color:var(--gray-500);cursor:pointer;margin-top:8px}
+.btn-skip:hover{border-color:var(--gray-500);color:var(--gray-700)}
+
+/* --- Cards --- */
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:8px}
+.card-desc{font-size:13px;color:var(--gray-600);line-height:1.7}
+
+/* --- Forms --- */
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-input,.form-select{width:100%;padding:12px 16px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;color:var(--gray-800);background:var(--white);outline:none}
+.form-input:focus,.form-select:focus{border-color:var(--gray-600)}
+.form-textarea{width:100%;padding:12px 16px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;color:var(--gray-800);background:var(--white);outline:none;resize:vertical;min-height:60px}
+
+/* --- Readiness hero --- */
+.readiness-hero{padding:24px 0;text-align:center}
+.readiness-score-big{font-size:56px;font-weight:800;line-height:1;margin-bottom:4px}
+.readiness-label{font-size:12px;color:var(--gray-500)}
+.readiness-duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.readiness-sub{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;text-align:center}
+.readiness-sub-value{font-size:28px;font-weight:800;line-height:1}
+.readiness-sub-label{font-size:11px;color:var(--gray-500);margin-top:4px}
+.readiness-sub .body-label{color:var(--accent)}
+.readiness-sub .brain-label{color:var(--green)}
+
+/* --- Signal badge --- */
+.signal-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600}
+.signal-green{background:var(--green-bg);color:var(--green)}
+.signal-yellow{background:var(--yellow-bg);color:var(--yellow)}
+.signal-red{background:var(--red-bg);color:var(--red)}
+.signal-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.signal-dot-green{background:var(--green)}.signal-dot-yellow{background:var(--yellow)}.signal-dot-red{background:var(--red)}
+
+/* --- Checkin question --- */
+.checkin-q{margin-bottom:24px}
+.checkin-q-text{font-size:15px;font-weight:500;color:var(--gray-800);margin-bottom:10px;line-height:1.6}
+.checkin-q-cat{font-size:11px;color:var(--gray-400);font-family:var(--font-mono);margin-bottom:4px;text-transform:uppercase}
+.rating-group{display:flex;gap:8px;justify-content:center}
+.rating-btn{width:48px;height:48px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:var(--white);font-family:var(--font-sans);font-size:16px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:var(--transition)}
+.rating-btn:hover{border-color:var(--gray-500)}
+.rating-btn.selected{background:var(--gray-900);color:var(--white);border-color:var(--gray-900)}
+.rating-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--gray-400)}
+
+/* --- RPE scale (1-10) --- */
+.rpe-group{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.rpe-btn{padding:10px 0;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);background:var(--white);font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:var(--transition);text-align:center}
+.rpe-btn:hover{border-color:var(--gray-500)}
+.rpe-btn.selected{background:var(--gray-900);color:var(--white);border-color:var(--gray-900)}
+
+/* --- One-word input --- */
+.oneword-input{width:100%;padding:12px 16px;border:1px dashed var(--gray-300);border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;color:var(--gray-800);background:var(--white);outline:none;text-align:center}
+.oneword-input::placeholder{color:var(--gray-300)}
+.oneword-input:focus{border-style:solid;border-color:var(--gray-500)}
+
+/* --- Trend chart --- */
+.trend-chart{width:100%;height:160px}
+.trend-chart-lg{width:100%;height:200px}
+.trend-legend{display:flex;gap:16px;justify-content:center;margin-top:12px;font-size:12px;color:var(--gray-500)}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* --- Action card --- */
+.action-card{background:var(--gray-900);color:var(--white);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px}
+.action-card-label{font-size:11px;font-weight:600;letter-spacing:1px;opacity:.6;margin-bottom:8px;text-transform:uppercase}
+.action-card-text{font-size:15px;line-height:1.7}
+
+/* --- Training menu card --- */
+.menu-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;margin-bottom:12px;transition:var(--transition)}
+.menu-card:hover{border-color:var(--gray-400);box-shadow:var(--shadow-sm)}
+.menu-card-title{font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:4px}
+.menu-card-meta{font-size:11px;color:var(--gray-400);margin-bottom:8px;display:flex;gap:12px}
+.menu-card-desc{font-size:13px;color:var(--gray-600);line-height:1.6}
+.menu-card-video{display:inline-block;margin-top:8px;padding:6px 12px;background:var(--gray-100);border-radius:var(--radius-sm);font-size:12px;color:var(--gray-700);font-weight:500}
+.menu-card-video:hover{background:var(--gray-200)}
+.intensity-badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;text-transform:uppercase}
+.intensity-low{background:var(--green-bg);color:var(--green)}
+.intensity-medium{background:var(--yellow-bg);color:var(--yellow)}
+.intensity-high{background:var(--red-bg);color:var(--red)}
+
+/* --- Brain Type --- */
+.brain-type-code{font-size:40px;font-weight:800;letter-spacing:6px;font-family:var(--font-mono);text-align:center;margin:16px 0}
+.brain-type-name{font-size:16px;font-weight:700;text-align:center;color:var(--gray-900);margin-bottom:16px}
+.brain-type-desc{font-size:13px;color:var(--gray-600);line-height:1.8}
+
+/* --- Referral --- */
+.referral-card{border-left:4px solid var(--red);background:var(--red-bg);border-radius:var(--radius-md);padding:20px;margin-bottom:16px}
+.referral-card.yellow{border-left-color:var(--yellow);background:var(--yellow-bg)}
+.referral-title{font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:8px}
+.referral-desc{font-size:13px;color:var(--gray-700);line-height:1.7;margin-bottom:12px}
+
+/* --- Done screen --- */
+.done-icon{font-size:48px;text-align:center;margin-bottom:16px}
+.done-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:8px}
+.done-desc{font-size:14px;color:var(--gray-600);text-align:center;line-height:1.7;margin-bottom:24px}
+
+/* --- Settings --- */
+.settings-section{padding:24px 0}
+.settings-title{font-size:16px;font-weight:700;margin-bottom:16px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--gray-100)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:14px;color:var(--gray-700)}
+.toggle-desc{font-size:11px;color:var(--gray-400);margin-top:2px}
+.toggle-switch input{width:20px;height:20px;accent-color:var(--gray-900);cursor:pointer}
+
+/* --- Tabs (coach/trainer) --- */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--gray-200);margin-bottom:24px;overflow-x:auto}
+.tab-btn{padding:12px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--gray-500);cursor:pointer;white-space:nowrap}
+.tab-btn:hover{color:var(--gray-800)}
+.tab-btn.active{color:var(--black);border-bottom-color:var(--black);font-weight:600}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* --- Section header --- */
+.section-header{font-size:12px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px}
+
+/* --- Loading / empty --- */
+.loading{text-align:center;padding:48px;color:var(--gray-400);font-size:14px}
+
+/* --- Coach player list --- */
+.player-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--gray-100);cursor:pointer;transition:var(--transition)}
+.player-row:hover{background:var(--gray-50)}
+.player-row:last-child{border-bottom:none}
+.player-number{font-size:14px;font-weight:700;font-family:var(--font-mono);width:32px;text-align:center;color:var(--gray-500)}
+.player-name{font-size:14px;font-weight:500;color:var(--gray-800);flex:1}
+.player-oneword{font-size:12px;color:var(--gray-400);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player-signal{flex-shrink:0}
+.player-noinput{font-size:11px;color:var(--gray-300);font-style:italic}
+
+/* --- Coach summary cards --- */
+.coach-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.coach-summary-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;text-align:center}
+.coach-summary-value{font-size:28px;font-weight:800;line-height:1}
+.coach-summary-label{font-size:11px;color:var(--gray-500);margin-top:4px}
+.summary-card-red .coach-summary-value{color:var(--red)}
+.summary-card-yellow .coach-summary-value{color:var(--yellow)}
+.summary-card-green .coach-summary-value{color:var(--green)}
+
+/* --- Responsive --- */
+@media(max-width:480px){
+  .readiness-score-big{font-size:44px}
+  .rating-btn{width:44px;height:44px;font-size:15px}
+  .rpe-group{grid-template-columns:repeat(5,1fr);gap:6px}
+  .coach-summary{grid-template-columns:1fr}
+  .card{padding:20px}
+}

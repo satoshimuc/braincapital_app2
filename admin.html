@@ -295,6 +295,7 @@
     <div class="admin-tabs">
       <button type="button" class="admin-tab active" data-tab="tab-results">診断結果</button>
       <button type="button" class="admin-tab" data-tab="tab-orgs">組織管理</button>
+      <button type="button" class="admin-tab" data-tab="tab-clubs">クラブ管理</button>
     </div>
 
     <!-- TAB: Results -->
@@ -438,6 +439,65 @@
       </div>
 
     </div><!-- /tab-orgs -->
+
+    <!-- TAB: Clubs (Sports) -->
+    <div id="tab-clubs" class="tab-content">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:24px;">クラブ管理（Sports）</h2>
+
+      <div class="org-form">
+        <div class="org-form-group">
+          <label>クラブ名</label>
+          <input type="text" id="club-name-input" placeholder="例: 鎌倉インテル">
+        </div>
+        <button type="button" id="btn-add-club" class="btn-add-org">クラブを追加</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>クラブ名</th>
+              <th>コード</th>
+              <th>選手URL</th>
+              <th>コーチURL</th>
+              <th>トレーナーURL</th>
+              <th>作成日</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="clubs-tbody"></tbody>
+        </table>
+        <div id="clubs-empty" class="empty-state" style="display:none;">
+          <div class="empty-state-title">クラブが登録されていません</div>
+          <p>「クラブを追加」から登録すると、選手・コーチ・トレーナー用のURLが生成されます。</p>
+        </div>
+      </div>
+
+      <!-- Team management for selected club -->
+      <div id="team-mgmt" style="display:none;margin-top:32px;">
+        <div class="dept-mgmt-title">
+          チーム管理
+          <span class="dept-mgmt-org-name" id="team-mgmt-club-name"></span>
+        </div>
+        <div class="dept-form">
+          <div class="org-form-group">
+            <label>チーム名</label>
+            <input type="text" id="team-name-input" placeholder="例: トップチーム">
+          </div>
+          <button type="button" id="btn-add-team" class="btn-add-org">チームを追加</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>チーム名</th><th>作成日</th><th></th></tr></thead>
+            <tbody id="teams-tbody"></tbody>
+          </table>
+          <div id="teams-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-title">チームが未登録です</div>
+            <p>チームを追加すると、選手登録時に選択できるようになります。</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-clubs -->
 
   </div><!-- /admin-container -->
 
@@ -1108,12 +1168,156 @@
         });
     });
 
+    // ---- Club Management (Sports) ----
+    var allClubs = [];
+    var currentTeamClubCode = null;
+    var currentTeams = [];
+
+    function loadClubs() {
+      if (!sb) return Promise.resolve();
+      return sb.from('clubs').select('*').order('created_at', { ascending: false })
+        .then(function (res) {
+          allClubs = res.data || [];
+          renderClubs();
+        });
+    }
+
+    function getSportsBaseUrl() {
+      var loc = window.location;
+      return loc.protocol + '//' + loc.host + '/sports';
+    }
+
+    function renderClubs() {
+      var tbody = document.getElementById('clubs-tbody');
+      var emptyEl = document.getElementById('clubs-empty');
+      if (allClubs.length === 0) { tbody.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+      emptyEl.style.display = 'none';
+      var base = getSportsBaseUrl();
+
+      tbody.innerHTML = allClubs.map(function (c) {
+        var d = new Date(c.created_at);
+        var dateStr = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+        var playerUrl = base + '?club=' + c.club_code;
+        var coachUrl = base + '/coach?club=' + c.club_code;
+        var trainerUrl = base + '/trainer?club=' + c.club_code;
+        return '<tr>' +
+          '<td style="font-weight:600;">' + c.club_name + '</td>' +
+          '<td><code style="font-size:12px;background:#f0f0f0;padding:2px 8px;border-radius:3px;">' + c.club_code + '</code></td>' +
+          '<td><div class="org-link-box" title="クリックでコピー" data-url="' + playerUrl + '" style="font-size:10px;">' + playerUrl + '</div></td>' +
+          '<td><div class="org-link-box" title="クリックでコピー" data-url="' + coachUrl + '" style="font-size:10px;">' + coachUrl + '</div></td>' +
+          '<td><div class="org-link-box" title="クリックでコピー" data-url="' + trainerUrl + '" style="font-size:10px;">' + trainerUrl + '</div></td>' +
+          '<td class="date-cell">' + dateStr + '</td>' +
+          '<td style="display:flex;gap:6px;">' +
+            '<button type="button" class="btn-sm-dept btn-manage-teams" data-code="' + c.club_code + '" data-name="' + c.club_name + '">チーム管理</button>' +
+            '<button type="button" class="btn-sm-danger btn-delete-club" data-code="' + c.club_code + '">削除</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('btn-add-club').addEventListener('click', function () {
+      var nameInput = document.getElementById('club-name-input');
+      var name = nameInput.value.trim();
+      if (!name || !sb) { nameInput.focus(); return; }
+      var code = generateOrgCode();
+      sb.from('clubs').insert([{ club_code: code, club_name: name, is_active: true }])
+        .then(function (res) {
+          if (res.error) { alert('追加に失敗しました: ' + res.error.message); return; }
+          nameInput.value = '';
+          loadClubs();
+        });
+    });
+
+    document.getElementById('clubs-tbody').addEventListener('click', function (e) {
+      var linkBox = e.target.closest('.org-link-box');
+      if (linkBox) {
+        var url = linkBox.getAttribute('data-url');
+        navigator.clipboard.writeText(url).then(function () {
+          var orig = linkBox.textContent;
+          linkBox.textContent = 'コピーしました!';
+          setTimeout(function () { linkBox.textContent = orig; }, 1500);
+        });
+        return;
+      }
+      var teamBtn = e.target.closest('.btn-manage-teams');
+      if (teamBtn) {
+        showTeamManagement(teamBtn.getAttribute('data-code'), teamBtn.getAttribute('data-name'));
+        return;
+      }
+      var delBtn = e.target.closest('.btn-delete-club');
+      if (delBtn) {
+        var code = delBtn.getAttribute('data-code');
+        if (!confirm('このクラブを削除しますか？')) return;
+        sb.from('clubs').delete().eq('club_code', code)
+          .then(function (res) {
+            if (res.error) { alert('削除に失敗しました: ' + res.error.message); return; }
+            loadClubs();
+          });
+      }
+    });
+
+    // Team management within a club
+    function showTeamManagement(clubCode, clubName) {
+      currentTeamClubCode = clubCode;
+      document.getElementById('team-mgmt').style.display = '';
+      document.getElementById('team-mgmt-club-name').textContent = clubName;
+      document.getElementById('team-name-input').value = '';
+      loadTeams();
+    }
+
+    function loadTeams() {
+      if (!sb || !currentTeamClubCode) return;
+      sb.from('teams').select('*').eq('club_code', currentTeamClubCode).order('sort_order')
+        .then(function (res) {
+          currentTeams = res.data || [];
+          renderTeams();
+        });
+    }
+
+    function renderTeams() {
+      var tbody = document.getElementById('teams-tbody');
+      var emptyEl = document.getElementById('teams-empty');
+      if (currentTeams.length === 0) { tbody.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+      emptyEl.style.display = 'none';
+      tbody.innerHTML = currentTeams.map(function (t) {
+        var d = new Date(t.created_at);
+        var dateStr = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+        return '<tr><td style="font-weight:500;">' + t.team_name + '</td>' +
+          '<td class="date-cell">' + dateStr + '</td>' +
+          '<td><button type="button" class="btn-sm-danger btn-delete-team" data-id="' + t.id + '">削除</button></td></tr>';
+      }).join('');
+    }
+
+    document.getElementById('btn-add-team').addEventListener('click', function () {
+      var nameInput = document.getElementById('team-name-input');
+      var name = nameInput.value.trim();
+      if (!name || !sb || !currentTeamClubCode) { nameInput.focus(); return; }
+      sb.from('teams').insert([{ club_code: currentTeamClubCode, team_name: name, sort_order: currentTeams.length }])
+        .then(function (res) {
+          if (res.error) { alert('追加に失敗しました: ' + res.error.message); return; }
+          nameInput.value = '';
+          loadTeams();
+        });
+    });
+
+    document.getElementById('teams-tbody').addEventListener('click', function (e) {
+      var delBtn = e.target.closest('.btn-delete-team');
+      if (!delBtn) return;
+      if (!confirm('このチームを削除しますか？')) return;
+      sb.from('teams').delete().eq('id', delBtn.getAttribute('data-id'))
+        .then(function (res) {
+          if (res.error) { alert('削除に失敗しました: ' + res.error.message); return; }
+          loadTeams();
+        });
+    });
+
     // ---- Init (called after auth) ----
     function initAdmin() {
       loadOrgs().then(function () {
         loadResults();
         renderOrgs();
       });
+      loadClubs();
     }
 
     // Auto-init if already authenticated (session still valid)

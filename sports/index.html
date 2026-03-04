@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNLOCK — Sports Brain Capital</title>
+  <link rel="stylesheet" href="/sports/css/sports.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- ===== Top bar ===== -->
+  <div class="topbar" id="topbar" style="display:none;">
+    <div>
+      <span class="topbar-logo">UNLOCK</span>
+      <span class="topbar-club" id="topbar-club"></span>
+    </div>
+    <div class="topbar-right">
+      <button type="button" class="btn-text" id="btn-settings">設定</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Register ===== -->
+  <div id="screen-register" class="screen active">
+    <div class="container" style="padding-top:80px;">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">UNLOCK Sports</h1>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:32px;">脳×カラダのコンディション管理。<br>毎日2分のチェックインで、自分の状態を把握しよう。</p>
+      <div class="form-group">
+        <label class="form-label">チーム</label>
+        <select class="form-select" id="reg-team"><option value="">読み込み中...</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">表示名</label>
+        <input class="form-input" id="reg-name" type="text" placeholder="例: タロウ">
+      </div>
+      <div class="form-group">
+        <label class="form-label">背番号（任意）</label>
+        <input class="form-input" id="reg-number" type="number" placeholder="例: 10">
+      </div>
+      <div class="form-group">
+        <label class="form-label">ポジション（任意）</label>
+        <select class="form-select" id="reg-position">
+          <option value="">選択しない</option>
+          <option value="GK">GK</option>
+          <option value="DF">DF</option>
+          <option value="MF">MF</option>
+          <option value="FW">FW</option>
+        </select>
+      </div>
+      <button type="button" class="btn-primary" id="btn-register">参加する</button>
+      <p id="reg-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Home / Dashboard ===== -->
+  <div id="screen-home" class="screen">
+    <div class="container">
+      <div class="readiness-hero">
+        <div id="home-signal"></div>
+        <div class="readiness-score-big" id="home-total">—</div>
+        <div class="readiness-label">今日のReadiness（5点満点）</div>
+        <div class="readiness-duo">
+          <div class="readiness-sub">
+            <div class="readiness-sub-value body-label" id="home-body">—</div>
+            <div class="readiness-sub-label">Body</div>
+          </div>
+          <div class="readiness-sub">
+            <div class="readiness-sub-value brain-label" id="home-brain">—</div>
+            <div class="readiness-sub-label">Brain</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:16px;">
+        <button type="button" class="btn-primary btn-sm" id="btn-start-checkin" style="flex:1;">デイリーチェックイン</button>
+        <button type="button" class="btn-secondary btn-sm" id="btn-start-match-report" style="flex:1;display:none;">試合後レポート</button>
+      </div>
+
+      <!-- Today's recommendation -->
+      <div id="home-recommendation"></div>
+
+      <!-- Weekly action -->
+      <div id="home-action"></div>
+
+      <!-- Trend -->
+      <div class="section-header">直近4週間の推移</div>
+      <div class="card">
+        <svg id="trend-chart" class="trend-chart" viewBox="0 0 580 160"></svg>
+        <div class="trend-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--accent);"></span>Body</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--green);"></span>Brain</span>
+        </div>
+        <div id="trend-empty" class="loading" style="display:none;">まだデータがありません</div>
+      </div>
+
+      <p style="text-align:center;margin:24px 0;font-size:12px;color:var(--gray-400);">&copy; 2025 UNLOCK Sports</p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Daily Check-in ===== -->
+  <div id="screen-checkin" class="screen">
+    <div class="container" style="padding-top:24px;padding-bottom:100px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">デイリーチェックイン</h2>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:24px;">練習/試合前に、今の状態を直感で。</p>
+      <div id="checkin-questions"></div>
+      <div class="form-group" style="margin-top:16px;">
+        <label class="form-label">ひとこと（任意）</label>
+        <input class="oneword-input" id="checkin-oneword" type="text" placeholder="例: 昨日よく寝た！" maxlength="40">
+      </div>
+      <button type="button" class="btn-primary" id="btn-checkin-submit" disabled>送信する</button>
+      <button type="button" class="btn-skip" id="btn-checkin-skip">今日はスキップする</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Match Report ===== -->
+  <div id="screen-match-report" class="screen">
+    <div class="container" style="padding-top:24px;padding-bottom:100px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">試合後レポート</h2>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:24px;">試合を振り返って回答してください。</p>
+      <div id="match-report-questions"></div>
+      <button type="button" class="btn-primary" id="btn-match-submit" disabled>送信する</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Checkin/Report Done ===== -->
+  <div id="screen-done" class="screen">
+    <div class="container" style="padding-top:80px;">
+      <div class="done-icon" id="done-icon">&#x2705;</div>
+      <div class="done-title" id="done-title">送信完了</div>
+      <div class="done-desc" id="done-desc">お疲れさまでした。ダッシュボードに反映されました。</div>
+      <div id="done-recommendation"></div>
+      <button type="button" class="btn-primary" id="btn-done-home">ダッシュボードに戻る</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Settings ===== -->
+  <div id="screen-settings" class="screen">
+    <div class="container settings-section">
+      <h2 class="settings-title">設定</h2>
+      <div class="card">
+        <div class="card-title">コーチへの共有</div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">信号レベルをコーチに共有</div>
+            <div class="toggle-desc">赤/黄/緑の状態とひとことがコーチに表示されます</div>
+          </div>
+          <div class="toggle-switch"><input type="checkbox" id="settings-share-coach"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">プロフィール</div>
+        <p style="font-size:13px;color:var(--gray-600);" id="settings-profile"></p>
+      </div>
+      <button type="button" class="btn-text" id="btn-settings-back" style="margin-top:16px;">← ダッシュボードに戻る</button>
+    </div>
+  </div>
+
+  <script src="/sports/js/app.js"></script>
+</body>
+</html>
