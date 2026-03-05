@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNLOCK — Brain Capital Pro</title>
+  <link rel="stylesheet" href="/pro/css/pro.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- ===== Top bar ===== -->
+  <div class="topbar" id="topbar" style="display:none;">
+    <div>
+      <span class="topbar-logo">UNLOCK</span>
+      <span class="topbar-sub">PRO</span>
+    </div>
+    <div class="topbar-right">
+      <button type="button" class="btn-text" id="btn-nav-settings">設定</button>
+    </div>
+  </div>
+
+  <!-- ===== Nav Tabs ===== -->
+  <div class="nav-tabs" id="nav-tabs" style="display:none;">
+    <button type="button" class="nav-tab active" data-tab="home">ホーム</button>
+    <button type="button" class="nav-tab" data-tab="morning">朝</button>
+    <button type="button" class="nav-tab" data-tab="evening">夜</button>
+    <button type="button" class="nav-tab" data-tab="events">イベント</button>
+    <button type="button" class="nav-tab" data-tab="insights">インサイト</button>
+    <button type="button" class="nav-tab" data-tab="reports">レポート</button>
+    <button type="button" class="nav-tab" data-tab="drills">ドリル</button>
+    <button type="button" class="nav-tab" data-tab="peaking">ピーキング</button>
+  </div>
+
+  <!-- ===== Screen: Register / Setup ===== -->
+  <div id="screen-register" class="screen active">
+    <div class="container" style="padding-top:80px;">
+      <h1 style="font-size:22px;font-weight:800;color:var(--white);margin-bottom:4px;">UNLOCK PRO</h1>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:32px;">認知パフォーマンスの自己最適化ツール。<br>毎日の計測から、あなただけのパターンを発見。</p>
+      <div class="form-group">
+        <label class="form-label">表示名</label>
+        <input class="form-input" id="reg-name" type="text" placeholder="例: Satoshi">
+      </div>
+      <div class="form-group">
+        <label class="form-label">メールアドレス（任意）</label>
+        <input class="form-input" id="reg-email" type="email" placeholder="example@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">あなたのペルソナ（複数選択可）</label>
+        <div class="multi-select-group" id="reg-personas">
+          <button type="button" class="multi-btn" data-v="executive">経営者・起業家</button>
+          <button type="button" class="multi-btn" data-v="athlete">棋士・esports</button>
+          <button type="button" class="multi-btn" data-v="investor">投資家</button>
+          <button type="button" class="multi-btn" data-v="creator">クリエイター</button>
+          <button type="button" class="multi-btn" data-v="lawyer">弁護士・士業</button>
+          <button type="button" class="multi-btn" data-v="doctor">医師・医療</button>
+        </div>
+      </div>
+      <button type="button" class="btn-primary" id="btn-register">はじめる</button>
+      <p id="reg-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Home / Dashboard ===== -->
+  <div id="screen-home" class="screen">
+    <div class="container">
+      <!-- Readiness -->
+      <div class="readiness-hero">
+        <div id="home-signal" style="margin-bottom:8px;"></div>
+        <div class="readiness-score" id="home-readiness">—</div>
+        <div class="readiness-label">Morning Readiness</div>
+        <div class="readiness-trend" id="home-trend"></div>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-grid">
+        <div class="summary-item"><div class="summary-value" id="home-streak">0</div><div class="summary-label">Streak</div></div>
+        <div class="summary-item"><div class="summary-value" id="home-avg-perf">—</div><div class="summary-label">Avg Perf</div></div>
+        <div class="summary-item"><div class="summary-value" id="home-drills">0</div><div class="summary-label">Drills</div></div>
+      </div>
+
+      <!-- Alerts -->
+      <div id="home-alerts"></div>
+
+      <!-- Next event countdown -->
+      <div id="home-event"></div>
+
+      <!-- Today's drills -->
+      <div class="section-header">今日のドリル</div>
+      <div id="home-drills-list"></div>
+
+      <!-- Mini trend -->
+      <div class="section-header">直近7日間</div>
+      <div class="card">
+        <svg id="home-trend-chart" class="trend-chart" viewBox="0 0 580 120"></svg>
+        <div id="home-trend-empty" class="loading" style="display:none;">データ蓄積中</div>
+      </div>
+
+      <p style="text-align:center;margin:24px 0;font-size:11px;color:var(--gray-600);">&copy; 2025 UNLOCK PRO — Your data, your control.</p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Morning Check-in ===== -->
+  <div id="screen-morning" class="screen">
+    <div class="container" style="padding-top:24px;padding-bottom:100px;">
+      <h2 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px;">Morning Readiness</h2>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:24px;">今朝の状態を記録。2〜3分で完了。</p>
+      <div id="morning-questions"></div>
+      <button type="button" class="btn-primary" id="btn-morning-submit" disabled>送信する</button>
+      <div id="morning-done" style="display:none;text-align:center;padding:32px;">
+        <div style="font-size:48px;">✅</div>
+        <div style="font-size:16px;font-weight:700;color:var(--white);margin-top:8px;">記録完了</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-top:4px;" id="morning-done-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Evening Check-in ===== -->
+  <div id="screen-evening" class="screen">
+    <div class="container" style="padding-top:24px;padding-bottom:100px;">
+      <h2 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px;">Evening Review</h2>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:24px;">今日を振り返って記録。</p>
+      <div id="evening-questions"></div>
+      <button type="button" class="btn-primary" id="btn-evening-submit" disabled>送信する</button>
+      <div id="evening-done" style="display:none;text-align:center;padding:32px;">
+        <div style="font-size:48px;">🌙</div>
+        <div style="font-size:16px;font-weight:700;color:var(--white);margin-top:8px;">お疲れさまでした</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-top:4px;" id="evening-done-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Events ===== -->
+  <div id="screen-events" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:18px;font-weight:700;color:var(--white);">イベント</h2>
+        <button type="button" class="btn-text" id="btn-add-event">+ 登録</button>
+      </div>
+      <!-- Event form (hidden by default) -->
+      <div id="event-form" style="display:none;" class="card">
+        <div class="form-group">
+          <label class="form-label">イベント名</label>
+          <input class="form-input" id="event-name" type="text" placeholder="例: 取締役会">
+        </div>
+        <div class="form-group">
+          <label class="form-label">種類</label>
+          <div class="select-group" id="event-type-select">
+            <button type="button" class="select-btn" data-v="decision">意思決定</button>
+            <button type="button" class="select-btn" data-v="match">対局</button>
+            <button type="button" class="select-btn" data-v="presentation">プレゼン</button>
+            <button type="button" class="select-btn" data-v="negotiation">交渉</button>
+            <button type="button" class="select-btn" data-v="creation">創作</button>
+            <button type="button" class="select-btn" data-v="deadline">締切</button>
+            <button type="button" class="select-btn" data-v="exam">試験</button>
+            <button type="button" class="select-btn" data-v="other">その他</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">日付</label>
+          <input class="form-input" id="event-date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">重要度（1〜5）</label>
+          <div class="rating-group" id="event-importance">
+            <button type="button" class="rating-btn" data-v="1">1</button>
+            <button type="button" class="rating-btn" data-v="2">2</button>
+            <button type="button" class="rating-btn" data-v="3">3</button>
+            <button type="button" class="rating-btn" data-v="4">4</button>
+            <button type="button" class="rating-btn" data-v="5">5</button>
+          </div>
+        </div>
+        <button type="button" class="btn-primary" id="btn-save-event">保存</button>
+      </div>
+      <!-- Event list -->
+      <div id="event-list"></div>
+      <!-- Event log form (shown when logging) -->
+      <div id="event-log-form" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Insights ===== -->
+  <div id="screen-insights" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:16px;">インサイト</h2>
+      <div id="insights-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Reports ===== -->
+  <div id="screen-reports" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:16px;">レポート</h2>
+      <div class="section-header">週次レポート</div>
+      <div id="weekly-reports"></div>
+      <div class="section-header">月次レポート</div>
+      <div id="monthly-reports"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Drills ===== -->
+  <div id="screen-drills" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:16px;">ドリルライブラリ</h2>
+      <div id="drill-library"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Peaking ===== -->
+  <div id="screen-peaking" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:16px;">ピーキング</h2>
+      <div id="peaking-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Settings ===== -->
+  <div id="screen-settings" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:16px;">設定</h2>
+      <div class="card">
+        <div class="card-title">プロフィール</div>
+        <p style="font-size:13px;color:var(--gray-300);" id="settings-profile"></p>
+      </div>
+      <div class="card">
+        <div class="card-title">ペルソナ</div>
+        <div class="multi-select-group" id="settings-personas"></div>
+        <button type="button" class="btn-text" id="btn-save-personas" style="margin-top:8px;">保存</button>
+      </div>
+      <div class="card">
+        <div class="card-title">データ</div>
+        <button type="button" class="btn-secondary" id="btn-export" style="margin-bottom:8px;">データエクスポート (JSON)</button>
+        <button type="button" class="btn-text" id="btn-delete-account" style="color:var(--red);">アカウントを削除</button>
+      </div>
+      <button type="button" class="btn-text" id="btn-settings-back" style="margin-top:16px;">← 戻る</button>
+    </div>
+  </div>
+
+  <script src="/pro/js/app.js"></script>
+</body>
+</html>

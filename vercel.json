@@ -22,6 +22,8 @@
     { "source": "/kids/parent/", "destination": "/kids/parent.html" },
     { "source": "/kids/instructor", "destination": "/kids/instructor.html" },
     { "source": "/kids/instructor/", "destination": "/kids/instructor.html" },
+    { "source": "/pro", "destination": "/pro/index.html" },
+    { "source": "/pro/", "destination": "/pro/index.html" },
     { "source": "/", "destination": "/lp/index.html" }
   ],
   "headers": [
