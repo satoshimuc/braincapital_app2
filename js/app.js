@@ -716,7 +716,6 @@
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
 
-  const screenLang = $('#screen-lang');
   const screenMode = $('#screen-mode');
   const screenHistory = $('#screen-history');
   const screenLanding = $('#screen-landing');
@@ -1598,7 +1597,7 @@
   function showOrgBanner() {
     if (!currentOrg.name) return;
     // Add org banner to language select, mode select, and landing screens
-    var targets = ['screen-lang', 'screen-mode', 'screen-landing', 'screen-assessment'];
+    var targets = ['screen-mode', 'screen-landing', 'screen-assessment'];
     targets.forEach(function (id) {
       var screen = document.getElementById(id);
       if (!screen) return;
@@ -1670,15 +1669,10 @@
   // LANGUAGE SELECT
   // ============================================
 
-  function selectLanguage(lang) {
-    currentLang = lang;
-    document.documentElement.lang = lang === 'ja' ? 'ja' : 'en';
-    applyI18N();
-    showScreen(screenMode);
-  }
-
-  $('#btn-lang-ja').addEventListener('click', function () { selectLanguage('ja'); });
-  $('#btn-lang-en').addEventListener('click', function () { selectLanguage('en'); });
+  // Language is fixed to Japanese (language selection screen removed)
+  currentLang = 'ja';
+  document.documentElement.lang = 'ja';
+  applyI18N();
 
   // ============================================
   // MODE SELECT
@@ -1953,7 +1947,7 @@
     Object.keys(answers).forEach((k) => delete answers[k]);
     currentCategoryIndex = 0;
     sessionId = null;
-    showScreen(screenLang);
+    showScreen(screenMode);
   });
 
   btnCopyPrompt.addEventListener('click', () => {
