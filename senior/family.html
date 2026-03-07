@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>脳の元気度チェック — ご家族画面</title>
+  <link rel="stylesheet" href="/senior/css/senior.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-title">ご家族画面</div>
+    <div class="topbar-right">
+      <button type="button" class="topbar-btn" id="btn-settings">設定</button>
+    </div>
+  </div>
+
+  <!-- Register -->
+  <div id="screen-register" class="screen active">
+    <div class="container" style="padding-top:40px;">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-size:48px;">👨‍👩‍👧‍👦</div>
+        <h1 style="font-size:var(--fs-h2);font-weight:700;color:var(--primary);margin-top:8px;">ご家族画面</h1>
+        <p style="font-size:var(--fs-base);color:var(--text-sub);margin-top:8px;line-height:1.8;">
+          ご家族のコンディション傾向を<br>やさしく見守ります。
+        </p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">あなたのお名前</label>
+          <input class="form-input" id="reg-name" type="text" placeholder="例：はなこ">
+        </div>
+        <div class="form-group">
+          <label class="form-label">見守る方のコード</label>
+          <input class="form-input" id="reg-senior-token" type="text" placeholder="ご本人のコードを入力">
+          <p style="font-size:var(--fs-small);color:var(--text-hint);margin-top:4px;">ご本人の設定画面にあるコードを入力してください</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ご関係</label>
+          <div class="answer-3scale" id="reg-relationship" style="flex-wrap:wrap;">
+            <button type="button" class="answer-3-btn selected" data-v="child" style="flex:0 1 auto;padding:12px 16px;min-height:48px;">子</button>
+            <button type="button" class="answer-3-btn" data-v="spouse" style="flex:0 1 auto;padding:12px 16px;min-height:48px;">配偶者</button>
+            <button type="button" class="answer-3-btn" data-v="grandchild" style="flex:0 1 auto;padding:12px 16px;min-height:48px;">孫</button>
+            <button type="button" class="answer-3-btn" data-v="sibling" style="flex:0 1 auto;padding:12px 16px;min-height:48px;">兄弟姉妹</button>
+            <button type="button" class="answer-3-btn" data-v="other" style="flex:0 1 auto;padding:12px 16px;min-height:48px;">その他</button>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn-primary" id="btn-register">登録する</button>
+      <p id="reg-error" style="color:var(--red);font-size:var(--fs-label);margin-top:8px;display:none;text-align:center;"></p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="screen-dashboard" class="screen">
+    <div class="container">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;margin-bottom:16px;" id="dash-title"></h2>
+
+      <!-- Weekly summary -->
+      <div class="section-header">今週のようす</div>
+      <div id="dash-weekly"></div>
+
+      <!-- Voice card -->
+      <div class="section-header">声かけカード</div>
+      <div id="dash-voice-card"></div>
+
+      <!-- Calendar -->
+      <div class="section-header">チェックインカレンダー</div>
+      <div class="card">
+        <div id="dash-calendar"></div>
+        <p style="font-size:var(--fs-small);color:var(--text-hint);margin-top:8px;">✅ = チェックイン済み（内容は表示されません）</p>
+      </div>
+
+      <!-- Risk alerts -->
+      <div id="dash-alerts"></div>
+
+      <!-- Support -->
+      <div class="support-card" style="margin-top:24px;">
+        <div class="support-title">気になることがあれば</div>
+        <a class="support-link" href="tel:">📞 地域包括支援センターに相談する</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div id="screen-settings" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;margin-bottom:16px;">設定</h2>
+      <div class="card">
+        <div class="card-title">同意見直しフラグ</div>
+        <p style="font-size:var(--fs-base);color:var(--text-sub);margin-bottom:12px;line-height:1.8;">
+          ご本人の判断能力に変化が見られる場合、<br>専門職への通知フラグを立てることができます。
+        </p>
+        <button type="button" class="btn-secondary" id="btn-consent-flag">同意見直しフラグを送信</button>
+      </div>
+      <button type="button" class="btn-text" id="btn-back" style="margin-top:16px;">← もどる</button>
+    </div>
+  </div>
+
+  <script>
+  'use strict';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let familyUser = null;
+  let seniorUser = null;
+  let linkData = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('family_token');
+    if (token) {
+      const { data } = await sb.from('senior_family_members').select('*').eq('family_token', token).maybeSingle();
+      if (data) {
+        familyUser = data;
+        const { data: link } = await sb.from('senior_family_links').select('*, senior:senior_users(*)').eq('family_id', data.id).limit(1).maybeSingle();
+        if (link && link.senior) {
+          linkData = link;
+          seniorUser = link.senior;
+          await showDashboard();
+          return;
+        }
+      }
+    }
+    bindRegister();
+  });
+
+  function bindRegister() {
+    const relEl = document.getElementById('reg-relationship');
+    relEl.querySelectorAll('.answer-3-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        relEl.querySelectorAll('.answer-3-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+
+    document.getElementById('btn-register').addEventListener('click', async () => {
+      const name = document.getElementById('reg-name').value.trim();
+      const seniorToken = document.getElementById('reg-senior-token').value.trim();
+      const errEl = document.getElementById('reg-error');
+      const relBtn = relEl.querySelector('.answer-3-btn.selected');
+
+      if (!name || !seniorToken) { errEl.textContent = 'すべての項目を入力してください'; errEl.style.display = 'block'; return; }
+
+      const { data: senior } = await sb.from('senior_users').select('*').eq('user_token', seniorToken).eq('is_active', true).maybeSingle();
+      if (!senior) { errEl.textContent = 'コードが見つかりません。正しいコードを入力してください。'; errEl.style.display = 'block'; return; }
+
+      const fToken = crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '').slice(0, 24) : Array.from(crypto.getRandomValues(new Uint8Array(12))).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      const { data: fam, error: fErr } = await sb.from('senior_family_members').insert({ family_token: fToken, display_name: name }).select().single();
+      if (fErr) { errEl.textContent = 'エラーが発生しました'; errEl.style.display = 'block'; return; }
+
+      const { error: lErr } = await sb.from('senior_family_links').insert({
+        senior_id: senior.id,
+        family_id: fam.id,
+        relationship: relBtn ? relBtn.dataset.v : 'child'
+      });
+      if (lErr) { errEl.textContent = 'エラーが発生しました'; errEl.style.display = 'block'; return; }
+
+      // Record consent
+      await sb.from('senior_consents').insert({
+        senior_id: senior.id,
+        consent_type: 'family_sharing',
+        consent_status: 'granted',
+        target_id: fam.id,
+        granted_at: new Date().toISOString()
+      });
+
+      localStorage.setItem('family_token', fToken);
+      familyUser = fam;
+      seniorUser = senior;
+
+      await showDashboard();
+    });
+  }
+
+  async function showDashboard() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-dashboard').classList.add('active');
+
+    document.getElementById('dash-title').textContent = seniorUser.display_name + 'さんのようす';
+
+    // Audit log
+    await sb.from('senior_audit_logs').insert({
+      accessor_type: 'family',
+      accessor_id: familyUser.id,
+      action: 'view_dashboard',
+      target_senior_id: seniorUser.id
+    });
+
+    await Promise.all([renderWeekly(), renderCalendarView(), renderAlerts()]);
+
+    document.getElementById('btn-settings').onclick = () => {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-settings').classList.add('active');
+    };
+    document.getElementById('btn-back').onclick = () => showDashboard();
+    document.getElementById('btn-consent-flag').onclick = submitConsentFlag;
+  }
+
+  async function renderWeekly() {
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    const { data: checkins } = await sb.from('senior_daily_checkins').select('checkin_date, brain_wellness_score, signal_level')
+      .eq('senior_id', seniorUser.id).gte('checkin_date', weekAgo.toISOString().slice(0, 10)).order('checkin_date');
+
+    const container = document.getElementById('dash-weekly');
+    if (!checkins || checkins.length === 0) {
+      container.innerHTML = '<div class="family-card"><p style="color:var(--text-hint);">今週はまだチェックインがありません</p></div>';
+      renderVoiceCard(null, 0);
+      return;
+    }
+
+    const avg = checkins.reduce((s, c) => s + parseFloat(c.brain_wellness_score), 0) / checkins.length;
+    const face = avg >= 4 ? '😊' : avg >= 2.5 ? '😐' : '😟';
+
+    container.innerHTML = `
+      <div class="family-card" style="text-align:center;">
+        <div style="font-size:48px;">${face}</div>
+        <div style="font-size:var(--fs-h2);font-weight:800;color:var(--primary);">${avg.toFixed(1)}</div>
+        <div style="font-size:var(--fs-label);color:var(--text-sub);">今週の平均元気度</div>
+        <div style="font-size:var(--fs-label);color:var(--text-hint);margin-top:4px;">${checkins.length}日 / 7日チェックイン</div>
+      </div>`;
+
+    renderVoiceCard(checkins, avg);
+  }
+
+  function renderVoiceCard(checkins, avg) {
+    const container = document.getElementById('dash-voice-card');
+    if (!checkins || checkins.length === 0) {
+      container.innerHTML = `
+        <div class="voice-card">
+          <div class="voice-card-label">今週の声かけヒント</div>
+          <div class="voice-card-text">今週はまだチェックインがありません。「最近どう？」と声をかけて、一緒にチェックインしてみてください。</div>
+        </div>`;
+      return;
+    }
+
+    let text = '';
+    if (avg >= 4) {
+      text = '今週は元気に過ごされているようです。「調子よさそうだね！」と声をかけてみてください。';
+    } else if (avg >= 3) {
+      text = 'まずまずの1週間のようです。「最近どんなことしてる？」と日常の会話を楽しんでみてください。';
+    } else if (avg >= 2) {
+      text = '少しお疲れの日もあったようです。「何か手伝えることある？」とやさしく聞いてみてください。';
+    } else {
+      text = 'お疲れの日が続いているようです。無理に励まさず、「一緒にお茶でも飲もう」とゆっくり過ごす時間を作ってみてください。';
+    }
+
+    if (checkins.length <= 3) {
+      text += '\n\nチェックインの回数が少なめです。「一緒にやってみようか」と声をかけてみてください。';
+    }
+
+    container.innerHTML = `
+      <div class="voice-card">
+        <div class="voice-card-label">今週の声かけヒント</div>
+        <div class="voice-card-text">${text}</div>
+      </div>`;
+  }
+
+  async function renderCalendarView() {
+    const now = new Date();
+    const year = now.getFullYear(), month = now.getMonth();
+    const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const endDate = new Date(year, month + 1, 0);
+    const endStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+
+    const { data } = await sb.from('senior_calendar_stamps').select('stamp_date, stamp_type')
+      .eq('senior_id', seniorUser.id).gte('stamp_date', startDate).lte('stamp_date', endStr);
+
+    const stamps = {};
+    (data || []).forEach(s => { stamps[s.stamp_date] = true; });
+
+    const today = new Date().toISOString().slice(0, 10);
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = endDate.getDate();
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+
+    let html = '<div class="calendar-grid">';
+    html += weekdays.map(w => `<div class="calendar-header">${w}</div>`).join('');
+    for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const isToday = dateStr === today;
+      const hasStamp = stamps[dateStr];
+      let cls = 'calendar-day';
+      if (isToday) cls += ' today';
+      if (hasStamp) cls += ' stamped';
+      html += `<div class="${cls}"><span>${d}</span>${hasStamp ? '<span class="stamp">✅</span>' : ''}</div>`;
+    }
+    html += '</div>';
+    document.getElementById('dash-calendar').innerHTML = html;
+  }
+
+  async function renderAlerts() {
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    const { data: signals } = await sb.from('senior_risk_signals').select('*')
+      .eq('senior_id', seniorUser.id).is('resolved_at', null).eq('is_dismissed', false)
+      .gte('created_at', weekAgo.toISOString()).order('created_at', { ascending: false }).limit(3);
+
+    const container = document.getElementById('dash-alerts');
+    if (!signals || signals.length === 0) { container.innerHTML = ''; return; }
+
+    container.innerHTML = '<div class="section-header">お知らせ</div>' + signals.map(s => `
+      <div class="alert-card">
+        <div class="alert-title">${s.family_notification_text || 'コンディションに少し変化が見られます'}</div>
+      </div>
+    `).join('');
+  }
+
+  async function submitConsentFlag() {
+    if (!confirm('同意見直しフラグを送信しますか？\n専門職に通知されます。')) return;
+
+    await sb.from('senior_consent_review_flags').insert({
+      senior_id: seniorUser.id,
+      flagged_by_type: 'family',
+      flagged_by_id: familyUser.id,
+      reason: '家族からの同意見直し要請'
+    });
+
+    alert('フラグを送信しました。専門職が確認します。');
+  }
+  </script>
+</body>
+</html>

@@ -24,6 +24,14 @@
     { "source": "/kids/instructor/", "destination": "/kids/instructor.html" },
     { "source": "/pro", "destination": "/pro/index.html" },
     { "source": "/pro/", "destination": "/pro/index.html" },
+    { "source": "/senior", "destination": "/senior/index.html" },
+    { "source": "/senior/", "destination": "/senior/index.html" },
+    { "source": "/senior/family", "destination": "/senior/family.html" },
+    { "source": "/senior/family/", "destination": "/senior/family.html" },
+    { "source": "/senior/care", "destination": "/senior/care.html" },
+    { "source": "/senior/care/", "destination": "/senior/care.html" },
+    { "source": "/senior/org", "destination": "/senior/org.html" },
+    { "source": "/senior/org/", "destination": "/senior/org.html" },
     { "source": "/", "destination": "/lp/index.html" }
   ],
   "headers": [

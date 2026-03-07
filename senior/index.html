@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>脳の元気度チェック</title>
+  <link rel="stylesheet" href="/senior/css/senior.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- ===== Top bar ===== -->
+  <div class="topbar" id="topbar" style="display:none;">
+    <div class="topbar-title">脳の元気度チェック</div>
+    <div class="topbar-right">
+      <button type="button" class="topbar-btn" id="btn-nav-settings" aria-label="設定">設定</button>
+    </div>
+  </div>
+
+  <!-- ===== Nav Tabs ===== -->
+  <div class="nav-tabs" id="nav-tabs" style="display:none;">
+    <button type="button" class="nav-tab active" data-tab="home" aria-label="ホーム">ホーム</button>
+    <button type="button" class="nav-tab" data-tab="checkin" aria-label="チェックイン">チェックイン</button>
+    <button type="button" class="nav-tab" data-tab="drill" aria-label="かんたんドリル">ドリル</button>
+    <button type="button" class="nav-tab" data-tab="calendar" aria-label="カレンダー">カレンダー</button>
+  </div>
+
+  <!-- ===== Screen: Welcome / Register ===== -->
+  <div id="screen-register" class="screen active">
+    <div class="container" style="padding-top:40px;">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-size:64px;">🧠</div>
+        <h1 style="font-size:var(--fs-h1);font-weight:800;color:var(--primary);margin-top:8px;">脳の元気度チェック</h1>
+        <p style="font-size:var(--fs-base);color:var(--text-sub);margin-top:8px;line-height:1.8;">
+          毎日かんたんなチェックをして、<br>脳とカラダの元気を保ちましょう。
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label" for="reg-name">お名前（ニックネームでもOK）</label>
+          <input class="form-input" id="reg-name" type="text" placeholder="例：たろう" aria-required="true">
+        </div>
+        <div class="form-group">
+          <label class="form-label">回答のしかた</label>
+          <div class="answer-3scale" id="reg-mode">
+            <button type="button" class="answer-3-btn selected" data-v="3scale" aria-label="かんたん3択">
+              <span class="answer-icon">😊</span>
+              かんたん<br>3択
+            </button>
+            <button type="button" class="answer-3-btn" data-v="5scale" aria-label="くわしく5段階">
+              <span class="answer-icon">📊</span>
+              くわしく<br>5段階
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">文字の大きさ</label>
+          <div class="answer-3scale" id="reg-fontsize">
+            <button type="button" class="answer-3-btn selected" data-v="large" aria-label="大きい">
+              <span style="font-size:18px;">あ</span>
+              大きい
+            </button>
+            <button type="button" class="answer-3-btn" data-v="xlarge" aria-label="特大">
+              <span style="font-size:22px;">あ</span>
+              特大
+            </button>
+            <button type="button" class="answer-3-btn" data-v="xxlarge" aria-label="最大">
+              <span style="font-size:26px;">あ</span>
+              最大
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-primary" id="btn-register">はじめる</button>
+      <p id="reg-error" style="color:var(--red);font-size:var(--fs-label);margin-top:8px;display:none;text-align:center;"></p>
+
+      <p style="text-align:center;margin-top:24px;font-size:var(--fs-small);color:var(--text-hint);">
+        ご家族の方がセットアップを代行できます。<br>
+        ※ このツールは医療診断を行うものではありません。
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Home ===== -->
+  <div id="screen-home" class="screen">
+    <div class="container">
+      <!-- Wellness Score -->
+      <div class="wellness-hero" id="home-wellness-hero">
+        <div class="wellness-face" id="home-face">🧠</div>
+        <div class="wellness-score" id="home-score">—</div>
+        <div class="wellness-label">脳の元気度</div>
+        <div class="wellness-sub" id="home-message"></div>
+      </div>
+
+      <!-- Streak -->
+      <div class="streak-banner" id="home-streak-banner" style="display:none;">
+        <div class="streak-count" id="home-streak">0</div>
+        <div class="streak-text" id="home-streak-text">日つづけています</div>
+      </div>
+
+      <!-- Checkin CTA -->
+      <div id="home-checkin-cta"></div>
+
+      <!-- Today's drill -->
+      <div class="section-header">きょうのかんたんドリル</div>
+      <div id="home-drill"></div>
+
+      <!-- Mini calendar -->
+      <div class="section-header">今月のカレンダー</div>
+      <div class="card">
+        <div id="home-calendar"></div>
+      </div>
+
+      <!-- Support -->
+      <div class="support-card">
+        <div class="support-title">気になることがあれば</div>
+        <a class="support-link" href="tel:" aria-label="地域包括支援センターに電話">📞 地域包括支援センターに相談する</a>
+        <a class="support-link" href="tel:" aria-label="かかりつけ医に相談">🏥 かかりつけ医に相談する</a>
+      </div>
+
+      <p style="text-align:center;margin:24px 0;font-size:var(--fs-small);color:var(--text-muted);">
+        &copy; 2025 脳の元気度チェック — あなたのデータはあなたのものです
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Check-in ===== -->
+  <div id="screen-checkin" class="screen">
+    <div class="container" style="padding-top:24px;padding-bottom:100px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;color:var(--text);margin-bottom:4px;">きょうのチェックイン</h2>
+      <p style="font-size:var(--fs-label);color:var(--text-sub);margin-bottom:24px;">かんたんな質問に答えてください。</p>
+      <div id="checkin-questions"></div>
+      <button type="button" class="btn-primary" id="btn-checkin-submit" disabled>おくる</button>
+      <div id="checkin-done" style="display:none;">
+        <div class="done-state">
+          <div class="done-icon">🌟</div>
+          <div class="done-title">きょうも元気にチェックイン！</div>
+          <div class="done-sub" id="checkin-done-msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Drill ===== -->
+  <div id="screen-drill" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;color:var(--text);margin-bottom:16px;">かんたんドリル</h2>
+      <div id="drill-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Drill Detail ===== -->
+  <div id="screen-drill-detail" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <button type="button" class="btn-text" id="btn-drill-back" aria-label="もどる">← もどる</button>
+      <div id="drill-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Calendar ===== -->
+  <div id="screen-calendar" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;color:var(--text);margin-bottom:16px;">カレンダー</h2>
+      <div id="calendar-month-nav" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <button type="button" class="btn-text" id="btn-cal-prev" aria-label="前の月">← 前の月</button>
+        <span style="font-size:var(--fs-h3);font-weight:700;" id="calendar-month-label"></span>
+        <button type="button" class="btn-text" id="btn-cal-next" aria-label="次の月">次の月 →</button>
+      </div>
+      <div class="card">
+        <div id="full-calendar"></div>
+      </div>
+      <div class="streak-banner" style="margin-top:16px;">
+        <div class="streak-count" id="cal-streak">0</div>
+        <div class="streak-text">日つづけています。すばらしいですね！</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Monthly Assessment ===== -->
+  <div id="screen-assessment" class="screen">
+    <div class="container" style="padding-top:24px;padding-bottom:100px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;color:var(--text);margin-bottom:4px;">月いちアセスメント</h2>
+      <p style="font-size:var(--fs-label);color:var(--text-sub);margin-bottom:24px;">ふだんの生活についてお聞きします。</p>
+      <div id="assessment-questions"></div>
+      <button type="button" class="btn-primary" id="btn-assessment-submit" disabled>おくる</button>
+      <div id="assessment-done" style="display:none;">
+        <div class="done-state">
+          <div class="done-icon">🎉</div>
+          <div class="done-title">おつかれさまでした！</div>
+          <div class="done-sub" id="assessment-done-msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Brain Type ===== -->
+  <div id="screen-braintype" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;color:var(--text);margin-bottom:16px;">あなたの脳タイプ</h2>
+      <div id="braintype-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: Settings ===== -->
+  <div id="screen-settings" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;color:var(--text);margin-bottom:16px;">設定</h2>
+      <div class="card">
+        <div class="card-title">プロフィール</div>
+        <p style="font-size:var(--fs-base);color:var(--text-sub);" id="settings-profile"></p>
+      </div>
+      <div class="card">
+        <div class="card-title">文字の大きさ</div>
+        <div class="answer-3scale" id="settings-fontsize">
+          <button type="button" class="answer-3-btn" data-v="large"><span style="font-size:18px;">あ</span>大きい</button>
+          <button type="button" class="answer-3-btn" data-v="xlarge"><span style="font-size:22px;">あ</span>特大</button>
+          <button type="button" class="answer-3-btn" data-v="xxlarge"><span style="font-size:26px;">あ</span>最大</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">回答のしかた</div>
+        <div class="answer-3scale" id="settings-answermode">
+          <button type="button" class="answer-3-btn" data-v="3scale"><span class="answer-icon">😊</span>かんたん3択</button>
+          <button type="button" class="answer-3-btn" data-v="5scale"><span class="answer-icon">📊</span>くわしく5段階</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">家族への共有</div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">コンディション傾向を家族に共有する</div>
+            <div class="toggle-desc">具体的なスコアや回答内容は送りません</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settings-family-share" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">データ</div>
+        <button type="button" class="btn-secondary" id="btn-export" style="margin-bottom:12px;">データをダウンロード</button>
+        <button type="button" class="btn-danger" id="btn-delete-account">アカウントを削除する</button>
+      </div>
+      <div class="card">
+        <div class="card-title">その他</div>
+        <button type="button" class="btn-text" id="btn-assessment-start">月いちアセスメントを受ける</button>
+        <button type="button" class="btn-text" id="btn-braintype-start">脳タイプ診断を受ける</button>
+      </div>
+      <button type="button" class="btn-text" id="btn-settings-back" style="margin-top:16px;">← もどる</button>
+    </div>
+  </div>
+
+  <script src="/senior/js/app.js"></script>
+</body>
+</html>
