@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>脳の元気度チェック — 専門職画面</title>
+  <link rel="stylesheet" href="/senior/css/senior.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-title">専門職画面</div>
+    <div class="topbar-right">
+      <button type="button" class="topbar-btn" id="btn-back-list">一覧</button>
+    </div>
+  </div>
+
+  <!-- Login -->
+  <div id="screen-login" class="screen active">
+    <div class="container" style="padding-top:60px;">
+      <h1 style="font-size:var(--fs-h2);font-weight:700;text-align:center;margin-bottom:24px;">専門職ログイン</h1>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">スタッフコード</label>
+          <input class="form-input" id="login-token" type="text" placeholder="スタッフコードを入力">
+        </div>
+        <button type="button" class="btn-primary" id="btn-login">ログイン</button>
+        <p id="login-error" style="color:var(--red);font-size:var(--fs-small);margin-top:8px;display:none;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Senior list -->
+  <div id="screen-list" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;margin-bottom:16px;">担当者一覧</h2>
+
+      <!-- Risk signals -->
+      <div id="care-alerts"></div>
+
+      <!-- Consent review flags -->
+      <div id="care-consent-flags"></div>
+
+      <!-- Senior table -->
+      <div class="card" style="overflow-x:auto;">
+        <table class="staff-table" id="care-table">
+          <thead>
+            <tr><th>お名前</th><th>状態</th><th>最終チェックイン</th><th>元気度</th><th></th></tr>
+          </thead>
+          <tbody id="care-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Senior detail -->
+  <div id="screen-detail" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <button type="button" class="btn-text" id="btn-detail-back">← 一覧にもどる</button>
+      <h2 style="font-size:var(--fs-h2);font-weight:700;margin:8px 0 16px;" id="detail-name"></h2>
+
+      <!-- Score trend -->
+      <div class="section-header">元気度トレンド（直近30日）</div>
+      <div class="card">
+        <svg id="detail-trend" class="trend-chart" viewBox="0 0 580 140" style="width:100%;height:auto;"></svg>
+      </div>
+
+      <!-- Category breakdown -->
+      <div class="section-header">カテゴリ別</div>
+      <div class="card" id="detail-categories"></div>
+
+      <!-- Risk signal history -->
+      <div class="section-header">アラート履歴</div>
+      <div id="detail-alerts"></div>
+
+      <!-- Consent review -->
+      <div class="section-header">同意管理</div>
+      <div class="card">
+        <button type="button" class="btn-secondary" id="btn-flag-consent">同意見直しフラグを送信</button>
+        <p style="font-size:var(--fs-small);color:var(--text-hint);margin-top:8px;">ご本人の判断能力に変化が疑われる場合に使用。オフラインでの対面確認につなげます。</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  'use strict';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let staffUser = null;
+  let selectedSenior = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('care_staff_token');
+    if (token) loginWithToken(token);
+
+    document.getElementById('btn-login').addEventListener('click', () => {
+      const t = document.getElementById('login-token').value.trim();
+      if (!t) return;
+      loginWithToken(t);
+    });
+  });
+
+  async function loginWithToken(token) {
+    const { data } = await sb.from('senior_care_staff').select('*').eq('staff_token', token).eq('is_active', true).maybeSingle();
+    if (!data) {
+      const errEl = document.getElementById('login-error');
+      if (errEl) { errEl.textContent = 'コードが見つかりません'; errEl.style.display = 'block'; }
+      return;
+    }
+    staffUser = data;
+    localStorage.setItem('care_staff_token', token);
+    await showList();
+  }
+
+  async function showList() {
+    showScreen('screen-list');
+
+    // Audit log
+    await sb.from('senior_audit_logs').insert({
+      accessor_type: 'care_staff', accessor_id: staffUser.id,
+      action: 'view_senior_list'
+    });
+
+    // Get consented seniors
+    const { data: consents } = await sb.from('senior_consents').select('senior_id')
+      .eq('consent_type', 'care_staff_sharing').eq('consent_status', 'granted');
+
+    if (!consents || consents.length === 0) {
+      document.getElementById('care-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-hint);">同意が得られている利用者はいません</td></tr>';
+      return;
+    }
+
+    const seniorIds = consents.map(c => c.senior_id);
+    const { data: seniors } = await sb.from('senior_users').select('*').in('id', seniorIds).eq('is_active', true);
+
+    if (!seniors || seniors.length === 0) {
+      document.getElementById('care-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;">利用者が見つかりません</td></tr>';
+      return;
+    }
+
+    // Get latest checkins for each
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = [];
+    for (const s of seniors) {
+      const { data: latest } = await sb.from('senior_daily_checkins').select('checkin_date, brain_wellness_score, signal_level')
+        .eq('senior_id', s.id).order('checkin_date', { ascending: false }).limit(1);
+      const last = latest && latest[0];
+      rows.push({ ...s, lastCheckin: last });
+    }
+
+    const tbody = document.getElementById('care-tbody');
+    tbody.innerHTML = rows.map(r => {
+      const sig = r.lastCheckin ? r.lastCheckin.signal_level : 'green';
+      const score = r.lastCheckin ? parseFloat(r.lastCheckin.brain_wellness_score).toFixed(1) : '—';
+      const date = r.lastCheckin ? r.lastCheckin.checkin_date : '—';
+      return `<tr>
+        <td style="font-weight:600;">${r.display_name}</td>
+        <td><span class="signal-dot ${sig}"></span></td>
+        <td>${date}</td>
+        <td>${score}</td>
+        <td><button type="button" class="btn-text" onclick="showDetail('${r.id}')">詳細</button></td>
+      </tr>`;
+    }).join('');
+
+    // Risk signals
+    await renderCareAlerts(seniorIds);
+
+    // Consent review flags
+    await renderConsentFlags(seniorIds);
+
+    document.getElementById('btn-back-list').onclick = showList;
+  }
+
+  async function renderCareAlerts(seniorIds) {
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    const { data: signals } = await sb.from('senior_risk_signals').select('*, senior:senior_users(display_name)')
+      .in('senior_id', seniorIds).is('resolved_at', null).eq('is_dismissed', false)
+      .gte('created_at', weekAgo.toISOString()).order('created_at', { ascending: false }).limit(10);
+
+    const container = document.getElementById('care-alerts');
+    if (!signals || signals.length === 0) { container.innerHTML = ''; return; }
+
+    container.innerHTML = '<div class="section-header" style="color:var(--red);">アラート</div>' + signals.map(s => `
+      <div class="alert-card" style="background:${s.risk_level === 'red' ? 'var(--red-bg)' : 'var(--yellow-bg)'};">
+        <div class="alert-title">${s.senior?.display_name || '—'}さん</div>
+        <div class="alert-text">${s.care_staff_details || s.message}</div>
+      </div>
+    `).join('');
+  }
+
+  async function renderConsentFlags(seniorIds) {
+    const { data: flags } = await sb.from('senior_consent_review_flags').select('*, senior:senior_users(display_name)')
+      .in('senior_id', seniorIds).eq('status', 'open').order('created_at', { ascending: false }).limit(5);
+
+    const container = document.getElementById('care-consent-flags');
+    if (!flags || flags.length === 0) { container.innerHTML = ''; return; }
+
+    container.innerHTML = '<div class="section-header">同意見直しフラグ</div>' + flags.map(f => `
+      <div class="alert-card" style="background:var(--bg-warning);">
+        <div class="alert-title">${f.senior?.display_name || '—'}さん — 同意見直し要請</div>
+        <div class="alert-text">${f.reason || '家族からの要請'}<br><small>${new Date(f.created_at).toLocaleDateString('ja-JP')}</small></div>
+      </div>
+    `).join('');
+  }
+
+  window.showDetail = async function(seniorId) {
+    showScreen('screen-detail');
+
+    const { data: senior } = await sb.from('senior_users').select('*').eq('id', seniorId).single();
+    selectedSenior = senior;
+    document.getElementById('detail-name').textContent = senior.display_name + 'さん';
+
+    // Audit log
+    await sb.from('senior_audit_logs').insert({
+      accessor_type: 'care_staff', accessor_id: staffUser.id,
+      action: 'view_senior_detail', target_senior_id: seniorId
+    });
+
+    // Trend chart
+    const thirtyAgo = new Date(); thirtyAgo.setDate(thirtyAgo.getDate() - 30);
+    const { data: checkins } = await sb.from('senior_daily_checkins').select('checkin_date, brain_wellness_score, signal_level')
+      .eq('senior_id', seniorId).gte('checkin_date', thirtyAgo.toISOString().slice(0, 10)).order('checkin_date');
+
+    renderTrendChart(checkins || []);
+
+    // Latest monthly assessment
+    const { data: assessment } = await sb.from('senior_monthly_assessments').select('*')
+      .eq('senior_id', seniorId).order('assessment_month', { ascending: false }).limit(1).maybeSingle();
+
+    const catEl = document.getElementById('detail-categories');
+    if (assessment) {
+      const cats = [
+        { label: '睡眠・栄養', score: assessment.sleep_nutrition_score },
+        { label: '運動', score: assessment.exercise_score },
+        { label: '健康管理', score: assessment.health_management_score },
+        { label: '好奇心', score: assessment.curiosity_score },
+        { label: '会話', score: assessment.communication_score },
+        { label: '段取り', score: assessment.planning_score },
+        { label: '趣味', score: assessment.hobby_engagement_score },
+        { label: '社会参加', score: assessment.social_participation_score },
+        { label: '地域交流', score: assessment.community_score },
+        { label: '役割感', score: assessment.role_sense_score }
+      ];
+      catEl.innerHTML = '<div style="font-size:var(--fs-small);color:var(--text-hint);margin-bottom:8px;">' + assessment.assessment_month + '</div>' +
+        cats.map(c => {
+          const v = parseFloat(c.score || 0);
+          const color = v >= 4 ? 'green' : v >= 2.5 ? 'yellow' : 'red';
+          return `<div class="score-row"><span class="score-label">${c.label}</span><div class="score-bar-bg"><div class="score-bar ${color}" style="width:${v * 20}%"></div></div><span class="score-value">${v.toFixed(1)}</span></div>`;
+        }).join('');
+    } else {
+      catEl.innerHTML = '<p style="color:var(--text-hint);">月次アセスメントの記録がありません</p>';
+    }
+
+    // Alert history
+    const { data: alerts } = await sb.from('senior_risk_signals').select('*')
+      .eq('senior_id', seniorId).order('created_at', { ascending: false }).limit(10);
+    const alertEl = document.getElementById('detail-alerts');
+    if (alerts && alerts.length > 0) {
+      alertEl.innerHTML = alerts.map(a => `
+        <div class="alert-card" style="background:${a.risk_level === 'red' ? 'var(--red-bg)' : 'var(--yellow-bg)'};">
+          <div class="alert-title">${riskLabel(a.risk_type)}</div>
+          <div class="alert-text">${a.care_staff_details || a.message}<br><small>${new Date(a.created_at).toLocaleDateString('ja-JP')}${a.resolved_at ? ' (解決済)' : ''}</small></div>
+        </div>
+      `).join('');
+    } else {
+      alertEl.innerHTML = '<div class="card"><p style="color:var(--text-hint);">アラート履歴はありません</p></div>';
+    }
+
+    document.getElementById('btn-detail-back').onclick = showList;
+    document.getElementById('btn-flag-consent').onclick = () => flagConsent(seniorId);
+  };
+
+  function renderTrendChart(checkins) {
+    const svg = document.getElementById('detail-trend');
+    if (checkins.length < 2) { svg.innerHTML = '<text x="290" y="70" text-anchor="middle" fill="#757575" font-size="14">データ不足</text>'; return; }
+
+    const W = 580, H = 130, pad = 30;
+    const stepX = (W - pad * 2) / (checkins.length - 1);
+
+    let path = '';
+    const circles = [];
+    checkins.forEach((d, i) => {
+      const x = pad + i * stepX;
+      const y = H - pad - ((parseFloat(d.brain_wellness_score) || 0) / 5) * (H - pad * 2);
+      path += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+      const color = d.signal_level === 'red' ? '#C62828' : d.signal_level === 'yellow' ? '#F57F17' : '#2E7D32';
+      circles.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="${color}"/>`);
+    });
+
+    // Grid lines
+    let grid = '';
+    for (let v = 1; v <= 5; v++) {
+      const y = H - pad - (v / 5) * (H - pad * 2);
+      grid += `<line x1="${pad}" y1="${y}" x2="${W - pad}" y2="${y}" stroke="#E0E0E0" stroke-width="1"/>`;
+      grid += `<text x="${pad - 5}" y="${y + 4}" text-anchor="end" fill="#999" font-size="11">${v}</text>`;
+    }
+
+    svg.innerHTML = grid +
+      `<path d="${path}" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` +
+      circles.join('');
+  }
+
+  function riskLabel(t) {
+    const m = { social_isolation: '社会的孤立', persistent_low_mood: '気分の持続的低下', sleep_disruption: '睡眠の乱れ', forgetfulness_spike: 'もの忘れの変化', motivation_loss: '活動意欲の低下' };
+    return m[t] || t;
+  }
+
+  async function flagConsent(seniorId) {
+    if (!confirm('同意見直しフラグを送信しますか？')) return;
+    await sb.from('senior_consent_review_flags').insert({
+      senior_id: seniorId,
+      flagged_by_type: 'care_staff',
+      flagged_by_id: staffUser.id,
+      reason: '専門職からの同意見直し要請'
+    });
+    alert('フラグを送信しました');
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  </script>
+</body>
+</html>

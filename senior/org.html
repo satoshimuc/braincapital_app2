@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>脳の元気度チェック — 事業者管理画面</title>
+  <link rel="stylesheet" href="/senior/css/senior.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-title">事業者管理画面</div>
+  </div>
+
+  <!-- Login -->
+  <div id="screen-login" class="screen active">
+    <div class="container" style="padding-top:60px;">
+      <h1 style="font-size:var(--fs-h2);font-weight:700;text-align:center;margin-bottom:24px;">事業者ログイン</h1>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">組織名</label>
+          <input class="form-input" id="login-org-name" type="text" placeholder="組織名を入力">
+        </div>
+        <button type="button" class="btn-primary" id="btn-login">ログイン</button>
+        <p id="login-error" style="color:var(--red);font-size:var(--fs-small);margin-top:8px;display:none;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="screen-dashboard" class="screen">
+    <div class="container" style="padding-top:24px;">
+      <h2 style="font-size:var(--fs-h2);font-weight:700;margin-bottom:4px;" id="dash-org-name"></h2>
+      <p style="font-size:var(--fs-label);color:var(--text-hint);margin-bottom:24px;">匿名集計ダッシュボード（個人情報は表示されません）</p>
+
+      <!-- Summary -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+        <div class="card" style="text-align:center;"><div style="font-size:var(--fs-h1);font-weight:800;color:var(--primary);" id="dash-total">0</div><div style="font-size:var(--fs-small);color:var(--text-hint);">登録者数</div></div>
+        <div class="card" style="text-align:center;"><div style="font-size:var(--fs-h1);font-weight:800;color:var(--primary);" id="dash-active">0</div><div style="font-size:var(--fs-small);color:var(--text-hint);">今週アクティブ</div></div>
+        <div class="card" style="text-align:center;"><div style="font-size:var(--fs-h1);font-weight:800;color:var(--primary);" id="dash-rate">0%</div><div style="font-size:var(--fs-small);color:var(--text-hint);">参加率</div></div>
+      </div>
+
+      <!-- Wellness distribution -->
+      <div class="section-header">元気度分布（今週）</div>
+      <div class="card" id="dash-distribution"></div>
+
+      <!-- Group breakdown -->
+      <div class="section-header">グループ別</div>
+      <div id="dash-groups"></div>
+
+      <!-- Participation trend -->
+      <div class="section-header">チェックイン参加率（週次推移）</div>
+      <div class="card">
+        <svg id="dash-trend" style="width:100%;height:auto;" viewBox="0 0 580 140"></svg>
+      </div>
+
+      <!-- Drill stats -->
+      <div class="section-header">ドリル実施率</div>
+      <div class="card" id="dash-drills"></div>
+
+      <p style="text-align:center;margin:24px 0;font-size:var(--fs-small);color:var(--text-muted);">
+        ※ 5名未満のグループは匿名性保護のため非表示です。<br>
+        ※ 個人の特定につながるデータは一切表示されません。
+      </p>
+    </div>
+  </div>
+
+  <script>
+  'use strict';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let org = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btn-login').addEventListener('click', login);
+  });
+
+  async function login() {
+    const name = document.getElementById('login-org-name').value.trim();
+    if (!name) return;
+
+    const { data } = await sb.from('senior_organizations').select('*').eq('org_name', name).eq('is_active', true).maybeSingle();
+    if (!data) {
+      document.getElementById('login-error').textContent = '組織が見つかりません';
+      document.getElementById('login-error').style.display = 'block';
+      return;
+    }
+
+    org = data;
+
+    // Audit log
+    await sb.from('senior_audit_logs').insert({
+      accessor_type: 'org_admin', accessor_id: org.id,
+      action: 'view_dashboard'
+    });
+
+    await showDashboard();
+  }
+
+  async function showDashboard() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-dashboard').classList.add('active');
+    document.getElementById('dash-org-name').textContent = org.org_name;
+
+    // Get all seniors in this org
+    const { data: seniors } = await sb.from('senior_users').select('id, group_id').eq('org_id', org.id).eq('is_active', true);
+    const seniorIds = (seniors || []).map(s => s.id);
+    const total = seniorIds.length;
+    document.getElementById('dash-total').textContent = total;
+
+    if (total === 0) {
+      document.getElementById('dash-active').textContent = '0';
+      document.getElementById('dash-rate').textContent = '0%';
+      return;
+    }
+
+    // This week's checkins
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekStr = weekAgo.toISOString().slice(0, 10);
+
+    const { data: weekCheckins } = await sb.from('senior_daily_checkins').select('senior_id, checkin_date, brain_wellness_score')
+      .in('senior_id', seniorIds).gte('checkin_date', weekStr);
+
+    const activeSet = new Set((weekCheckins || []).map(c => c.senior_id));
+    const activeCount = activeSet.size;
+    document.getElementById('dash-active').textContent = activeCount;
+    document.getElementById('dash-rate').textContent = Math.round(activeCount / total * 100) + '%';
+
+    // Distribution
+    renderDistribution(weekCheckins || []);
+
+    // Groups
+    await renderGroups(seniors || [], seniorIds, weekCheckins || []);
+
+    // Participation trend
+    await renderParticipationTrend(seniorIds, total);
+
+    // Drill stats
+    await renderDrillStats(seniorIds);
+  }
+
+  function renderDistribution(checkins) {
+    const container = document.getElementById('dash-distribution');
+    if (checkins.length === 0) { container.innerHTML = '<p style="color:var(--text-hint);">今週のデータがありません</p>'; return; }
+
+    // Average per person
+    const perPerson = {};
+    checkins.forEach(c => {
+      if (!perPerson[c.senior_id]) perPerson[c.senior_id] = [];
+      perPerson[c.senior_id].push(parseFloat(c.brain_wellness_score));
+    });
+
+    const avgs = Object.values(perPerson).map(arr => arr.reduce((a, b) => a + b, 0) / arr.length);
+    const buckets = [0, 0, 0, 0, 0]; // 1-, 2-, 3-, 4-, 5-
+    avgs.forEach(v => {
+      const idx = Math.min(Math.floor(v) - 1, 4);
+      if (idx >= 0) buckets[idx]++;
+      else buckets[0]++;
+    });
+
+    const max = Math.max(...buckets, 1);
+    const labels = ['1.0〜', '2.0〜', '3.0〜', '4.0〜', '5.0'];
+    const colors = ['#C62828', '#F57F17', '#F9A825', '#66BB6A', '#2E7D32'];
+
+    container.innerHTML = labels.map((l, i) => `
+      <div class="score-row">
+        <span class="score-label">${l}</span>
+        <div class="score-bar-bg"><div class="score-bar" style="width:${(buckets[i] / max) * 100}%;background:${colors[i]};"></div></div>
+        <span class="score-value">${buckets[i]}</span>
+      </div>
+    `).join('');
+  }
+
+  async function renderGroups(seniors, seniorIds, weekCheckins) {
+    const container = document.getElementById('dash-groups');
+    const { data: groups } = await sb.from('senior_groups').select('*').eq('org_id', org.id).eq('is_active', true);
+
+    if (!groups || groups.length === 0) { container.innerHTML = '<div class="card"><p style="color:var(--text-hint);">グループが登録されていません</p></div>'; return; }
+
+    const groupMap = {};
+    seniors.forEach(s => { if (s.group_id) { if (!groupMap[s.group_id]) groupMap[s.group_id] = []; groupMap[s.group_id].push(s.id); } });
+
+    const checkinMap = {};
+    (weekCheckins || []).forEach(c => {
+      if (!checkinMap[c.senior_id]) checkinMap[c.senior_id] = [];
+      checkinMap[c.senior_id].push(parseFloat(c.brain_wellness_score));
+    });
+
+    container.innerHTML = groups.map(g => {
+      const members = groupMap[g.id] || [];
+      const k = g.min_anonymity_k || 5;
+      if (members.length < k) return ''; // k-anonymity
+
+      const activeMembers = members.filter(id => checkinMap[id]);
+      const rate = Math.round(activeMembers.length / members.length * 100);
+
+      let avgScore = 0;
+      if (activeMembers.length > 0) {
+        const allScores = activeMembers.flatMap(id => checkinMap[id]);
+        avgScore = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+      }
+
+      const face = avgScore >= 4 ? '😊' : avgScore >= 2.5 ? '😐' : '😟';
+
+      return `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:var(--fs-base);font-weight:700;">${g.group_name}</div>
+              <div style="font-size:var(--fs-small);color:var(--text-hint);">${members.length}名</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:32px;">${face}</div>
+              <div style="font-size:var(--fs-h3);font-weight:800;color:var(--primary);">${avgScore > 0 ? avgScore.toFixed(1) : '—'}</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <div class="score-row">
+              <span class="score-label">参加率</span>
+              <div class="score-bar-bg"><div class="score-bar green" style="width:${rate}%"></div></div>
+              <span class="score-value">${rate}%</span>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  async function renderParticipationTrend(seniorIds, total) {
+    const svg = document.getElementById('dash-trend');
+    if (total === 0) { svg.innerHTML = '<text x="290" y="70" text-anchor="middle" fill="#999" font-size="14">データなし</text>'; return; }
+
+    // Last 8 weeks
+    const weeks = [];
+    for (let w = 7; w >= 0; w--) {
+      const start = new Date(); start.setDate(start.getDate() - (w + 1) * 7);
+      const end = new Date(); end.setDate(end.getDate() - w * 7);
+      weeks.push({ start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) });
+    }
+
+    const rates = [];
+    for (const wk of weeks) {
+      const { data } = await sb.from('senior_daily_checkins').select('senior_id')
+        .in('senior_id', seniorIds).gte('checkin_date', wk.start).lt('checkin_date', wk.end);
+      const active = new Set((data || []).map(c => c.senior_id)).size;
+      rates.push(Math.round(active / total * 100));
+    }
+
+    const W = 580, H = 130, pad = 40;
+    const stepX = (W - pad * 2) / (rates.length - 1);
+
+    let grid = '';
+    for (let v = 0; v <= 100; v += 25) {
+      const y = H - pad - (v / 100) * (H - pad * 2);
+      grid += `<line x1="${pad}" y1="${y}" x2="${W - pad}" y2="${y}" stroke="#E0E0E0" stroke-width="1"/>`;
+      grid += `<text x="${pad - 5}" y="${y + 4}" text-anchor="end" fill="#999" font-size="11">${v}%</text>`;
+    }
+
+    let path = '';
+    rates.forEach((r, i) => {
+      const x = pad + i * stepX;
+      const y = H - pad - (r / 100) * (H - pad * 2);
+      path += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+    });
+
+    const circles = rates.map((r, i) => {
+      const x = pad + i * stepX;
+      const y = H - pad - (r / 100) * (H - pad * 2);
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="#2E7D32"/>`;
+    }).join('');
+
+    svg.innerHTML = grid +
+      `<path d="${path}" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round"/>` + circles;
+  }
+
+  async function renderDrillStats(seniorIds) {
+    const container = document.getElementById('dash-drills');
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+
+    const { data } = await sb.from('senior_drill_completions').select('senior_id')
+      .in('senior_id', seniorIds).gte('completed_date', weekAgo.toISOString().slice(0, 10));
+
+    const drillUsers = new Set((data || []).map(d => d.senior_id)).size;
+    const total = seniorIds.length;
+    const rate = total > 0 ? Math.round(drillUsers / total * 100) : 0;
+
+    container.innerHTML = `
+      <div class="score-row">
+        <span class="score-label">今週</span>
+        <div class="score-bar-bg"><div class="score-bar green" style="width:${rate}%"></div></div>
+        <span class="score-value">${rate}%</span>
+      </div>
+      <div style="font-size:var(--fs-small);color:var(--text-hint);margin-top:4px;">${drillUsers}名 / ${total}名がドリルを実施</div>`;
+  }
+  </script>
+</body>
+</html>
