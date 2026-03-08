@@ -271,6 +271,14 @@ function renderCheckin() {
   bind3or5Handlers(container, questions, answers, is3);
 
   submitBtn.onclick = () => submitCheckin(answers, is3);
+
+  // Voice input
+  voiceMode = false;
+  const toggleBtn = document.getElementById('btn-voice-toggle');
+  toggleBtn.classList.remove('active');
+  document.getElementById('voice-toggle-label').textContent = '音声';
+  document.getElementById('voice-mode-ui').style.display = 'none';
+  maybeInitVoice();
 }
 
 function render3or5Question(q, idx, is3) {
@@ -325,6 +333,274 @@ function bind3or5Handlers(container, questions, answers, is3) {
 
 function checkSubmitReady(answers, total) {
   document.getElementById('btn-checkin-submit').disabled = Object.keys(answers).length < total;
+}
+
+/* ============ VOICE INPUT MODE ============ */
+let voiceMode = false;
+let voiceRecognition = null;
+let voiceQuestionIndex = 0;
+let voiceAnswers = {};
+let voiceQuestions = [];
+let voiceIs3 = true;
+
+function initVoiceToggle() {
+  const toggleBtn = document.getElementById('btn-voice-toggle');
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    toggleBtn.style.display = 'none';
+    return;
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    voiceMode = !voiceMode;
+    toggleBtn.classList.toggle('active', voiceMode);
+    document.getElementById('voice-toggle-label').textContent = voiceMode ? '音声ON' : '音声';
+
+    if (voiceMode) {
+      startVoiceCheckin();
+    } else {
+      stopVoiceMode();
+    }
+  });
+}
+
+function startVoiceCheckin() {
+  voiceIs3 = currentUser.answer_mode === '3scale';
+  voiceQuestions = voiceIs3 ? Q_3SCALE : Q_5SCALE;
+  voiceAnswers = {};
+  voiceQuestionIndex = 0;
+
+  document.getElementById('checkin-questions').style.display = 'none';
+  document.getElementById('btn-checkin-submit').style.display = 'none';
+  document.getElementById('voice-mode-ui').style.display = '';
+  document.getElementById('checkin-subtitle').textContent = '声で答えてください。マイクボタンをタップして話しましょう。';
+
+  document.getElementById('btn-voice-mic').addEventListener('click', startListening);
+  document.getElementById('btn-voice-skip').addEventListener('click', voiceSkipQuestion);
+
+  showVoiceQuestion();
+}
+
+function stopVoiceMode() {
+  if (voiceRecognition) { try { voiceRecognition.abort(); } catch (e) {} voiceRecognition = null; }
+  document.getElementById('voice-mode-ui').style.display = 'none';
+  document.getElementById('checkin-questions').style.display = '';
+  document.getElementById('btn-checkin-submit').style.display = '';
+  document.getElementById('checkin-subtitle').textContent = 'かんたんな質問に答えてください。';
+}
+
+function showVoiceQuestion() {
+  if (voiceQuestionIndex >= voiceQuestions.length) {
+    voiceComplete();
+    return;
+  }
+
+  const q = voiceQuestions[voiceQuestionIndex];
+  document.getElementById('voice-q-icon').textContent = q.icon;
+  document.getElementById('voice-q-text').textContent = q.text.replace(/\n/g, ' ');
+  document.getElementById('voice-progress').textContent =
+    `${voiceQuestionIndex + 1} / ${voiceQuestions.length}`;
+
+  const micBtn = document.getElementById('btn-voice-mic');
+  micBtn.classList.remove('listening');
+  document.getElementById('voice-mic-icon').textContent = '🎤';
+  document.getElementById('voice-mic-label').textContent = 'タップして話す';
+  document.getElementById('voice-transcript').style.display = 'none';
+  document.getElementById('voice-status').textContent = '';
+
+  // Show choices as reference
+  const choicesEl = document.getElementById('voice-choices');
+  if (voiceIs3 && q.choices) {
+    choicesEl.innerHTML = q.choices.map(c =>
+      `<button type="button" class="voice-choice-btn" data-v="${c.value}" onclick="voiceSelectManual(${c.value})">${c.icon} ${c.label}</button>`
+    ).join('');
+  } else {
+    choicesEl.innerHTML = [1, 2, 3, 4, 5].map(v =>
+      `<button type="button" class="voice-choice-btn" data-v="${v}" onclick="voiceSelectManual(${v})">${v}</button>`
+    ).join('');
+  }
+}
+
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+
+  if (voiceRecognition) { try { voiceRecognition.abort(); } catch (e) {} }
+
+  voiceRecognition = new SpeechRecognition();
+  voiceRecognition.lang = 'ja-JP';
+  voiceRecognition.continuous = false;
+  voiceRecognition.interimResults = true;
+  voiceRecognition.maxAlternatives = 3;
+
+  const micBtn = document.getElementById('btn-voice-mic');
+  micBtn.classList.add('listening');
+  document.getElementById('voice-mic-icon').textContent = '🔴';
+  document.getElementById('voice-mic-label').textContent = '聞いています...';
+  document.getElementById('voice-status').textContent = '話してください';
+  document.getElementById('voice-transcript').style.display = '';
+  document.getElementById('voice-transcript').textContent = '...';
+
+  voiceRecognition.onresult = (event) => {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript = event.results[i][0].transcript;
+    }
+    document.getElementById('voice-transcript').textContent = transcript;
+
+    if (event.results[event.resultIndex].isFinal) {
+      processVoiceAnswer(transcript);
+    }
+  };
+
+  voiceRecognition.onerror = (event) => {
+    micBtn.classList.remove('listening');
+    document.getElementById('voice-mic-icon').textContent = '🎤';
+    document.getElementById('voice-mic-label').textContent = 'もう一度タップ';
+
+    if (event.error === 'no-speech') {
+      document.getElementById('voice-status').textContent = '声が聞こえませんでした。もう一度お試しください。';
+    } else if (event.error === 'not-allowed') {
+      document.getElementById('voice-status').textContent = 'マイクの使用が許可されていません。設定を確認してください。';
+    } else {
+      document.getElementById('voice-status').textContent = 'うまく聞き取れませんでした。もう一度お試しください。';
+    }
+  };
+
+  voiceRecognition.onend = () => {
+    micBtn.classList.remove('listening');
+    document.getElementById('voice-mic-icon').textContent = '🎤';
+    document.getElementById('voice-mic-label').textContent = 'タップして話す';
+  };
+
+  voiceRecognition.start();
+}
+
+function processVoiceAnswer(transcript) {
+  const text = transcript.trim().toLowerCase();
+  const q = voiceQuestions[voiceQuestionIndex];
+  let matchedValue = null;
+
+  if (voiceIs3 && q.choices) {
+    // 3-scale matching
+    matchedValue = match3ScaleVoice(text, q);
+  } else {
+    // 5-scale matching
+    matchedValue = match5ScaleVoice(text);
+  }
+
+  if (matchedValue !== null) {
+    voiceAnswers[q.key] = matchedValue;
+
+    // Highlight matched choice
+    document.querySelectorAll('.voice-choice-btn').forEach(btn => {
+      btn.classList.toggle('matched', parseInt(btn.dataset.v) === matchedValue);
+    });
+
+    document.getElementById('voice-status').textContent = '✅ 記録しました';
+
+    // Auto-advance after 1 second
+    setTimeout(() => {
+      voiceQuestionIndex++;
+      showVoiceQuestion();
+    }, 1000);
+  } else {
+    document.getElementById('voice-status').textContent =
+      'うまく聞き取れませんでした。もう一度話すか、ボタンをタップしてください。';
+  }
+}
+
+function match3ScaleVoice(text, q) {
+  // Generic positive/neutral/negative patterns
+  const positiveWords = ['よい', 'いい', 'よく', '良い', '良く', 'すごく', 'たくさん', 'はい', 'うん',
+    'いい気分', 'よく眠れ', 'ぐっすり', '気にならない', '出た', '出ました', '話した', '話しました',
+    '元気', 'ばっちり', '最高', 'よかった', '大丈夫'];
+  const neutralWords = ['ふつう', '普通', 'まあまあ', 'そこそこ', '少し', 'すこし', 'ちょっと',
+    '少しだけ', 'まぁまぁ'];
+  const negativeWords = ['悪い', 'わるい', 'よくない', '良くない', 'だめ', 'ダメ', 'いいえ',
+    '眠れなかった', '出なかった', '出ない', '話さなかった', '話さない', '気になる',
+    'ぜんぜん', '全然', 'ほとんど', '無い', 'ない'];
+
+  // Check specific choice labels first
+  for (const choice of q.choices) {
+    if (text.includes(choice.label) || text.includes(choice.label.replace(/\s/g, ''))) {
+      return choice.value;
+    }
+  }
+
+  // Then check generic patterns
+  for (const w of negativeWords) { if (text.includes(w)) return 1; }
+  for (const w of neutralWords) { if (text.includes(w)) return 2; }
+  for (const w of positiveWords) { if (text.includes(w)) return 3; }
+
+  // Number detection
+  if (text.includes('1') || text.includes('いち') || text.includes('一')) return 1;
+  if (text.includes('2') || text.includes('に') || text.includes('二')) return 2;
+  if (text.includes('3') || text.includes('さん') || text.includes('三')) return 3;
+
+  return null;
+}
+
+function match5ScaleVoice(text) {
+  // Direct number mapping
+  const numMap = { '1': 1, '2': 2, '3': 3, '4': 4, '5': 5,
+    'いち': 1, 'に': 2, 'さん': 3, 'し': 4, 'よん': 4, 'ご': 5,
+    '一': 1, '二': 2, '三': 3, '四': 4, '五': 5 };
+
+  for (const [word, val] of Object.entries(numMap)) {
+    if (text === word || text.includes(word)) return val;
+  }
+
+  // Sentiment-based
+  if (text.includes('最悪') || text.includes('ぜんぜん') || text.includes('全然')) return 1;
+  if (text.includes('あまり') || text.includes('よくない') || text.includes('悪い')) return 2;
+  if (text.includes('ふつう') || text.includes('普通') || text.includes('まあまあ')) return 3;
+  if (text.includes('よい') || text.includes('いい') || text.includes('良い')) return 4;
+  if (text.includes('最高') || text.includes('とても') || text.includes('すごく') || text.includes('ばっちり')) return 5;
+
+  return null;
+}
+
+window.voiceSelectManual = function(value) {
+  const q = voiceQuestions[voiceQuestionIndex];
+  voiceAnswers[q.key] = value;
+
+  document.querySelectorAll('.voice-choice-btn').forEach(btn => {
+    btn.classList.toggle('matched', parseInt(btn.dataset.v) === value);
+  });
+  document.getElementById('voice-status').textContent = '✅ 記録しました';
+
+  setTimeout(() => {
+    voiceQuestionIndex++;
+    showVoiceQuestion();
+  }, 800);
+};
+
+function voiceSkipQuestion() {
+  voiceQuestionIndex++;
+  showVoiceQuestion();
+}
+
+function voiceComplete() {
+  // Fill any skipped answers with middle value
+  voiceQuestions.forEach(q => {
+    if (voiceAnswers[q.key] == null) {
+      voiceAnswers[q.key] = voiceIs3 ? 2 : 3;
+    }
+  });
+
+  // Submit
+  document.getElementById('voice-mode-ui').style.display = 'none';
+  submitCheckin(voiceAnswers, voiceIs3);
+}
+
+// Initialize voice toggle when checkin screen renders (called from renderCheckin)
+function maybeInitVoice() {
+  if (!document.getElementById('btn-voice-toggle')._voiceBound) {
+    initVoiceToggle();
+    document.getElementById('btn-voice-toggle')._voiceBound = true;
+  }
 }
 
 async function submitCheckin(answers, is3) {

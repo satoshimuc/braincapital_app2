@@ -133,8 +133,37 @@
   <!-- ===== Screen: Check-in ===== -->
   <div id="screen-checkin" class="screen">
     <div class="container" style="padding-top:24px;padding-bottom:100px;">
-      <h2 style="font-size:var(--fs-h2);font-weight:700;color:var(--text);margin-bottom:4px;">きょうのチェックイン</h2>
-      <p style="font-size:var(--fs-label);color:var(--text-sub);margin-bottom:24px;">かんたんな質問に答えてください。</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <h2 style="font-size:var(--fs-h2);font-weight:700;color:var(--text);">きょうのチェックイン</h2>
+        <button type="button" class="voice-toggle-btn" id="btn-voice-toggle" aria-label="音声入力モードに切り替える">
+          <span class="voice-toggle-icon">🎤</span>
+          <span class="voice-toggle-label" id="voice-toggle-label">音声</span>
+        </button>
+      </div>
+      <p style="font-size:var(--fs-label);color:var(--text-sub);margin-bottom:24px;" id="checkin-subtitle">かんたんな質問に答えてください。</p>
+
+      <!-- Voice mode UI -->
+      <div id="voice-mode-ui" style="display:none;">
+        <div class="voice-card-container" id="voice-card">
+          <div class="voice-question-icon" id="voice-q-icon"></div>
+          <div class="voice-question-text" id="voice-q-text"></div>
+          <div class="voice-progress" id="voice-progress"></div>
+
+          <button type="button" class="voice-mic-btn" id="btn-voice-mic" aria-label="マイクで回答する">
+            <span class="voice-mic-icon" id="voice-mic-icon">🎤</span>
+            <span class="voice-mic-label" id="voice-mic-label">タップして話す</span>
+          </button>
+
+          <div class="voice-transcript" id="voice-transcript" style="display:none;"></div>
+          <div class="voice-choices" id="voice-choices"></div>
+          <div class="voice-status" id="voice-status"></div>
+
+          <div class="voice-nav" style="margin-top:20px;">
+            <button type="button" class="btn-text" id="btn-voice-skip" style="font-size:var(--fs-label);">スキップ →</button>
+          </div>
+        </div>
+      </div>
+
       <div id="checkin-questions"></div>
       <button type="button" class="btn-primary" id="btn-checkin-submit" disabled>おくる</button>
       <div id="checkin-done" style="display:none;">
