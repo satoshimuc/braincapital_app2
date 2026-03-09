@@ -1945,6 +1945,28 @@
     renderCategory(0);
   });
 
+  // Voice start button on landing page
+  var btnStartVoice = document.getElementById('btn-start-voice');
+  if (btnStartVoice) {
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      btnStartVoice.style.display = 'none';
+    } else {
+      btnStartVoice.addEventListener('click', function () {
+        currentCategoryIndex = 0;
+        sessionId = generateSessionId();
+        console.log('Assessment started (voice), session:', sessionId, 'mode:', currentMode, 'lang:', currentLang);
+        showScreen(screenAssessment);
+        renderCategory(0);
+        // Activate voice mode immediately
+        voiceAssessActive = true;
+        var voiceBtn = document.getElementById('btn-voice-assess');
+        if (voiceBtn) { voiceBtn.classList.add('active'); document.getElementById('voice-assess-icon').textContent = '✕'; }
+        openVoiceAssessMode();
+      });
+    }
+  }
+
   btnNext.addEventListener('click', goNext);
   btnPrev.addEventListener('click', goPrev);
 
