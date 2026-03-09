@@ -1662,6 +1662,238 @@
   }
 
   // ============================================
+  // VOICE INPUT FOR ASSESSMENT
+  // ============================================
+
+  var voiceAssessActive = false;
+  var voiceAssessRecognition = null;
+  var voiceAssessQueueIndex = 0;
+  var voiceAssessQueue = []; // flat array of {qid, text, leftText, rightText, bipolar}
+
+  (function initVoiceAssess() {
+    var voiceBtn = document.getElementById('btn-voice-assess');
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!voiceBtn) return;
+    if (!SpeechRecognition) { voiceBtn.style.display = 'none'; return; }
+
+    voiceBtn.addEventListener('click', function () {
+      voiceAssessActive = !voiceAssessActive;
+      voiceBtn.classList.toggle('active', voiceAssessActive);
+      document.getElementById('voice-assess-icon').textContent = voiceAssessActive ? '✕' : '🎤';
+
+      if (voiceAssessActive) {
+        openVoiceAssessMode();
+      } else {
+        closeVoiceAssessMode();
+      }
+    });
+
+    // Mic button
+    document.getElementById('voice-assess-mic').addEventListener('click', voiceAssessStartListening);
+
+    // Number buttons (manual tap)
+    document.querySelectorAll('.voice-assess-num').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        voiceAssessSelectValue(parseInt(btn.dataset.v));
+      });
+    });
+
+    // Skip button
+    document.getElementById('voice-assess-skip').addEventListener('click', function () {
+      voiceAssessQueueIndex++;
+      voiceAssessShowQuestion();
+    });
+  })();
+
+  function openVoiceAssessMode() {
+    // Build queue from current + remaining categories
+    voiceAssessQueue = [];
+    var activeCats = getActiveCategories();
+    for (var ci = currentCategoryIndex; ci < activeCats.length; ci++) {
+      var cat = activeCats[ci];
+      cat.questions.forEach(function (q) {
+        if (!answers[q.id]) { // skip already answered
+          voiceAssessQueue.push({
+            qid: q.id,
+            text: q.text || '',
+            leftText: q.leftText || '',
+            rightText: q.rightText || '',
+            bipolar: !!cat.bipolar,
+            catName: cat.name,
+            lowLabel: cat.bipolar ? (cat.axis.leftLabel.split('（')[0]) : t('rating-low'),
+            highLabel: cat.bipolar ? (cat.axis.rightLabel.split('（')[0]) : t('rating-high')
+          });
+        }
+      });
+    }
+    voiceAssessQueueIndex = 0;
+
+    if (voiceAssessQueue.length === 0) {
+      // All answered
+      closeVoiceAssessMode();
+      return;
+    }
+
+    document.getElementById('voice-assess-overlay').style.display = '';
+    voiceAssessShowQuestion();
+  }
+
+  function closeVoiceAssessMode() {
+    if (voiceAssessRecognition) { try { voiceAssessRecognition.abort(); } catch (e) {} voiceAssessRecognition = null; }
+    document.getElementById('voice-assess-overlay').style.display = 'none';
+    voiceAssessActive = false;
+    var voiceBtn = document.getElementById('btn-voice-assess');
+    if (voiceBtn) { voiceBtn.classList.remove('active'); document.getElementById('voice-assess-icon').textContent = '🎤'; }
+
+    // Re-render current category to reflect new answers
+    renderCategory(currentCategoryIndex);
+  }
+
+  function voiceAssessShowQuestion() {
+    if (voiceAssessQueueIndex >= voiceAssessQueue.length) {
+      // All done
+      closeVoiceAssessMode();
+      return;
+    }
+
+    var item = voiceAssessQueue[voiceAssessQueueIndex];
+    document.getElementById('voice-assess-qid').textContent = item.qid;
+
+    if (item.bipolar) {
+      document.getElementById('voice-assess-qtext').textContent = item.leftText + '　←→　' + item.rightText;
+    } else {
+      document.getElementById('voice-assess-qtext').textContent = item.text;
+    }
+
+    document.getElementById('voice-assess-low').textContent = item.lowLabel;
+    document.getElementById('voice-assess-high').textContent = item.highLabel;
+
+    var total = voiceAssessQueue.length;
+    var done = voiceAssessQueueIndex;
+    document.getElementById('voice-assess-counter').textContent = (done + 1) + ' / ' + total;
+
+    // Reset UI
+    document.querySelectorAll('.voice-assess-num').forEach(function (b) { b.classList.remove('matched'); });
+    var micBtn = document.getElementById('voice-assess-mic');
+    micBtn.classList.remove('listening');
+    document.getElementById('voice-assess-mic-icon').textContent = '🎤';
+    document.getElementById('voice-assess-mic-label').textContent = 'タップして話す';
+    document.getElementById('voice-assess-transcript').style.display = 'none';
+    document.getElementById('voice-assess-status').textContent = '';
+  }
+
+  function voiceAssessStartListening() {
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    if (voiceAssessRecognition) { try { voiceAssessRecognition.abort(); } catch (e) {} }
+
+    voiceAssessRecognition = new SpeechRecognition();
+    voiceAssessRecognition.lang = 'ja-JP';
+    voiceAssessRecognition.continuous = false;
+    voiceAssessRecognition.interimResults = true;
+    voiceAssessRecognition.maxAlternatives = 3;
+
+    var micBtn = document.getElementById('voice-assess-mic');
+    micBtn.classList.add('listening');
+    document.getElementById('voice-assess-mic-icon').textContent = '🔴';
+    document.getElementById('voice-assess-mic-label').textContent = '聞いています...';
+    document.getElementById('voice-assess-status').textContent = '話してください（1〜5の数字、または言葉で）';
+    document.getElementById('voice-assess-transcript').style.display = '';
+    document.getElementById('voice-assess-transcript').textContent = '...';
+
+    voiceAssessRecognition.onresult = function (event) {
+      var transcript = '';
+      for (var i = event.resultIndex; i < event.results.length; i++) {
+        transcript = event.results[i][0].transcript;
+      }
+      document.getElementById('voice-assess-transcript').textContent = transcript;
+
+      if (event.results[event.resultIndex].isFinal) {
+        voiceAssessProcessAnswer(transcript);
+      }
+    };
+
+    voiceAssessRecognition.onerror = function (event) {
+      micBtn.classList.remove('listening');
+      document.getElementById('voice-assess-mic-icon').textContent = '🎤';
+      document.getElementById('voice-assess-mic-label').textContent = 'もう一度';
+      if (event.error === 'no-speech') {
+        document.getElementById('voice-assess-status').textContent = '声が聞こえませんでした。もう一度お試しください。';
+      } else if (event.error === 'not-allowed') {
+        document.getElementById('voice-assess-status').textContent = 'マイクが許可されていません。ブラウザの設定を確認してください。';
+      } else {
+        document.getElementById('voice-assess-status').textContent = 'うまく聞き取れませんでした。もう一度お試しください。';
+      }
+    };
+
+    voiceAssessRecognition.onend = function () {
+      micBtn.classList.remove('listening');
+      document.getElementById('voice-assess-mic-icon').textContent = '🎤';
+      document.getElementById('voice-assess-mic-label').textContent = 'タップして話す';
+    };
+
+    voiceAssessRecognition.start();
+  }
+
+  function voiceAssessProcessAnswer(transcript) {
+    var text = transcript.trim().toLowerCase();
+    var matched = voiceAssessMatch(text);
+
+    if (matched !== null) {
+      voiceAssessSelectValue(matched);
+    } else {
+      document.getElementById('voice-assess-status').textContent =
+        'うまく聞き取れませんでした。1〜5の数字で答えるか、ボタンをタップしてください。';
+    }
+  }
+
+  function voiceAssessMatch(text) {
+    // Direct numbers
+    var numMap = {
+      '1': 1, '2': 2, '3': 3, '4': 4, '5': 5,
+      'いち': 1, 'に': 2, 'さん': 3, 'し': 4, 'よん': 4, 'ご': 5,
+      '一': 1, '二': 2, '三': 3, '四': 4, '五': 5
+    };
+    for (var word in numMap) {
+      if (text === word || text.includes(word)) return numMap[word];
+    }
+
+    // Sentiment words
+    if (text.includes('まったく') || text.includes('全く') || text.includes('ぜんぜん') || text.includes('全然')) return 1;
+    if (text.includes('あまり') || text.includes('少し当て')) return 2;
+    if (text.includes('どちらとも') || text.includes('ふつう') || text.includes('普通') || text.includes('半々')) return 3;
+    if (text.includes('やや') || text.includes('まあまあ') || text.includes('当てはまる')) return 4;
+    if (text.includes('非常に') || text.includes('とても') || text.includes('すごく') || text.includes('かなり')) return 5;
+
+    return null;
+  }
+
+  function voiceAssessSelectValue(value) {
+    var item = voiceAssessQueue[voiceAssessQueueIndex];
+    if (!item) return;
+
+    // Record answer
+    answers[item.qid] = value;
+    saveAnswerToDB(item.qid, value);
+
+    // Highlight number
+    document.querySelectorAll('.voice-assess-num').forEach(function (b) {
+      b.classList.toggle('matched', parseInt(b.dataset.v) === value);
+    });
+    document.getElementById('voice-assess-status').textContent = '✅ 記録しました';
+
+    // Update category rendering in background
+    updateProgress();
+    updateNavButtons();
+
+    // Auto-advance
+    setTimeout(function () {
+      voiceAssessQueueIndex++;
+      voiceAssessShowQuestion();
+    }, 800);
+  }
+
+  // ============================================
   // EVENT LISTENERS
   // ============================================
 

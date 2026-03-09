@@ -147,6 +147,9 @@
           <span id="progress-text" class="progress-text">0 / 78</span>
         </div>
         <div class="header-right">
+          <button type="button" id="btn-voice-assess" class="btn-voice-assess" aria-label="音声入力モード" title="音声入力">
+            <span id="voice-assess-icon">🎤</span>
+          </button>
           <span id="part-indicator" class="part-indicator">Part 1</span>
         </div>
       </header>
@@ -159,6 +162,35 @@
           </div>
           <h2 id="category-title" class="category-title">睡眠と回復</h2>
           <p id="category-description" class="category-description"></p>
+        </div>
+
+        <!-- Voice overlay for assessment -->
+        <div id="voice-assess-overlay" class="voice-assess-overlay" style="display:none;">
+          <div class="voice-assess-card">
+            <div class="voice-assess-q-id" id="voice-assess-qid"></div>
+            <div class="voice-assess-q-text" id="voice-assess-qtext"></div>
+            <button type="button" class="voice-assess-mic" id="voice-assess-mic" aria-label="マイクで回答">
+              <span class="voice-assess-mic-icon" id="voice-assess-mic-icon">🎤</span>
+              <span class="voice-assess-mic-label" id="voice-assess-mic-label">タップして話す</span>
+            </button>
+            <div class="voice-assess-transcript" id="voice-assess-transcript" style="display:none;"></div>
+            <div class="voice-assess-rating">
+              <button type="button" class="voice-assess-num" data-v="1">1</button>
+              <button type="button" class="voice-assess-num" data-v="2">2</button>
+              <button type="button" class="voice-assess-num" data-v="3">3</button>
+              <button type="button" class="voice-assess-num" data-v="4">4</button>
+              <button type="button" class="voice-assess-num" data-v="5">5</button>
+            </div>
+            <div class="voice-assess-labels">
+              <span id="voice-assess-low"></span>
+              <span id="voice-assess-high"></span>
+            </div>
+            <div class="voice-assess-status" id="voice-assess-status"></div>
+            <div class="voice-assess-nav">
+              <button type="button" class="btn-text" id="voice-assess-skip">スキップ</button>
+              <span class="voice-assess-counter" id="voice-assess-counter"></span>
+            </div>
+          </div>
         </div>
 
         <div id="questions-container" class="questions-container">

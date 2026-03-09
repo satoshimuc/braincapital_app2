@@ -2038,3 +2038,156 @@ strong {
 .org-banner-label {
   opacity: 0.9;
 }
+
+/* ================================================
+   Voice Input Mode for Assessment
+   ================================================ */
+.btn-voice-assess {
+  background: none;
+  border: 2px solid var(--gray-300);
+  border-radius: 8px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 8px;
+  transition: all 0.15s;
+}
+.btn-voice-assess:hover { border-color: var(--gray-600); }
+.btn-voice-assess.active {
+  background: var(--black);
+  border-color: var(--black);
+}
+
+.voice-assess-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.97);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.voice-assess-card {
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.voice-assess-q-id {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-400);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.voice-assess-q-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  min-height: 60px;
+}
+
+.voice-assess-mic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: var(--gray-50);
+  border: 3px solid var(--gray-300);
+  cursor: pointer;
+  margin: 0 auto 20px;
+  transition: all 0.2s;
+}
+.voice-assess-mic:hover { border-color: var(--gray-600); background: var(--gray-100); }
+.voice-assess-mic.listening {
+  background: #FFF0F0;
+  border-color: #E53935;
+  animation: va-pulse 1.5s ease-in-out infinite;
+}
+.voice-assess-mic-icon { font-size: 36px; line-height: 1; }
+.voice-assess-mic-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+.voice-assess-mic.listening .voice-assess-mic-label { color: #E53935; }
+
+@keyframes va-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229,57,53,0.25); }
+  50% { transform: scale(1.06); box-shadow: 0 0 0 14px rgba(229,57,53,0); }
+}
+
+.voice-assess-transcript {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--black);
+  padding: 10px 16px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  margin: 0 auto 16px;
+  min-height: 40px;
+  max-width: 400px;
+}
+
+.voice-assess-rating {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 12px 0 4px;
+}
+.voice-assess-num {
+  width: 52px; height: 52px;
+  border-radius: 10px;
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.voice-assess-num:hover { border-color: var(--gray-400); }
+.voice-assess-num.matched {
+  background: var(--black);
+  border-color: var(--black);
+  color: #FFF;
+}
+
+.voice-assess-labels {
+  display: flex;
+  justify-content: space-between;
+  max-width: 300px;
+  margin: 0 auto 12px;
+  font-size: 11px;
+  color: var(--gray-400);
+}
+
+.voice-assess-status {
+  font-size: 14px;
+  color: var(--gray-500);
+  min-height: 20px;
+  margin-top: 8px;
+}
+
+.voice-assess-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+.voice-assess-counter {
+  font-size: 13px;
+  color: var(--gray-400);
+  font-weight: 600;
+}
