@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/mcp.mjs": {
+    "api/mcp.js": {
       "includeFiles": "chatgpt-app/widget.html"
     }
   },
