@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/mcp.mjs": {
+      "includeFiles": "chatgpt-app/widget.html"
+    }
+  },
   "rewrites": [
     { "source": "/app", "destination": "/index.html" },
     { "source": "/app/", "destination": "/index.html" },

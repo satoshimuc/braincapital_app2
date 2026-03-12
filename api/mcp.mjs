@@ -1,12 +1,16 @@
 // MCP Server for UNLOCK Brain Capital Check - Apps in ChatGPT
 // Endpoint: /api/mcp
 
-const { McpServer } = require("@modelcontextprotocol/sdk/server/mcp.js");
-const { StreamableHTTPServerTransport } = require("@modelcontextprotocol/sdk/server/streamableHttp.js");
-const { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } = require("@modelcontextprotocol/ext-apps/server");
-const { z } = require("zod");
-const fs = require("fs");
-const path = require("path");
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from "@modelcontextprotocol/ext-apps/server";
+import { z } from "zod";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // ── Supabase config ──
 const SUPABASE_URL = "https://kffeqhnbpedixdvbdcug.supabase.co";
@@ -82,12 +86,12 @@ async function fetchHistory(userId) {
   return response.json();
 }
 
-// ── Widget HTML ──
+// ── Widget HTML (loaded once) ──
 let widgetHtml;
 function getWidgetHtml() {
   if (!widgetHtml) {
-    const widgetPath = path.join(__dirname, "..", "chatgpt-app", "widget.html");
-    widgetHtml = fs.readFileSync(widgetPath, "utf-8");
+    const widgetPath = join(__dirname, "..", "chatgpt-app", "widget.html");
+    widgetHtml = readFileSync(widgetPath, "utf-8");
   }
   return widgetHtml;
 }
@@ -304,7 +308,7 @@ function createServer() {
 }
 
 // ── Vercel Serverless Handler ──
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // CORS for ChatGPT
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
@@ -335,4 +339,4 @@ module.exports = async function handler(req, res) {
       res.status(500).json({ error: "Internal server error" });
     }
   }
-};
+}
