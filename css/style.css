@@ -2042,29 +2042,34 @@ strong {
 /* ================================================
    Voice Input Mode for Assessment
    ================================================ */
-.btn-voice-start {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+.landing-footer .btn-primary,
+.landing-footer .btn-voice-start {
+  display: block;
   width: 100%;
-  padding: 14px 24px;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+.btn-voice-start {
+  padding: 16px 48px;
   margin-top: 10px;
   background: transparent;
   color: var(--black);
   border: 2px solid var(--gray-300);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-sans);
   font-size: 15px;
   font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
 }
 .btn-voice-start:hover {
   border-color: var(--gray-600);
   background: var(--gray-50);
 }
-.btn-voice-start-icon { font-size: 20px; }
 
 .btn-voice-assess {
   background: none;

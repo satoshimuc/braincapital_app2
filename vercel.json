@@ -32,6 +32,8 @@
     { "source": "/senior/care/", "destination": "/senior/care.html" },
     { "source": "/senior/org", "destination": "/senior/org.html" },
     { "source": "/senior/org/", "destination": "/senior/org.html" },
+    { "source": "/chatgpt/privacy", "destination": "/chatgpt-app/privacy.html" },
+    { "source": "/chatgpt/privacy/", "destination": "/chatgpt-app/privacy.html" },
     { "source": "/", "destination": "/lp/index.html" }
   ],
   "headers": [
