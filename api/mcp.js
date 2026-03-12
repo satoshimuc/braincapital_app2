@@ -1,8 +1,7 @@
 // MCP Server for UNLOCK Brain Capital Check - Apps in ChatGPT
 // Endpoint: /api/mcp
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { createMcpHandler } from "mcp-handler";
 import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from "@modelcontextprotocol/ext-apps/server";
 import { z } from "zod";
 import { readFileSync } from "fs";
@@ -96,220 +95,212 @@ function getWidgetHtml() {
   return widgetHtml;
 }
 
-// ── Create MCP Server ──
-function createServer() {
-  const server = new McpServer({
-    name: "UNLOCK Brain Capital チェック",
-    version: "1.0.0",
-  });
-
-  // Register widget resource
-  registerAppResource(
-    server,
-    "Brain Capital Check Widget",
-    "ui://brain-capital/check.html",
-    {
-      description: "Brain Capital セルフチェック ウィジェット",
-    },
-    async () => ({
-      contents: [
-        {
-          uri: "ui://brain-capital/check.html",
-          mimeType: RESOURCE_MIME_TYPE,
-          text: getWidgetHtml(),
-          _meta: {
-            ui: {
-              csp: {
-                connectDomains: ["https://kffeqhnbpedixdvbdcug.supabase.co"],
+// ── Vercel Route Handler via mcp-handler ──
+const handler = createMcpHandler(
+  (server) => {
+    // Register widget resource
+    registerAppResource(
+      server,
+      "Brain Capital Check Widget",
+      "ui://brain-capital/check.html",
+      {
+        description: "Brain Capital セルフチェック ウィジェット",
+      },
+      async () => ({
+        contents: [
+          {
+            uri: "ui://brain-capital/check.html",
+            mimeType: RESOURCE_MIME_TYPE,
+            text: getWidgetHtml(),
+            _meta: {
+              ui: {
+                csp: {
+                  connectDomains: ["https://kffeqhnbpedixdvbdcug.supabase.co"],
+                },
               },
             },
           },
-        },
-      ],
-    })
-  );
-
-  // Tool: Start Brain Check - shows the interactive widget
-  registerAppTool(
-    server,
-    "start_brain_check",
-    {
-      title: "Brain Capital チェック開始",
-      description: "5つの質問で脳の健康状態をセルフチェックするウィジェットを表示します。ユーザーが「脳チェック」「Brainチェック」「診断」「脳の健康」などと言ったときに使用してください。",
-      _meta: {
-        ui: {
-          resourceUri: "ui://brain-capital/check.html",
-        },
-      },
-    },
-    async () => {
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              action: "start_check",
-              items: BRAIN_CHECK_ITEMS,
-              scale: {
-                min: 1,
-                max: 5,
-                labels: {
-                  1: "まったく当てはまらない",
-                  2: "あまり当てはまらない",
-                  3: "どちらともいえない",
-                  4: "やや当てはまる",
-                  5: "とても当てはまる",
-                },
-              },
-            }),
-          },
         ],
-      };
-    }
-  );
+      })
+    );
 
-  // Tool: Submit Brain Check answers
-  registerAppTool(
-    server,
-    "submit_brain_check",
-    {
-      title: "Brain Capital チェック送信",
-      description: "5項目の回答を送信してスコアを算出・保存します。ウィジェットから呼び出されます。",
-      inputSchema: {
-        bc01: z.number().min(1).max(5).describe("睡眠と回復のスコア"),
-        bc02: z.number().min(1).max(5).describe("運動と身体活動のスコア"),
-        bc03: z.number().min(1).max(5).describe("ストレスとメンタルヘルスのスコア"),
-        bc04: z.number().min(1).max(5).describe("栄養と脳の燃料のスコア"),
-        bc05: z.number().min(1).max(5).describe("休息とリカバリーのスコア"),
-      },
-      _meta: {
-        ui: {
-          resourceUri: "ui://brain-capital/check.html",
-          visibility: ["app"],
+    // Tool: Start Brain Check
+    registerAppTool(
+      server,
+      "start_brain_check",
+      {
+        title: "Brain Capital チェック開始",
+        description: "5つの質問で脳の健康状態をセルフチェックするウィジェットを表示します。ユーザーが「脳チェック」「Brainチェック」「診断」「脳の健康」などと言ったときに使用してください。",
+        _meta: {
+          ui: {
+            resourceUri: "ui://brain-capital/check.html",
+          },
         },
       },
-    },
-    async ({ bc01, bc02, bc03, bc04, bc05 }) => {
-      const answers = { "BC-01": bc01, "BC-02": bc02, "BC-03": bc03, "BC-04": bc04, "BC-05": bc05 };
-      const total = bc01 + bc02 + bc03 + bc04 + bc05;
-      const { level, label } = getLevel(total);
-      const percentage = Math.round((total / 25) * 100);
-
-      const categories = BRAIN_CHECK_ITEMS.map((item) => {
-        const score = answers[item.id];
-        return {
-          id: item.id,
-          category: item.category,
-          label: item.label,
-          score,
-          advice: getAdvice(item.category, score),
-        };
-      });
-
-      const strengths = categories.filter((c) => c.score >= 4).map((c) => c.label);
-      const weaknesses = categories.filter((c) => c.score <= 2).map((c) => c.label);
-
-      // Save to Supabase
-      const sessionId = `chatgpt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      try {
-        await saveToSupabase({
-          session_id: sessionId,
-          line_uid: "chatgpt-anonymous",
-          display_name: "ChatGPT User",
-          total,
-          health_total: total,
-          skills_total: 0,
-          level,
-          level_label: label,
-          type: level,
-          categories: Object.fromEntries(categories.map((c) => [c.category, c.score])),
-          answers,
-          org_code: "chatgpt",
-        });
-      } catch (e) {
-        console.error("Supabase save error:", e);
-      }
-
-      const result = {
-        sessionId,
-        total,
-        maxScore: 25,
-        percentage,
-        level,
-        levelLabel: label,
-        categories,
-        strengths,
-        weaknesses,
-        message: getResultMessage(level),
-      };
-
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }],
-      };
-    }
-  );
-
-  // Tool: Get history
-  registerAppTool(
-    server,
-    "get_brain_check_history",
-    {
-      title: "過去の結果を取得",
-      description: "過去のBrain Capitalチェック結果を取得します。ユーザーが「過去の結果」「履歴」「トレンド」と言ったときに使用してください。",
-      inputSchema: {
-        user_id: z.string().optional().describe("ユーザーID（省略時はchatgpt-anonymous）"),
-      },
-      _meta: {
-        ui: {
-          resourceUri: "ui://brain-capital/check.html",
-        },
-      },
-    },
-    async ({ user_id }) => {
-      const userId = user_id || "chatgpt-anonymous";
-      try {
-        const records = await fetchHistory(userId);
-        const history = records.map((r) => ({
-          date: r.created_at,
-          total: r.total,
-          level: r.level,
-          levelLabel: r.level_label,
-          categories: r.categories,
-        }));
-
+      async () => {
         return {
           content: [
             {
               type: "text",
               text: JSON.stringify({
-                count: history.length,
-                history,
-                trend:
-                  history.length >= 2
-                    ? history[0].total > history[1].total
-                      ? "improving"
-                      : history[0].total < history[1].total
-                      ? "declining"
-                      : "stable"
-                    : "insufficient_data",
+                action: "start_check",
+                items: BRAIN_CHECK_ITEMS,
+                scale: {
+                  min: 1,
+                  max: 5,
+                  labels: {
+                    1: "まったく当てはまらない",
+                    2: "あまり当てはまらない",
+                    3: "どちらともいえない",
+                    4: "やや当てはまる",
+                    5: "とても当てはまる",
+                  },
+                },
               }),
             },
           ],
         };
-      } catch (e) {
+      }
+    );
+
+    // Tool: Submit Brain Check answers
+    registerAppTool(
+      server,
+      "submit_brain_check",
+      {
+        title: "Brain Capital チェック送信",
+        description: "5項目の回答を送信してスコアを算出・保存します。ウィジェットから呼び出されます。",
+        inputSchema: {
+          bc01: z.number().min(1).max(5).describe("睡眠と回復のスコア"),
+          bc02: z.number().min(1).max(5).describe("運動と身体活動のスコア"),
+          bc03: z.number().min(1).max(5).describe("ストレスとメンタルヘルスのスコア"),
+          bc04: z.number().min(1).max(5).describe("栄養と脳の燃料のスコア"),
+          bc05: z.number().min(1).max(5).describe("休息とリカバリーのスコア"),
+        },
+        _meta: {
+          ui: {
+            resourceUri: "ui://brain-capital/check.html",
+            visibility: ["app"],
+          },
+        },
+      },
+      async ({ bc01, bc02, bc03, bc04, bc05 }) => {
+        const answers = { "BC-01": bc01, "BC-02": bc02, "BC-03": bc03, "BC-04": bc04, "BC-05": bc05 };
+        const total = bc01 + bc02 + bc03 + bc04 + bc05;
+        const { level, label } = getLevel(total);
+        const percentage = Math.round((total / 25) * 100);
+
+        const categories = BRAIN_CHECK_ITEMS.map((item) => {
+          const score = answers[item.id];
+          return {
+            id: item.id,
+            category: item.category,
+            label: item.label,
+            score,
+            advice: getAdvice(item.category, score),
+          };
+        });
+
+        const strengths = categories.filter((c) => c.score >= 4).map((c) => c.label);
+        const weaknesses = categories.filter((c) => c.score <= 2).map((c) => c.label);
+
+        const sessionId = `chatgpt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        try {
+          await saveToSupabase({
+            session_id: sessionId,
+            line_uid: "chatgpt-anonymous",
+            display_name: "ChatGPT User",
+            total,
+            health_total: total,
+            skills_total: 0,
+            level,
+            level_label: label,
+            type: level,
+            categories: Object.fromEntries(categories.map((c) => [c.category, c.score])),
+            answers,
+            org_code: "chatgpt",
+          });
+        } catch (e) {
+          console.error("Supabase save error:", e);
+        }
+
         return {
-          content: [{ type: "text", text: JSON.stringify({ error: e.message }) }],
+          content: [{ type: "text", text: JSON.stringify({
+            sessionId, total, maxScore: 25, percentage, level, levelLabel: label,
+            categories, strengths, weaknesses, message: getResultMessage(level),
+          }) }],
         };
       }
-    }
-  );
+    );
 
-  return server;
-}
+    // Tool: Get history
+    registerAppTool(
+      server,
+      "get_brain_check_history",
+      {
+        title: "過去の結果を取得",
+        description: "過去のBrain Capitalチェック結果を取得します。ユーザーが「過去の結果」「履歴」「トレンド」と言ったときに使用してください。",
+        inputSchema: {
+          user_id: z.string().optional().describe("ユーザーID（省略時はchatgpt-anonymous）"),
+        },
+        _meta: {
+          ui: {
+            resourceUri: "ui://brain-capital/check.html",
+          },
+        },
+      },
+      async ({ user_id }) => {
+        const userId = user_id || "chatgpt-anonymous";
+        try {
+          const records = await fetchHistory(userId);
+          const history = records.map((r) => ({
+            date: r.created_at,
+            total: r.total,
+            level: r.level,
+            levelLabel: r.level_label,
+            categories: r.categories,
+          }));
 
-// ── Vercel Serverless Handler ──
-export default async function handler(req, res) {
-  // CORS for ChatGPT
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify({
+                  count: history.length,
+                  history,
+                  trend:
+                    history.length >= 2
+                      ? history[0].total > history[1].total
+                        ? "improving"
+                        : history[0].total < history[1].total
+                        ? "declining"
+                        : "stable"
+                      : "insufficient_data",
+                }),
+              },
+            ],
+          };
+        } catch (e) {
+          return {
+            content: [{ type: "text", text: JSON.stringify({ error: e.message }) }],
+          };
+        }
+      }
+    );
+  },
+  {
+    name: "UNLOCK Brain Capital チェック",
+    version: "1.0.0",
+  },
+  {
+    basePath: "/api",
+    verboseLogs: true,
+  }
+);
+
+// ── Adapter: Vercel Serverless (req, res) → Web API (Request → Response) ──
+export default async function vercelHandler(req, res) {
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id");
@@ -319,24 +310,50 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
-  // Only POST and GET are valid for MCP StreamableHTTP
-  if (req.method !== "POST" && req.method !== "GET" && req.method !== "DELETE") {
-    res.setHeader("Allow", "GET, POST, DELETE, OPTIONS");
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
   try {
-    const server = createServer();
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: undefined, // Stateless mode for Vercel
+    // Build Web API Request from Vercel req
+    const protocol = req.headers["x-forwarded-proto"] || "https";
+    const host = req.headers.host;
+    const url = `${protocol}://${host}${req.url}`;
+
+    const headers = new Headers();
+    for (const [key, value] of Object.entries(req.headers)) {
+      if (value) headers.set(key, Array.isArray(value) ? value.join(", ") : value);
+    }
+
+    const init = { method: req.method, headers };
+    if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "DELETE") {
+      init.body = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    }
+
+    const webRequest = new Request(url, init);
+    const webResponse = await handler(webRequest);
+
+    // Write Web API Response back to Vercel res
+    res.status(webResponse.status);
+    webResponse.headers.forEach((value, key) => {
+      res.setHeader(key, value);
     });
 
-    await server.connect(transport);
-    await transport.handleRequest(req, res);
+    // Stream the response body
+    if (webResponse.body) {
+      const reader = webResponse.body.getReader();
+      const pump = async () => {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) { res.end(); break; }
+          res.write(value);
+        }
+      };
+      await pump();
+    } else {
+      const text = await webResponse.text();
+      res.end(text);
+    }
   } catch (error) {
-    console.error("MCP server error:", error);
+    console.error("MCP handler error:", error);
     if (!res.headersSent) {
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Internal server error", details: error.message });
     }
   }
 }
