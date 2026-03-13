@@ -572,6 +572,148 @@ a047907 法人向け組織コード機能を追加
 
 ---
 
+## js/app.js 主要関数リファレンス
+
+| 関数名 | 説明 |
+|--------|------|
+| `t(key)` | i18n翻訳ヘルパー |
+| `applyI18N()` | DOM全体に言語翻訳を適用 |
+| `getActiveCategories()` | 現在のモードに応じた質問カテゴリを返す |
+| `getTotalQuestions()` | 現在のモードの質問総数を返す |
+| `renderCategory(index)` | 指定カテゴリの質問UIを描画 |
+| `showScreen(screen)` | 画面遷移管理 |
+| `generateSessionId()` | ユニークなセッションIDを生成 |
+| `renderRatingButtons(scale)` | 1-5スケールUIを生成 |
+| `saveToBrowser()` | LocalStorageに回答を保存 |
+| `loadFromBrowser()` | 前回セッションの回答を復元 |
+| `submitAssessment()` | スコア計算 → Supabase保存 → 結果画面表示 |
+| `calculateScores()` | Health/Skills合計とレベルを算出 |
+| `calculateBrainType(answers)` | 4軸から16タイプを判定 |
+| `getTypeCompatibility(typeCode)` | 相性の良いタイプを返す |
+| `generateAIPrompt(results)` | ChatGPT/Claude用プロンプト生成 |
+| `copyToClipboard(text)` | クリップボードにコピー |
+| `shareToLINE(message, title)` | LINE共有 |
+| `shareToX(message)` | X/Twitter共有 |
+| `liffGetProfile()` | LINE LIFFでユーザー情報取得 |
+| `fetchHistoryFromSupabase(lineUid)` | 過去の診断結果を取得 |
+| `handleVoiceInput(questionId)` | Web Speech APIで音声入力 |
+
+### 主要データ構造
+
+```javascript
+// js/app.js 内のグローバルオブジェクト
+CATEGORIES     // 10カテゴリ + 4軸、78問の質問定義
+MODE_CONFIG    // 'type'(48問), 'capital'(30問), 'both'(78問)の設定
+LEVEL_MAP      // スコア → S/A/B/C/Dレベルのマッピング
+TYPE_INFO      // 4つのバランスタイプ(S/A/B/D)の説明
+BRAIN_TYPE_INFO    // 16タイプの名前・説明・特徴
+BRAIN_TYPE_COMPAT  // タイプ相性マトリクス(best/good/grow)
+NARRATIVE      // カテゴリ別・スコア別のフィードバック文
+i18n           // 日英翻訳辞書（200+エントリ）
+```
+
+---
+
+## スコアリングアルゴリズム詳細
+
+```javascript
+// Brain Health + Brain Skills (各15問 × 5点 = 各75点 → 合計150点)
+health_total = sum(categories A-E)  // max 75
+skills_total = sum(categories F-J)  // max 75
+total = health_total + skills_total // max 150
+
+// レベル判定
+S (Elite):      121-150点
+A (Strong):      91-120点
+B (Developing):  61-90点
+C (At Risk):     31-60点
+D (Critical):     0-30点
+
+// バランスタイプ (2×2マトリクス)
+health_pct = health_total / 75
+skills_pct = skills_total / 75
+Type S: health_pct >= 0.7 && skills_pct >= 0.7  // 理想型
+Type A: health_pct >= 0.7 && skills_pct <  0.7  // 土台充実型
+Type B: health_pct <  0.7 && skills_pct >= 0.7  // スキル偏重型
+Type D: health_pct <  0.7 && skills_pct <  0.7  // 要改善型
+
+// Brain Type (4軸 × 各12問の平均)
+K軸: avg < 3 → 'S' (Sensor),    avg >= 3 → 'N' (iNtuitor)
+L軸: avg < 3 → 'A' (Analyzer),  avg >= 3 → 'H' (Holistic)
+M軸: avg < 3 → 'L' (Logical),   avg >= 3 → 'E' (Empathic)
+N軸: avg < 3 → 'P' (Planner),   avg >= 3 → 'F' (Flexer)
+→ 4文字コード生成 (例: SALP, NHEF 等、計16通り)
+```
+
+---
+
+## データフローとアーキテクチャ
+
+```
+┌─────────────────────────────────────────────────┐
+│  クライアント (ブラウザ)                           │
+│  ├── index.html + js/app.js (メイン診断)          │
+│  ├── {vertical}/index.html (各バーティカル)        │
+│  ├── admin.html (管理画面)                        │
+│  └── lp/index.html (ランディングページ)            │
+│       │                                          │
+│       ├── Supabase JS SDK (CDN) ─────────────┐   │
+│       ├── LINE LIFF SDK (CDN)                │   │
+│       └── Chart.js (CDN)                     │   │
+└──────────────────────────────────────────────┼───┘
+                                               │
+                                               ▼
+                                    ┌──────────────────┐
+                                    │  Supabase         │
+                                    │  (PostgreSQL)     │
+                                    │  - REST API       │
+                                    │  - RLS Policies   │
+                                    └──────────────────┘
+                                               ▲
+                                               │
+┌──────────────────────────────────────────────┼───┐
+│  Vercel Serverless                           │   │
+│  └── /api/mcp.js ────────────────────────────┘   │
+│       ▲                                          │
+│       │ MCP Protocol                             │
+│       │                                          │
+└───────┼──────────────────────────────────────────┘
+        │
+┌───────┴──────────┐
+│  ChatGPT Apps    │
+│  (5問チェック)    │
+└──────────────────┘
+```
+
+### データ永続化戦略
+
+| レイヤー | 用途 | タイミング |
+|----------|------|-----------|
+| LocalStorage | 回答の一時保存（自動セーブ） | 質問回答ごと |
+| Supabase | 最終結果 + 履歴 | 診断完了時 |
+| LINE LIFF | ユーザーID（任意） | 初回アクセス時 |
+| URLパラメータ | `?org=XXXX`（組織コード）, `?lang=en`（言語） | アクセス時 |
+
+---
+
+## セキュリティに関する注意事項
+
+### 現状（MVP）
+- Supabase RLSは全操作を許可（anonキー）
+- LIFF認証は任意（フォールバック: 匿名）
+- 管理パスワードはクライアント側SHA-256ハッシュ
+- `supabase-config.js` に公開キーを直接記載
+
+### 本番化時の推奨事項
+1. Supabase Authの有効化（email/OAuth）
+2. 細粒度RLS（ユーザー/組織/ロール別）
+3. 管理認証をサーバーサイドに移動
+4. 健康データの暗号化
+5. レート制限（スパム防止）
+6. 環境変数化（Vercel Environment Variables）
+
+---
+
 ## 新しいセッションでの作業開始手順
 
 1. リポジトリをクローン
@@ -580,3 +722,16 @@ a047907 法人向け組織コード機能を追加
 4. 変更対象のファイルを特定して編集
 5. `npx serve .` でローカル確認
 6. コミット & プッシュ → Vercelで自動デプロイ
+
+### よくある変更パターン
+
+| やりたいこと | 変更ファイル |
+|-------------|-------------|
+| 質問の追加・変更 | `js/app.js` の `CATEGORIES` |
+| スコア計算ロジック変更 | `js/app.js` の `calculateScores()` |
+| 結果画面のUI変更 | `index.html` の Screen 3 + `css/style.css` |
+| 新バーティカル追加 | 新ディレクトリ作成 + `vercel.json` にルート追加 + SQLマイグレーション |
+| MCPツール追加 | `api/mcp.js` |
+| DBスキーマ変更 | `supabase/migration_0XX_*.sql` を新規作成 |
+| ランディングページ変更 | `lp/index.html` + `lp/style.css` |
+| 多言語対応追加 | `js/app.js` の `i18n` オブジェクト |
