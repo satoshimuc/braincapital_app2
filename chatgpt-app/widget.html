@@ -255,7 +255,7 @@
   <div class="header">
     <div class="header-icon">🧠</div>
     <h1>UNLOCK Brain Capital チェック</h1>
-    <p>5つの質問で脳の健康状態をセルフチェック</p>
+    <p>5つの質問で日々の生産性習慣をセルフリフレクション</p>
   </div>
   <button class="btn btn-primary" style="width:100%" onclick="startCheck()">チェックを始める</button>
 </div>
@@ -291,7 +291,7 @@
 <div id="screen-results" class="screen">
   <div class="header">
     <div class="header-icon">🧠</div>
-    <h1>診断結果</h1>
+    <h1>リフレクション結果</h1>
   </div>
   <div class="result-score" id="result-score"></div>
   <div class="result-message" id="result-message"></div>
@@ -346,11 +346,11 @@
 
   // ── Brain Check State ──
   const ITEMS = [
-    { id: "BC-01", category: "sleep",     label: "睡眠と回復",             icon: "🌙", question: "毎日十分な睡眠がとれ、朝すっきり目覚められている" },
-    { id: "BC-02", category: "exercise",  label: "運動と身体活動",         icon: "🏃", question: "定期的に体を動かし、運動後に頭がクリアになる感覚がある" },
-    { id: "BC-03", category: "stress",    label: "ストレスとメンタルヘルス", icon: "🧘", question: "ストレスを適切にコントロールでき、意欲を維持できている" },
-    { id: "BC-04", category: "nutrition", label: "栄養と脳の燃料",         icon: "🥗", question: "脳に良い食事や十分な水分補給を意識的に行えている" },
-    { id: "BC-05", category: "rest",      label: "休息とリカバリー",       icon: "☕", question: "意識的な休憩や脳のオフタイムを確保できている" },
+    { id: "BC-01", category: "sleep",     label: "睡眠の質",               icon: "🌙", question: "毎日十分な睡眠がとれ、朝すっきり目覚められている" },
+    { id: "BC-02", category: "exercise",  label: "運動習慣",               icon: "🏃", question: "定期的に体を動かし、運動後に頭がクリアになる感覚がある" },
+    { id: "BC-03", category: "stress",    label: "ストレスマネジメント",     icon: "🧘", question: "ストレスを適切にコントロールでき、意欲を維持できている" },
+    { id: "BC-04", category: "nutrition", label: "食事とエネルギー管理",     icon: "🥗", question: "バランスの良い食事や十分な水分補給を意識的に行えている" },
+    { id: "BC-05", category: "rest",      label: "休息とリフレッシュ",      icon: "☕", question: "意識的な休憩やリフレッシュの時間を確保できている" },
   ];
 
   let currentQ = 0;
@@ -469,7 +469,7 @@
     // If MCP tool call fails, calculate locally
     const total = Object.values(answers).reduce((s, v) => s + v, 0);
     const level = total >= 22 ? "S" : total >= 18 ? "A" : total >= 13 ? "B" : total >= 8 ? "C" : "D";
-    const labels = { S: "エリート", A: "良好", B: "発展途上", C: "要注意", D: "要改善" };
+    const labels = { S: "エリート", A: "好調", B: "まずまず", C: "伸びしろあり", D: "スタートライン" };
 
     showResults({
       total,
