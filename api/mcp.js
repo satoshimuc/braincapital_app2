@@ -1,4 +1,4 @@
-// MCP Server for UNLOCK Brain Capital Check - Apps in ChatGPT
+// MCP Server for UNLOCK Brain Capital - Productivity Self-Reflection Tool
 // Endpoint: /api/mcp
 
 import { createMcpHandler } from "mcp-handler";
@@ -15,30 +15,30 @@ const __dirname = dirname(__filename);
 const SUPABASE_URL = "https://kffeqhnbpedixdvbdcug.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_8JFRzGtYwecNmI59Jlm84g_v6bHR0CU";
 
-// ── Brain Check Data ──
+// ── Productivity Self-Reflection Data ──
 const BRAIN_CHECK_ITEMS = [
-  { id: "BC-01", category: "sleep",     label: "睡眠と回復",             question: "毎日十分な睡眠がとれ、朝すっきり目覚められている" },
-  { id: "BC-02", category: "exercise",  label: "運動と身体活動",         question: "定期的に体を動かし、運動後に頭がクリアになる感覚がある" },
-  { id: "BC-03", category: "stress",    label: "ストレスとメンタルヘルス", question: "ストレスを適切にコントロールでき、意欲を維持できている" },
-  { id: "BC-04", category: "nutrition", label: "栄養と脳の燃料",         question: "脳に良い食事や十分な水分補給を意識的に行えている" },
-  { id: "BC-05", category: "rest",      label: "休息とリカバリー",       question: "意識的な休憩や脳のオフタイムを確保できている" },
+  { id: "BC-01", category: "sleep",     label: "睡眠の質",               question: "毎日十分な睡眠がとれ、朝すっきり目覚められている" },
+  { id: "BC-02", category: "exercise",  label: "運動習慣",               question: "定期的に体を動かし、運動後に頭がクリアになる感覚がある" },
+  { id: "BC-03", category: "stress",    label: "ストレスマネジメント",     question: "ストレスを適切にコントロールでき、意欲を維持できている" },
+  { id: "BC-04", category: "nutrition", label: "食事とエネルギー管理",     question: "バランスの良い食事や十分な水分補給を意識的に行えている" },
+  { id: "BC-05", category: "rest",      label: "休息とリフレッシュ",      question: "意識的な休憩やリフレッシュの時間を確保できている" },
 ];
 
 function getLevel(total) {
   if (total >= 22) return { level: "S", label: "エリート" };
-  if (total >= 18) return { level: "A", label: "良好" };
-  if (total >= 13) return { level: "B", label: "発展途上" };
-  if (total >= 8)  return { level: "C", label: "要注意" };
-  return { level: "D", label: "要改善" };
+  if (total >= 18) return { level: "A", label: "好調" };
+  if (total >= 13) return { level: "B", label: "まずまず" };
+  if (total >= 8)  return { level: "C", label: "伸びしろあり" };
+  return { level: "D", label: "スタートライン" };
 }
 
 function getAdvice(category, score) {
   if (score >= 4) return null;
   const advice = {
-    sleep:     "睡眠の質を高めるため、就寝前のスマホ使用を控え、一定の就寝時間を心がけましょう。",
-    exercise:  "週150分以上の運動を目標に、まずは毎日10分のウォーキングから始めてみましょう。",
-    stress:    "深呼吸やマインドフルネスを取り入れ、ストレスを溜め込まない習慣を作りましょう。",
-    nutrition: "魚・ナッツ・野菜・果物を意識的に摂り、こまめな水分補給を心がけましょう。",
+    sleep:     "就寝前のスマホ使用を控え、一定の就寝時間を心がけると朝のパフォーマンスが上がります。",
+    exercise:  "まずは毎日10分のウォーキングから始めてみましょう。集中力アップにつながります。",
+    stress:    "深呼吸やマインドフルネスを取り入れ、モチベーションを維持する習慣を作りましょう。",
+    nutrition: "バランスの良い食事とこまめな水分補給で、午後の集中力をキープしましょう。",
     rest:      "仕事の合間に5〜20分の休憩を入れ、週1日はデジタルデトックスの時間を作りましょう。",
   };
   return advice[category] || null;
@@ -46,11 +46,11 @@ function getAdvice(category, score) {
 
 function getResultMessage(level) {
   const messages = {
-    S: "素晴らしい！脳の健康状態は非常に良好です。この状態を維持しましょう。",
-    A: "良い状態です！いくつかの領域をさらに強化することで、より高いパフォーマンスが期待できます。",
-    B: "まずまずの状態ですが、改善の余地があります。弱い領域から取り組んでみましょう。",
-    C: "注意が必要です。生活習慣の見直しを始めましょう。小さな改善から始めることが大切です。",
-    D: "早急な改善が必要です。まずは睡眠と運動から見直してみましょう。",
+    S: "素晴らしい！とても良い習慣が身についています。この調子を維持しましょう。",
+    A: "良い状態です！いくつかの習慣をさらに強化することで、より高いパフォーマンスが期待できます。",
+    B: "まずまずの状態です。伸びしろのある領域から取り組んでみましょう。",
+    C: "伸びしろがたくさんあります。日々の習慣を少しずつ見直してみましょう。",
+    D: "これからが楽しみです！まずは睡眠と運動の習慣づくりから始めてみましょう。",
   };
   return messages[level] || messages.B;
 }
@@ -101,10 +101,10 @@ const handler = createMcpHandler(
     // Register widget resource
     registerAppResource(
       server,
-      "Brain Capital Check Widget",
+      "Brain Capital Self-Reflection Widget",
       "ui://brain-capital/check.html",
       {
-        description: "Brain Capital セルフチェック ウィジェット",
+        description: "Brain Capital セルフリフレクション ウィジェット — 日々の生産性習慣を振り返るツール",
       },
       async () => ({
         contents: [
@@ -130,7 +130,7 @@ const handler = createMcpHandler(
       "start_brain_check",
       {
         title: "Brain Capital チェック開始",
-        description: "5つの質問で脳の健康状態をセルフチェックするウィジェットを表示します。ユーザーが「脳チェック」「Brainチェック」「診断」「脳の健康」などと言ったときに使用してください。",
+        description: "5つの質問で日々の生産性習慣を振り返るセルフリフレクションウィジェットを表示します。ユーザーが「脳チェック」「Brainチェック」「習慣チェック」「コンディション」などと言ったときに使用してください。",
         _meta: {
           ui: {
             resourceUri: "ui://brain-capital/check.html",
@@ -171,11 +171,11 @@ const handler = createMcpHandler(
         title: "Brain Capital チェック送信",
         description: "5項目の回答を送信してスコアを算出・保存します。ウィジェットから呼び出されます。",
         inputSchema: {
-          bc01: z.number().min(1).max(5).describe("睡眠と回復のスコア"),
-          bc02: z.number().min(1).max(5).describe("運動と身体活動のスコア"),
-          bc03: z.number().min(1).max(5).describe("ストレスとメンタルヘルスのスコア"),
-          bc04: z.number().min(1).max(5).describe("栄養と脳の燃料のスコア"),
-          bc05: z.number().min(1).max(5).describe("休息とリカバリーのスコア"),
+          bc01: z.number().min(1).max(5).describe("睡眠の質のスコア"),
+          bc02: z.number().min(1).max(5).describe("運動習慣のスコア"),
+          bc03: z.number().min(1).max(5).describe("ストレスマネジメントのスコア"),
+          bc04: z.number().min(1).max(5).describe("食事とエネルギー管理のスコア"),
+          bc05: z.number().min(1).max(5).describe("休息とリフレッシュのスコア"),
         },
         _meta: {
           ui: {
@@ -239,7 +239,7 @@ const handler = createMcpHandler(
       "get_brain_check_history",
       {
         title: "過去の結果を取得",
-        description: "過去のBrain Capitalチェック結果を取得します。ユーザーが「過去の結果」「履歴」「トレンド」と言ったときに使用してください。",
+        description: "過去のBrain Capitalセルフリフレクション結果を取得します。ユーザーが「過去の結果」「履歴」「トレンド」と言ったときに使用してください。",
         inputSchema: {
           user_id: z.string().optional().describe("ユーザーID（省略時はchatgpt-anonymous）"),
         },
@@ -289,7 +289,7 @@ const handler = createMcpHandler(
     );
   },
   {
-    name: "UNLOCK Brain Capital チェック",
+    name: "UNLOCK Brain Capital — 生産性セルフリフレクション",
     version: "1.0.0",
   },
   {
