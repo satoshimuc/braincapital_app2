@@ -8,114 +8,92 @@
 
 ---
 
-## Test Cases
+## Test Cases（7件）
+
+各フィールドをフォームにコピペしてください。
 
 ### Test Case 1
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 日々の生産性習慣をセルフリフレクションする |
-| **User prompt** | Brainチェックをしたい |
-| **Tool triggered** | start_brain_check |
-| **Expected output** | 5つの質問で日々の生産性習慣を振り返るセルフリフレクションウィジェットが表示される |
+- **Scenario**: 日々の生産性習慣をセルフリフレクションする
+- **User prompt**: Brainチェックをしたい
+- **Tool triggered**: start_brain_check
+- **Expected output**: 5つの質問で日々の生産性習慣を振り返るセルフリフレクションウィジェットが表示される
 
 ### Test Case 2
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 英語でセルフリフレクションを開始する |
-| **User prompt** | I want to check my Brain Capital |
-| **Tool triggered** | start_brain_check |
-| **Expected output** | 5つの質問で日々の生産性習慣を振り返るセルフリフレクションウィジェットが表示される |
+- **Scenario**: 英語でセルフリフレクションを開始する
+- **User prompt**: I want to check my Brain Capital
+- **Tool triggered**: start_brain_check
+- **Expected output**: 5つの質問で日々の生産性習慣を振り返るセルフリフレクションウィジェットが表示される
 
 ### Test Case 3
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 習慣チェックをしたいとリクエストする |
-| **User prompt** | 今日の習慣チェックをしたい |
-| **Tool triggered** | start_brain_check |
-| **Expected output** | 睡眠の質・運動習慣・ストレスマネジメント・食事とエネルギー管理・休息とリフレッシュの5項目を1〜5で自己評価するウィジェットが表示される |
+- **Scenario**: 習慣チェックをしたいとリクエストする
+- **User prompt**: 今日の習慣チェックをしたい
+- **Tool triggered**: start_brain_check
+- **Expected output**: 睡眠の質・運動習慣・ストレスマネジメント・食事とエネルギー管理・休息とリフレッシュの5項目を1〜5で自己評価するウィジェットが表示される
 
 ### Test Case 4
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | ウィジェットで5問すべてに回答して結果を受け取る |
-| **User prompt** | （ウィジェット内で5問に回答し送信ボタンを押す） |
-| **Tool triggered** | submit_brain_check |
-| **Expected output** | 合計スコア（5〜25点）とレベル（S/A/B/C/D）が表示され、スコアの低い項目には生産性向上のための一般的なライフスタイルTipsが提示される |
+- **Scenario**: ウィジェットで5問すべてに回答して結果を受け取る
+- **User prompt**: （ウィジェット内で5問に回答し送信ボタンを押す）
+- **Tool triggered**: submit_brain_check
+- **Expected output**: 合計スコア（5〜25点）とレベル（S/A/B/C/D）が表示され、スコアの低い項目には生産性向上のための一般的なライフスタイルTipsが提示される
 
 ### Test Case 5
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 過去のセルフリフレクション結果を確認する |
-| **User prompt** | 過去の結果を見せて |
-| **Tool triggered** | get_brain_check_history |
-| **Expected output** | 過去のセルフリフレクション結果（日付・スコア・レベル）の一覧と、前回比のトレンド（improving/stable/declining）が表示される |
+- **Scenario**: 過去のセルフリフレクション結果を確認する
+- **User prompt**: 過去の結果を見せて
+- **Tool triggered**: get_brain_check_history
+- **Expected output**: 過去のセルフリフレクション結果（日付・スコア・レベル）の一覧と、前回比のトレンド（improving/stable/declining）が表示される
 
 ### Test Case 6
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 英語で履歴をリクエストする |
-| **User prompt** | Show me my past Brain Capital results |
-| **Tool triggered** | get_brain_check_history |
-| **Expected output** | 過去のセルフリフレクション結果の一覧とトレンドが表示される。データがない場合は初回利用であることが伝えられる |
+- **Scenario**: 英語で履歴をリクエストする
+- **User prompt**: Show me my past Brain Capital results
+- **Tool triggered**: get_brain_check_history
+- **Expected output**: 過去のセルフリフレクション結果の一覧とトレンドが表示される。データがない場合は初回利用であることが伝えられる
 
 ### Test Case 7
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 自分のコンディションを振り返りたい |
-| **User prompt** | 今の自分のコンディションを確認したい |
-| **Tool triggered** | start_brain_check |
-| **Expected output** | 5つの質問で日々の生産性習慣を振り返るセルフリフレクションウィジェットが表示される |
+- **Scenario**: 自分のコンディションを振り返りたい
+- **User prompt**: 今の自分のコンディションを確認したい
+- **Tool triggered**: start_brain_check
+- **Expected output**: 5つの質問で日々の生産性習慣を振り返るセルフリフレクションウィジェットが表示される
 
 ---
 
-## Negative Test Cases
+## Negative Test Cases（5件）
 
 ### Negative Test Case 1
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 医療的なアドバイスを求める（頭痛の相談） |
-| **User prompt** | 最近頭痛がひどいのですが、どうすればいいですか？ |
-| **Expected output** | アプリのツールは呼び出されない。ChatGPTが一般的な回答をするか、医療機関への相談を案内する |
+- **Scenario**: 医療的なアドバイスを求める（頭痛の相談）
+- **User prompt**: 最近頭痛がひどいのですが、どうすればいいですか？
+- **Expected output**: アプリのツールは呼び出されない。ChatGPTが一般的な回答をするか、医療機関への相談を案内する
 
 ### Negative Test Case 2
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 病気の診断を求める（メンタルヘルスの相談） |
-| **User prompt** | 最近眠れないし気分が落ち込みます。うつ病でしょうか？ |
-| **Expected output** | アプリのツールは呼び出されない。ChatGPTが専門家への相談を案内する |
+- **Scenario**: 病気の診断を求める（メンタルヘルスの相談）
+- **User prompt**: 最近眠れないし気分が落ち込みます。うつ病でしょうか？
+- **Expected output**: アプリのツールは呼び出されない。ChatGPTが専門家への相談を案内する
 
 ### Negative Test Case 3
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 薬や治療法について質問する |
-| **User prompt** | 集中力を高めるサプリや薬はありますか？ |
-| **Expected output** | アプリのツールは呼び出されない。ChatGPTが一般的な情報を提供する |
+- **Scenario**: 薬や治療法について質問する
+- **User prompt**: 集中力を高めるサプリや薬はありますか？
+- **Expected output**: アプリのツールは呼び出されない。ChatGPTが一般的な情報を提供する
 
 ### Negative Test Case 4
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | 一般的な健康診断について質問する |
-| **User prompt** | 健康診断の結果でγ-GTPが高いと言われました。大丈夫ですか？ |
-| **Expected output** | アプリのツールは呼び出されない。ChatGPTが医療機関への相談を案内する |
+- **Scenario**: 一般的な健康診断について質問する
+- **User prompt**: 健康診断の結果でγ-GTPが高いと言われました。大丈夫ですか？
+- **Expected output**: アプリのツールは呼び出されない。ChatGPTが医療機関への相談を案内する
 
 ### Negative Test Case 5
 
-| Field | Value |
-|-------|-------|
-| **Scenario** | ダイエットや体重管理のアドバイスを求める |
-| **User prompt** | 痩せたいのですが、おすすめのダイエット方法を教えてください |
-| **Expected output** | アプリのツールは呼び出されない。ChatGPTが一般的なダイエット情報を提供する |
+- **Scenario**: ダイエットや体重管理のアドバイスを求める
+- **User prompt**: 痩せたいのですが、おすすめのダイエット方法を教えてください
+- **Expected output**: アプリのツールは呼び出されない。ChatGPTが一般的なダイエット情報を提供する
 
 ---
 
